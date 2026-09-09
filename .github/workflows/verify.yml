@@ -1,0 +1,62 @@
+name: verify
+
+# Runs the same gate as local development: `npm run verify` is
+# typecheck + lint + build. Nothing merges that cannot build.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same branch cancels the previous run.
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # package.json declares a floor of >=20.9.0 (next@16's own
+          # requirement); CI pins the version the team develops on.
+          node-version: 22
+          cache: npm
+
+      # `npm ci` not `npm install`: installs exactly the lockfile and fails if
+      # package.json and package-lock.json have drifted.
+      - run: npm ci
+
+      - name: Check formatting
+        # `verify` deliberately does not include this — Prettier is a separate
+        # concern from "does it build", and a formatting miss should read as a
+        # formatting failure rather than a lint failure.
+        run: npm run format:check
+
+      - name: Typecheck, lint and build
+        run: npm run verify
+
+      # Proves the static export actually produced a site, not just that the
+      # build exited 0. `output: 'export'` is the default build mode, so this
+      # is the artefact that gets deployed.
+      - name: Check the static export
+        shell: bash
+        run: |
+          test -f out/index.html || { echo "::error::out/index.html missing — static export produced nothing"; exit 1; }
+          test -f out/sitemap.xml || { echo "::error::out/sitemap.xml missing"; exit 1; }
+          test -f out/robots.txt || { echo "::error::out/robots.txt missing"; exit 1; }
+          echo "Exported $(find out -name '*.html' | wc -l) HTML files."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: static-export
+          path: out/
+          retention-days: 7
