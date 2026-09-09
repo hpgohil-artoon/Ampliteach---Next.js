@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code — settings.json is shared, settings.local.json is per-developer
+.claude/settings.local.json
