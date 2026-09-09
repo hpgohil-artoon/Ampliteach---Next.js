@@ -13,13 +13,13 @@ export function Footer() {
     <footer className="border-border bg-muted/40 mt-auto border-t">
       <Container size="wide" className="grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-4">
-          <h2 className="font-heading text-lg font-semibold">About</h2>
+          <h2 className="font-heading text-h5">About</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">{SITE.about}</p>
           <SocialLinks links={SOCIALS} className="mt-2" />
         </div>
 
         <nav aria-label="Quick links" className="flex flex-col gap-4">
-          <h2 className="font-heading text-lg font-semibold">Quick Links</h2>
+          <h2 className="font-heading text-h5">Quick Links</h2>
           <ul className="flex flex-col gap-2.5 text-sm">
             {FOOTER_QUICK_LINKS.map((link) => (
               <li key={link.href}>
@@ -32,7 +32,7 @@ export function Footer() {
         </nav>
 
         <div className="flex flex-col gap-4">
-          <h2 className="font-heading text-lg font-semibold">Get In Touch</h2>
+          <h2 className="font-heading text-h5">Get In Touch</h2>
           <ul className="text-muted-foreground flex flex-col gap-3 text-sm">
             <li>
               <a href={`mailto:${SITE.email}`} className="hover:text-primary inline-flex gap-2.5">

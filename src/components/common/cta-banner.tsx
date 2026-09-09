@@ -20,9 +20,7 @@ export function CtaBanner({
     <Section tone="accent" className="overflow-hidden">
       <ParticleDecor />
       <Container size="narrow" className="relative text-center">
-        <h2 className="font-heading text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-          {heading}
-        </h2>
+        <h2 className="font-heading text-h2 text-balance">{heading}</h2>
         <p className="text-primary-foreground/80 mx-auto mt-4 max-w-2xl text-lg leading-relaxed">
           {body}
         </p>

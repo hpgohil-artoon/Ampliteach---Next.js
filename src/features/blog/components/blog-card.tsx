@@ -18,7 +18,7 @@ export function BlogCard({ post }: { post: PostSummary }) {
             <span>{post.readTimeMinutes} min read</span>
           </p>
 
-          <h3 className="font-heading group-hover:text-primary text-lg font-semibold text-balance transition-colors">
+          <h3 className="font-heading group-hover:text-primary text-h5 text-balance transition-colors">
             {post.title}
           </h3>
 

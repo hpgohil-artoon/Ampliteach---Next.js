@@ -20,7 +20,7 @@ export default function Error({
   return (
     <Section spacing="loose">
       <Container size="narrow" className="flex flex-col items-center gap-6 text-center">
-        <h1 className="font-heading text-3xl font-bold tracking-tight">Something went wrong</h1>
+        <h1 className="font-heading text-h1">Something went wrong</h1>
         <p className="text-muted-foreground">
           The page failed to load. Try again, and if it keeps happening let us know.
         </p>

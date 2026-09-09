@@ -5,3 +5,8 @@ package-lock.json
 *.md
 docs
 public
+
+# Agent tooling, not project source. The skills' `references/` files are
+# verbatim templates that get copied into a project — reformatting them would
+# change what they emit.
+.claude

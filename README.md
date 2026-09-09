@@ -4,6 +4,11 @@ Rebuild of [ampliteach.com](https://www.ampliteach.com/) (WordPress) on Next.js 
 
 **Architecture study and rendering decisions:** [`docs/nextjs-architecture-plan.html`](docs/nextjs-architecture-plan.html)
 
+**Parity with the live site:** [`docs/PARITY.md`](docs/PARITY.md) — the measured
+values from ampliteach.com (colour, type, breakpoints, container), how they were
+measured, and every place we knowingly differ. Read it before changing anything
+visual.
+
 ---
 
 ## Getting started
@@ -178,8 +183,15 @@ put project-specific pieces in `components/common/` instead.
       Until it is set, the blog builds from `src/content/seed-posts.ts`.
 - [ ] **Provision the form endpoint** and set `NEXT_PUBLIC_FORM_ENDPOINT`.
       Forms cannot work on S3 without it.
-- [ ] **Brand tokens** — replace the placeholder palette in `globals.css`.
+- [x] **Brand tokens** — done. The palette, typeface, type scale, breakpoints
+      and container widths are all measured from the live site; see
+      [`docs/PARITY.md`](docs/PARITY.md).
 - [ ] **Real assets** into `public/images/` and `public/svg/`, then swap the
-      `TODO` placeholder blocks for `<Img />`.
+      `TODO` placeholder blocks for `<Img />`. Currently only `.gitkeep` files.
 - [ ] **Legal copy** for `/privacy-policy` and `/terms-of-service`.
-- [ ] **CI**: run `npm run verify` on every PR.
+- [x] **CI**: `npm run verify` runs on every push and PR
+      (`.github/workflows/verify.yml`), plus `format:check` and an assertion
+      that the static export produced a real site.
+- [ ] **Animations** — the live site's animations are in scope for parity but
+      not yet surveyed. Scope them against the real home page rather than
+      picking a library up front.

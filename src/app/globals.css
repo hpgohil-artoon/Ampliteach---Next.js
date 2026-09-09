@@ -15,6 +15,94 @@
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
+
+  /* --- Breakpoints --------------------------------------------------------
+   * Every one of xs–xl is a real boundary in ampliteach.com's own CSS, so a
+   * live `@media (max-width: 599px)` rule ports to `sm:` with no arithmetic
+   * and no off-by-one. Extracted from its stylesheets, by frequency:
+   *
+   *   479/480   xs   — where the live container finally goes fluid (90%)
+   *   599/600   sm
+   *   767/768   md   — Elementor's mobile/tablet boundary (40 rules)
+   *   1023/1024 lg   — Elementor's tablet/desktop boundary (24 rules)
+   *   1199/1200 xl   — the live desktop step
+   *
+   * md and lg are byte-identical to Tailwind's stock values, which is lucky
+   * rather than designed — they are Elementor's defaults. sm moves 640→600
+   * and xl 1280→1200 to land on the live boundaries; xs is new (Tailwind
+   * ships none). 2xl stays stock for ultrawide, which the live site has no
+   * opinion about. Kept in rem so md/lg stay exactly as Tailwind defines
+   * them, and so the scale respects a changed browser font size.
+   */
+  --breakpoint-xs: 30rem;
+  --breakpoint-sm: 37.5rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 75rem;
+  --breakpoint-2xl: 96rem;
+
+  /* --- Container widths ---------------------------------------------------
+   * Both are measured live values.
+   *
+   * `site` (1170px) is what page content actually aligns to. Note it is NOT
+   * the 1220px Elementor "content width" setting: that boxed container sits
+   * inside the theme's `.container{width:1170px}`, which clips it. The chain
+   * is .container → .row (negative margin cancelled) → .content-container
+   * (padding:0) → #main_content>.elementor (margin:0 -10px, cancelling the
+   * column gap).
+   *
+   * `wide` (1220px) is the unclipped Elementor boxed width, which the header
+   * template uses because it sits outside the theme container.
+   */
+  --container-site: 73.125rem;
+  --container-wide: 76.25rem;
+
+  /* --- Heading scale ------------------------------------------------------
+   * ampliteach.com's scale, verbatim. The live theme styles h1–h6 globally
+   * and every heading on the site renders at `elementor-size-default`, so
+   * these six values ARE the site's typography — the `elementor-size-*`
+   * classes (15/19/29/39/59px) exist in its CSS but are unused.
+   *
+   *        live px    weight
+   *   h1   40 / 43      800
+   *   h2   30 / 40      800
+   *   h3   24 / 30      800
+   *   h4   20 / 33      800
+   *   h5   18 / 30      700
+   *   h6   16 / 24      600
+   *
+   * Sizes are rem and line-heights unitless — identical rendering at a 16px
+   * root, but they respect a reader who has changed their browser font size,
+   * which the live site's hard px does not.
+   *
+   * The scale is deliberately FLAT: the live theme has no media query that
+   * changes a heading size, so neither does this. Adding a responsive step
+   * is a one-line edit per token here, and nowhere else.
+   */
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 1.075;
+  --text-h1--font-weight: 800;
+
+  --text-h2: 1.875rem;
+  --text-h2--line-height: 1.3333;
+  --text-h2--font-weight: 800;
+
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+  --text-h3--font-weight: 800;
+
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.65;
+  --text-h4--font-weight: 800;
+
+  --text-h5: 1.125rem;
+  --text-h5--line-height: 1.6667;
+  --text-h5--font-weight: 700;
+
+  --text-h6: 1rem;
+  --text-h6--line-height: 1.5;
+  --text-h6--font-weight: 600;
+
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
@@ -35,6 +123,12 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -59,30 +153,70 @@
 }
 
 :root {
-  /* --- Brand placeholders -------------------------------------------------
-     * TODO: replace with the AmpliTeach brand values once design is confirmed.
-     * Everything else in the site reads from these tokens, so this is the only
-     * place a colour change has to happen.
-     */
-  --brand: oklch(0.205 0 0);
-  --brand-foreground: oklch(0.985 0 0);
-  --brand-muted: oklch(0.97 0 0);
+  /* --- Brand ---------------------------------------------------------------
+   * Taken verbatim from ampliteach.com (WordPress `ewebot` theme, customizer
+   * CSS). Kept as the live site's own hex rather than converted to oklch, so
+   * these stay byte-comparable against the source and carry no rounding.
+   * The neutrals below remain shadcn's oklch defaults.
+   *
+   *   #FF1616  brand red   — 191 rules in the live CSS: buttons, footer,
+   *                          hovers, price badges, ::selection
+   *   #0B0B0B  ink         — `body { color }` and every heading
+   *   #818A91  muted text
+   *   #FFFFFF  page ground — `body { background }`
+   *
+   * This is the only place a colour is defined. Never hard-code one in a
+   * component.
+   */
+  --brand: #ff1616;
+  --brand-foreground: #ffffff;
+  /* Provably a tint of the brand, so it cannot drift from it. */
+  --brand-muted: color-mix(in oklab, var(--brand) 8%, #ffffff);
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: #ffffff;
+  --foreground: #0b0b0b;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: #818a91;
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Error, deliberately NOT the shadcn default.
+   *
+   * The brand is red, so shadcn's stock --destructive collided with it almost
+   * exactly — #E7000B against the brand's #FF1616, a 1.3° hue and 0.05
+   * lightness apart. A required-field asterisk, an error message and an
+   * invalid input's border were therefore all rendering in what read as the
+   * brand colour, right beside a brand-red submit button.
+   *
+   * This deep crimson separates on BOTH channels — ~11° of hue and 0.12 of
+   * lightness — so it stays distinguishable where it actually appears: 12px
+   * text and a 1px border. Lightness alone is not enough at those sizes.
+   *
+   *   #BF0037 = oklch(0.510 0.204 17.7)
+   *   6.42:1 on white, and 5.88:1 on the /10 tint that Badge and Button
+   *   render their text on — both clear WCAG AA for small text (4.5:1).
+   *
+   * No --destructive-foreground: it is only ever used as text or a low-alpha
+   * tint, never as a solid fill.
+   */
+  --destructive: #bf0037;
+
+  /* Status — form feedback, toasts, badges. Same shape as --destructive:
+   * deeper + more chroma in light, lighter in dark. */
+  --success: oklch(0.627 0.194 149.214);
+  --success-foreground: oklch(0.985 0 0);
+  --warning: oklch(0.769 0.188 70.08);
+  --warning-foreground: oklch(0.216 0.006 56.043);
+  --info: oklch(0.685 0.169 237.323);
+  --info-foreground: oklch(0.985 0 0);
+
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
@@ -103,21 +237,46 @@
 }
 
 .dark {
+  /* ampliteach.com is light-only, so there is nothing here to match. `next-themes`
+   * is also installed but not yet wired, so nothing adds `.dark` and this block
+   * is currently unreachable — it is kept ready rather than guessed at. The brand
+   * red is deliberately unchanged: #FF1616 already sits at a light enough
+   * lightness to hold up against the dark ground. */
+  --brand: #ff1616;
+  --brand-foreground: #ffffff;
+  --brand-muted: color-mix(in oklab, var(--brand) 22%, #0b0b0b);
+
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
+  --muted-foreground: #8596ad;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  /* Same collision on the dark ground, where the brand stays #FF1616: the
+   * stock #FF6467 was only 6.4° of hue from it. This rose is 17.8° away and
+   * lighter, which is the conventional direction for an error colour on dark.
+   *
+   *   #F8718A = oklch(0.716 0.166 10.8), 7.28:1 on the dark background.
+   */
+  --destructive: #f8718a;
+
+  /* Status — lifted for contrast against the dark ground. */
+  --success: oklch(0.723 0.219 149.579);
+  --success-foreground: oklch(0.145 0 0);
+  --warning: oklch(0.828 0.189 84.429);
+  --warning-foreground: oklch(0.145 0 0);
+  --info: oklch(0.746 0.16 232.661);
+  --info-foreground: oklch(0.145 0 0);
+
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -142,8 +301,102 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* ampliteach.com: `body { font-size:16px; line-height:27px }` — 1.6875,
+     * noticeably airier than Tailwind's 1.5 default, and what gives the live
+     * site its spacing. */
+    font-size: 1rem;
+    line-height: 1.6875;
   }
   html {
     @apply font-sans;
   }
+
+  /* The live theme styles h1–h6 by tag, so bare headings — CMS post bodies
+   * especially, whose HTML carries no classes — get the scale for free. A
+   * component that needs a different level still just sets `text-h3` etc.,
+   * because a utility outranks the base layer. */
+  h1 {
+    @apply text-h1;
+  }
+  h2 {
+    @apply text-h2;
+  }
+  h3 {
+    @apply text-h3;
+  }
+  h4 {
+    @apply text-h4;
+  }
+  h5 {
+    @apply text-h5;
+  }
+  h6 {
+    @apply text-h6;
+  }
+}
+
+/* ampliteach.com: `::selection { background:#FF1616; color:#FFF }`. */
+::selection {
+  background: var(--brand);
+  color: var(--brand-foreground);
+}
+
+/* Scrollbars, themed. Firefox gets the standard two-value property; Chrome and
+ * Safari need the -webkit- pseudo-elements. Both read the same tokens, so a
+ * palette change moves them with everything else. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
+}
+
+/*
+ * Chrome and Safari repaint an autofilled field with their own blue-tinted
+ * background — and their own text colour — from the UA stylesheet, using
+ * `!important`. No utility class or theme token can win against it, so an
+ * autofilled input in any of the three forms looks broken in both themes.
+ *
+ * The browser *animates* that repaint, so a practically-infinite transition
+ * delay leaves the control's own themed background in place indefinitely, while
+ * `-webkit-text-fill-color` (which outranks `color`) restores the theme's text
+ * colour.
+ *
+ * Deliberately no `box-shadow` overpaint: `components/ui/input.tsx` draws its
+ * focus ring with `focus-visible:ring-3`, which compiles to a box-shadow, so
+ * overpainting would erase the focus ring on an autofilled field.
+ *
+ * Left outside `@layer base` on purpose — inside it, any `transition-*` utility
+ * on the input would take precedence and re-enable the animation.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--foreground);
+  transition:
+    background-color 0s 100000s,
+    color 0s 100000s;
 }

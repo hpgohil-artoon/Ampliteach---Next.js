@@ -12,7 +12,7 @@ export default function NotFound() {
     <Section spacing="loose">
       <Container size="narrow" className="flex flex-col items-center gap-6 text-center">
         <p className="text-primary font-heading text-6xl font-bold">404</p>
-        <h1 className="font-heading text-3xl font-bold tracking-tight">Page not found</h1>
+        <h1 className="font-heading text-h1">Page not found</h1>
         <p className="text-muted-foreground">
           That page has moved or never existed. Try the blog or head back home.
         </p>

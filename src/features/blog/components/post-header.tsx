@@ -14,9 +14,7 @@ export function PostHeader({ post }: { post: Post }) {
         ]}
       />
 
-      <h1 className="font-heading text-3xl font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-        {post.title}
-      </h1>
+      <h1 className="font-heading text-h1 text-balance">{post.title}</h1>
 
       <p className="text-muted-foreground flex items-center gap-2 text-sm">
         <time dateTime={toDateAttr(post.publishedAt)}>{formatDate(post.publishedAt)}</time>

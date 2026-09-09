@@ -69,7 +69,7 @@ export default async function BlogPostPage({ params }: Props) {
           <Separator />
 
           <aside className="bg-muted/40 flex flex-col gap-3 rounded-xl p-6">
-            <h2 className="font-heading text-lg font-semibold">Get new posts in your inbox</h2>
+            <h2 className="font-heading text-h5">Get new posts in your inbox</h2>
             <p className="text-muted-foreground text-sm">
               Occasional, practical ideas for music school owners. Unsubscribe any time.
             </p>
