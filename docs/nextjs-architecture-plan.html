@@ -1,0 +1,933 @@
+<title>AmpliTeach Rebuild Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:    #f4f6f6;
+    --surface:  #ffffff;
+    --surface-2:#eceff0;
+    --ink:      #13191a;
+    --ink-2:    #354143;
+    --muted:    #5a6668;
+    --line:     #dbe1e1;
+    --line-2:   #c3cccc;
+    --accent:   #0f5c63;
+    --accent-soft: #e2eeef;
+    --brass:    #8a6d24;
+    --brass-soft:#f3ecdb;
+    --ok:       #2c6b4f;
+    --warn:     #8a5c12;
+    --risk:     #9c3128;
+    --shadow:   0 1px 2px rgba(19,25,26,.05), 0 8px 24px -16px rgba(19,25,26,.18);
+
+    --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:    #0d1112;
+      --surface:  #151b1c;
+      --surface-2:#1c2425;
+      --ink:      #e6eceb;
+      --ink-2:    #c2cccb;
+      --muted:    #909d9e;
+      --line:     #263030;
+      --line-2:   #354242;
+      --accent:   #63c3c9;
+      --accent-soft: #16292b;
+      --brass:    #cfae62;
+      --brass-soft:#251f10;
+      --ok:       #6fbf95;
+      --warn:     #d9a94a;
+      --risk:     #e2938a;
+      --shadow:   0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:    #0d1112;
+    --surface:  #151b1c;
+    --surface-2:#1c2425;
+    --ink:      #e6eceb;
+    --ink-2:    #c2cccb;
+    --muted:    #909d9e;
+    --line:     #263030;
+    --line-2:   #354242;
+    --accent:   #63c3c9;
+    --accent-soft: #16292b;
+    --brass:    #cfae62;
+    --brass-soft:#251f10;
+    --ok:       #6fbf95;
+    --warn:     #d9a94a;
+    --risk:     #e2938a;
+    --shadow:   0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 28px 96px;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    padding: 56px 0 32px;
+    margin-bottom: 48px;
+  }
+  .eyebrow {
+    font-family: var(--display);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2.1rem, 5.2vw, 3.35rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    margin: 0 0 20px;
+  }
+  .standfirst {
+    font-size: 1.2rem;
+    color: var(--ink-2);
+    max-width: 64ch;
+    margin: 0 0 28px;
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 32px;
+    font-family: var(--display);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .facts b {
+    display: block;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: .75;
+  }
+  .facts span { color: var(--ink); font-weight: 500; }
+
+  /* ---------- layout ---------- */
+  .cols { display: grid; grid-template-columns: 1fr; gap: 0; }
+  @media (min-width: 1000px) {
+    .cols { grid-template-columns: 176px minmax(0, 1fr); gap: 56px; align-items: start; }
+    .rail { position: sticky; top: 32px; }
+  }
+
+  .rail ol {
+    list-style: none;
+    margin: 0 0 40px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    font-family: var(--display);
+    font-size: 12.5px;
+  }
+  @media (min-width: 1000px) {
+    .rail ol { flex-direction: column; gap: 11px; margin-bottom: 0; }
+  }
+  .rail a {
+    color: var(--muted);
+    text-decoration: none;
+    display: block;
+    border-left: 2px solid transparent;
+    padding-left: 0;
+  }
+  @media (min-width: 1000px) {
+    .rail a { padding-left: 12px; border-left-color: var(--line-2); }
+  }
+  .rail a:hover { color: var(--accent); border-left-color: var(--accent); }
+  .rail a i {
+    font-style: normal;
+    font-variant-numeric: tabular-nums;
+    opacity: .55;
+    margin-right: 7px;
+  }
+
+  /* ---------- sections ---------- */
+  .part { padding-top: 8px; margin-bottom: 72px; scroll-margin-top: 24px; }
+  .part-no {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: .1em;
+    display: block;
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 1.95rem);
+    letter-spacing: -0.018em;
+    line-height: 1.14;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  .dek {
+    color: var(--muted);
+    font-size: 1.04rem;
+    max-width: 68ch;
+    margin: 0 0 32px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  h3 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.12rem;
+    letter-spacing: -0.005em;
+    margin: 40px 0 12px;
+  }
+  h4 {
+    font-family: var(--display);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 30px 0 12px;
+  }
+  p { margin: 0 0 16px; max-width: 72ch; }
+  .part > ul, .part > ol, .card ul, .card ol { max-width: 72ch; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 600; color: var(--ink); }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  code {
+    font-family: var(--mono);
+    font-size: .855em;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  /* ---------- tables ---------- */
+  .scroller {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--surface);
+    margin: 0 0 20px;
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 620px; }
+  thead th {
+    font-family: var(--display);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line-2);
+    background: var(--surface-2);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+    color: var(--ink-2);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.r { font-family: var(--mono); font-size: 13px; color: var(--ink); white-space: nowrap; }
+  td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ---------- chips ---------- */
+  .chip {
+    display: inline-block;
+    font-family: var(--display);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    border: 1px solid;
+  }
+  .chip.ssg  { color: var(--ok);     border-color: var(--ok);     background: transparent; }
+  .chip.isr  { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .chip.csr  { color: var(--brass);  border-color: var(--brass);  background: var(--brass-soft); }
+  .chip.ssr  { color: var(--risk);   border-color: var(--risk);   background: transparent; }
+
+  /* ---------- cards / callouts ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 22px 24px;
+    margin: 0 0 20px;
+    box-shadow: var(--shadow);
+  }
+  .card > :last-child { margin-bottom: 0; }
+  .card h4 { margin-top: 0; }
+
+  .note {
+    border-left: 3px solid var(--brass);
+    background: var(--brass-soft);
+    border-radius: 0 4px 4px 0;
+    padding: 18px 22px;
+    margin: 0 0 22px;
+  }
+  .note > :last-child { margin-bottom: 0; }
+  .note .tag {
+    font-family: var(--display);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--brass);
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  .verdict {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 4px 4px 0;
+    padding: 18px 22px;
+    margin: 0 0 22px;
+  }
+  .verdict > :last-child { margin-bottom: 0; }
+  .verdict .tag {
+    font-family: var(--display);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 7px;
+  }
+
+  .grid2 { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+
+  /* ---------- code / tree ---------- */
+  pre {
+    font-family: var(--mono);
+    font-size: 12.8px;
+    line-height: 1.62;
+    background: var(--surface);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    margin: 0 0 20px;
+    tab-size: 2;
+  }
+  pre b { color: var(--accent); font-weight: 600; }
+  pre i { color: var(--muted); font-style: normal; }
+  pre u { text-decoration: none; color: var(--brass); }
+
+  /* ---------- rules list ---------- */
+  ol.rules { counter-reset: r; list-style: none; padding: 0; margin: 0 0 24px; }
+  ol.rules > li {
+    counter-increment: r;
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 18px;
+    max-width: 72ch;
+  }
+  ol.rules > li::before {
+    content: counter(r, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 1px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    border: 1px solid var(--line-2);
+    border-radius: 3px;
+    padding: 1px 5px;
+  }
+  ol.rules b { font-family: var(--display); font-weight: 600; }
+
+  .qs { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .qs { grid-template-columns: 1fr 1fr; } }
+  .q {
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    border-radius: 4px;
+    background: var(--surface);
+    padding: 20px 22px;
+  }
+  .q .n {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .q h3 { margin: 0 0 10px; font-size: 1.02rem; }
+  .q p { font-size: 14.5px; margin-bottom: 0; color: var(--ink-2); }
+  .q .rec {
+    display: block;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line-2);
+    font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .q .rec em { font-family: var(--display); font-style: normal; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .1em; font-size: 10.5px; margin-right: 6px; }
+
+  footer.end {
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+    color: var(--muted);
+    font-size: 13.5px;
+    font-family: var(--display);
+  }
+
+  a:focus-visible, .rail a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Architecture study &amp; project setup proposal</p>
+    <h1>AmpliTeach Rebuild Blueprint</h1>
+    <p class="standfirst">A section-by-section reading of the live WordPress site, a rendering decision for every route, and the folder structure to build it in — settled before the first line of code, so the deployment doesn't surprise anyone.</p>
+    <div class="facts">
+      <div><b>Source site</b> <span>ampliteach.com (WordPress + Yoast)</span></div>
+      <div><b>Scope</b> <span>8 pages · 13 blog posts</span></div>
+      <div><b>Target</b> <span>Next.js 16 · App Router · TS · Tailwind v4 · shadcn</span></div>
+      <div><b>Status</b> <span>Scaffolded — export build green, 28/28 static</span></div>
+    </div>
+
+    <div class="verdict" style="margin-top:28px">
+      <span class="tag">Where this stands</span>
+      <p><strong>Hosting is most likely S3</strong>, so the project is built static-export-first: <code>output: 'export'</code> is the default build. <strong>Tailwind v4 and shadcn/ui</strong> are installed per the teamlead's direction. <code>npm run verify</code> (typecheck → lint → build) passes, producing <strong>28 static pages and zero server-rendered routes</strong>. Three things still need answers — the CMS, the form endpoint, and the brand palette — all listed in Part 06.</p>
+    </div>
+  </header>
+
+  <div class="cols">
+    <nav class="rail" aria-label="Contents">
+      <ol>
+        <li><a href="#study"><i>01</i>What the site is</a></li>
+        <li><a href="#render"><i>02</i>Rendering choice</a></li>
+        <li><a href="#deploy"><i>03</i>The S3 problem</a></li>
+        <li><a href="#structure"><i>04</i>Folder structure</a></li>
+        <li><a href="#stack"><i>05</i>Stack &amp; scripts</a></li>
+        <li><a href="#questions"><i>06</i>Open questions</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <!-- ============ 01 ============ -->
+      <section class="part" id="study">
+        <span class="part-no">PART 01</span>
+        <h2>What the site actually is</h2>
+        <p class="dek">A brochure site with three moving parts. Everything else is fixed copy that a marketer edits a few times a year — which is the single most important fact for the rendering decision.</p>
+
+        <h4>Page inventory</h4>
+        <div class="scroller">
+          <table>
+            <thead>
+              <tr><th>URL</th><th>Page</th><th>What's on it</th><th>Changes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="r">/</td><td>Home</td><td>Hero + CTA, platform overview, 12 feature cards, student benefits, 7-field trial signup form, testimonial, 3-item FAQ accordion, closing CTA</td><td>Rarely</td></tr>
+              <tr><td class="r">/why-choose-ampliteach/</td><td>Why Choose Us</td><td>Hero, profit/time claim, curriculum block, onboarding block, founder message (John McCarthy) with portrait, "Take Your Teacher Home", 3 pitch blocks</td><td>Rarely</td></tr>
+              <tr><td class="r">/features-and-benefits/</td><td>Features &amp; Benefits</td><td>Breadcrumb title bar, 9 icon feature cards, split teacher/student benefit lists, "Build My Biz" with 9 items</td><td>Rarely</td></tr>
+              <tr><td class="r">/little-rockers-program/</td><td>Little Rockers</td><td>Hero + program description. Footer-only link — not in the main nav</td><td>Rarely</td></tr>
+              <tr><td class="r">/pricing/</td><td>Pricing</td><td>7 plan cards (free trial, 2 teacher tiers, 4 school tiers, $0–$399/mo), shared feature list, "priced upon request" block, per-plan Get Started CTA</td><td>Occasionally</td></tr>
+              <tr><td class="r">/blog/</td><td>Blog index</td><td>6 cards per page (image, title, read time, date), search box, numbered pagination — 3 pages today</td><td>Often</td></tr>
+              <tr><td class="r">/{post-slug}/</td><td>Blog post &times;13</td><td>Featured image, title, read time + date, table of contents, H2/H3 body with lists and internal links, newsletter form, 3 related posts</td><td>Often</td></tr>
+              <tr><td class="r">/contact-us/</td><td>Contact</td><td>4-field form (name, email, phone required; message optional) with honeypot, contact details, Google Map embed</td><td>Rarely</td></tr>
+              <tr><td class="r">/page-not-found/</td><td>404</td><td>Becomes <code>app/not-found.tsx</code> — don't recreate it as a real route</td><td>Never</td></tr>
+              <tr><td class="r">/privacy-policy/ &middot; /terms-of-service/</td><td>Legal</td><td>Footer links, long-form copy</td><td>Never</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note">
+          <span class="tag">Finding that changes the routing</span>
+          <p>Blog posts live at the <strong>domain root</strong> — <code>/best-music-school-scheduling-software/</code>, not <code>/blog/best-...</code>. Those 13 URLs are indexed and carry the site's SEO. Two options: mirror them with a root-level catch-all route, or move to <code>/blog/[slug]</code> and ship 13 permanent redirects. Mirroring is safer; it's decision 3 below.</p>
+        </div>
+
+        <h4>Shared shell, built once</h4>
+        <p><strong>Header</strong> — top bar (phone <code>203-934-2501</code>, <code>Support@AmpliTeach.com</code>, 4 social icons), logo, 6 nav links, and a <em>Log In</em> button pointing off-site to <code>app.ampliteach.com/login</code>. The actual product app is a separate system and is <strong>out of scope</strong>; we only link to it. <strong>Footer</strong> — About blurb, Quick Links (6), Get In Touch, socials, legal links, copyright. Decorative SVG particles recur on most pages.</p>
+
+        <h4>Component inventory — the whole site is ~18 reusable pieces</h4>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Component</th><th>Reused by</th><th>Interactive?</th></tr></thead>
+            <tbody>
+              <tr><td class="r">FeatureCard</td><td>Home (12), Features page (9)</td><td>No — server</td></tr>
+              <tr><td class="r">BenefitList</td><td>Home, Features page (teacher + student)</td><td>No — server</td></tr>
+              <tr><td class="r">SectionHeading</td><td>Every section on every page</td><td>No — server</td></tr>
+              <tr><td class="r">CtaBanner / Button</td><td>~10 placements</td><td>No — server</td></tr>
+              <tr><td class="r">PricingCard</td><td>Pricing (7)</td><td>No — server</td></tr>
+              <tr><td class="r">BlogCard + Pagination</td><td>Blog index, related posts</td><td>No — server</td></tr>
+              <tr><td class="r">TestimonialCard</td><td>Home</td><td>No — server</td></tr>
+              <tr><td class="r">ParticleDecor</td><td>Most pages</td><td>No — server</td></tr>
+              <tr><td class="r">Breadcrumbs</td><td>Features page, posts</td><td>No — server</td></tr>
+              <tr><td class="r">MapEmbed</td><td>Contact</td><td>Lazy iframe</td></tr>
+              <tr><td class="r">Accordion (FAQ)</td><td>Home</td><td><strong>Yes — client</strong></td></tr>
+              <tr><td class="r">MobileMenu</td><td>Header</td><td><strong>Yes — client</strong></td></tr>
+              <tr><td class="r">TrialSignupForm (7 fields)</td><td>Home</td><td><strong>Yes — client</strong></td></tr>
+              <tr><td class="r">ContactForm (4 fields)</td><td>Contact</td><td><strong>Yes — client</strong></td></tr>
+              <tr><td class="r">NewsletterForm</td><td>Blog posts</td><td><strong>Yes — client</strong></td></tr>
+              <tr><td class="r">BlogSearch</td><td>Blog index</td><td><strong>Yes — client</strong></td></tr>
+              <tr><td class="r">TableOfContents</td><td>Blog posts</td><td><strong>Yes — client</strong> (scroll spy)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Six interactive leaves out of eighteen. That ratio is the whole argument for App Router: everything else renders on the server and ships zero JavaScript.</p>
+      </section>
+
+      <!-- ============ 02 ============ -->
+      <section class="part" id="render">
+        <span class="part-no">PART 02</span>
+        <h2>Which rendering mode, and why</h2>
+        <p class="dek">Four options, one sentence each — then the decision for every route. The short version: this site is static-first, with ISR on the three things that change.</p>
+
+        <div class="grid2">
+          <div class="card">
+            <h4><span class="chip ssg">SSG</span> Static generation</h4>
+            <p>HTML built once at <code>next build</code> and served from the CDN. Fastest, cheapest, cannot break at runtime because there is no runtime. <strong>Default in the App Router</strong> — you get it by not doing anything.</p>
+            <p><strong>Use for:</strong> fixed marketing copy.</p>
+          </div>
+          <div class="card">
+            <h4><span class="chip isr">ISR</span> Incremental Static Regeneration</h4>
+            <p>SSG plus a timer or a webhook. Visitors always get a cached static page; Next rebuilds it in the background when it goes stale, so new content appears <strong>without a redeploy</strong>.</p>
+            <p><strong>Use for:</strong> CMS-driven content. Needs a Next.js server.</p>
+          </div>
+          <div class="card">
+            <h4><span class="chip ssr">SSR</span> Server-side rendering</h4>
+            <p>HTML rebuilt on <em>every single request</em>. Only justified when the output differs per visitor — logged-in dashboards, carts, personalisation.</p>
+            <p><strong>Use for:</strong> nothing on this site. Slower and pricier for no gain.</p>
+          </div>
+          <div class="card">
+            <h4><span class="chip csr">CSR</span> Client-side rendering</h4>
+            <p>A <code>'use client'</code> component that runs in the browser. Invisible to crawlers, so never for primary content — only for behaviour layered onto server-rendered HTML.</p>
+            <p><strong>Use for:</strong> the six interactive leaves above.</p>
+          </div>
+        </div>
+
+        <div class="note">
+          <span class="tag">PPR — not for this build</span>
+          <p><strong>Partial Pre-rendering</strong> streams a static shell with dynamic holes punched in it. It is genuinely good, and it is genuinely still experimental — it needs <code>next@canary</code> and a Vercel-class runtime. It solves a problem this site doesn't have (no per-user content anywhere). Leave <code>experimental.ppr</code> off. Revisit in v2 if a logged-in area ever lands here.</p>
+        </div>
+
+        <h4>Decision per route</h4>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Route</th><th>Mode</th><th>Revalidate</th><th>Reasoning</th></tr></thead>
+            <tbody>
+              <tr><td class="r">/</td><td><span class="chip ssg">SSG</span></td><td class="n">—</td><td>Fixed copy. The signup form is a client island posting to an endpoint; the page around it stays static.</td></tr>
+              <tr><td class="r">/why-choose-ampliteach</td><td><span class="chip ssg">SSG</span></td><td class="n">—</td><td>Pure content.</td></tr>
+              <tr><td class="r">/features-and-benefits</td><td><span class="chip ssg">SSG</span></td><td class="n">—</td><td>Pure content.</td></tr>
+              <tr><td class="r">/little-rockers-program</td><td><span class="chip ssg">SSG</span></td><td class="n">—</td><td>Pure content.</td></tr>
+              <tr><td class="r">/privacy-policy · /terms-of-service</td><td><span class="chip ssg">SSG</span></td><td class="n">—</td><td>Pure content.</td></tr>
+              <tr><td class="r">/pricing</td><td><span class="chip isr">ISR</span></td><td class="n">3600s + webhook</td><td>You called this dynamic — plans come from the CMS. Prices must never be stale or slow, and marketing must be able to change $189 without a deploy. ISR gives both.</td></tr>
+              <tr><td class="r">/blog</td><td><span class="chip isr">ISR</span></td><td class="n">300s + webhook</td><td>New posts appear on their own. Pagination via <code>/blog/page/[page]</code>, prebuilt from the post count.</td></tr>
+              <tr><td class="r">/{post-slug}</td><td><span class="chip isr">ISR</span></td><td class="n">3600s + webhook</td><td><code>generateStaticParams</code> prebuilds the 13 known posts; <code>dynamicParams: true</code> renders and caches post 14 on first hit.</td></tr>
+              <tr><td class="r">/contact-us</td><td><span class="chip ssg">SSG</span> + <span class="chip csr">CSR</span></td><td class="n">—</td><td>Static page, client form. "Dynamic" here means the <em>submission</em> is dynamic, not the page — that's a Route Handler, not a rendering mode. Common early mistake.</td></tr>
+              <tr><td class="r">Blog search / FAQ / menu / TOC</td><td><span class="chip csr">CSR</span></td><td class="n">—</td><td>Behaviour on top of server HTML.</td></tr>
+              <tr><td class="r">Anywhere</td><td><span class="chip ssr">SSR</span></td><td class="n">never</td><td>No route needs per-request HTML. Treat any <code>force-dynamic</code> in a PR as a bug to be explained.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="verdict">
+          <span class="tag">Verdict</span>
+          <p><strong>Static everywhere; ISR on pricing, the blog index, and posts; client components only on six leaves; SSR nowhere.</strong> Six pages of the site never touch a server at runtime, and the three that do serve cached HTML anyway.</p>
+        </div>
+
+        <div class="note">
+          <span class="tag">Amended — S3 removes the ISR column</span>
+          <p>With static export as the target, <strong>ISR is not available</strong>: the three ISR rows above become plain build-time SSG. Pricing and posts are fetched from the CMS when <code>next build</code> runs and baked into HTML. The practical difference is <strong>who triggers the update</strong> — a CMS webhook must now hit the CI deploy pipeline instead of <code>/api/revalidate</code>. Everything else in the table stands, and the code is written so that setting <code>NEXT_BUILD_MODE=server</code> restores ISR with no source changes.</p>
+        </div>
+      </section>
+
+      <!-- ============ 03 ============ -->
+      <section class="part" id="deploy">
+        <span class="part-no">PART 03</span>
+        <h2>The S3 problem — read this before anything else</h2>
+        <p class="dek">Your teamlead's bad experience has a specific technical cause, and it is worth naming precisely, because it dictates the structure in Part 04.</p>
+
+        <p>A plain S3 bucket behind CloudFront serves <strong>files</strong>. It cannot execute Node. To deploy there you must set <code>output: 'export'</code> in <code>next.config.ts</code>, and that switch silently disables a long list of features:</p>
+
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Feature</th><th>With a Node server</th><th>With <code>output: 'export'</code> (S3)</th></tr></thead>
+            <tbody>
+              <tr><td>SSG pages</td><td>Yes</td><td><strong>Yes</strong></td></tr>
+              <tr><td>ISR / <code>revalidate</code> / <code>revalidateTag</code></td><td>Yes</td><td><strong>No</strong> — build-time only</td></tr>
+              <tr><td>SSR / <code>cookies()</code> / <code>headers()</code></td><td>Yes</td><td><strong>No</strong></td></tr>
+              <tr><td>Route Handlers (<code>app/api/*</code>)</td><td>Yes</td><td><strong>No</strong> — forms need an external endpoint</td></tr>
+              <tr><td>Middleware</td><td>Yes</td><td><strong>No</strong></td></tr>
+              <tr><td><code>next/image</code> optimisation</td><td>Yes</td><td><strong>No</strong> — needs <code>images.unoptimized: true</code></td></tr>
+              <tr><td>Draft / preview mode</td><td>Yes</td><td><strong>No</strong></td></tr>
+              <tr><td>Clean URLs</td><td>Automatic</td><td>Needs <code>trailingSlash: true</code> + a CloudFront Function</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Nearly every "Next.js deployment nightmare" is this list discovered late — code written against ISR and Route Handlers, then a build that fails or, worse, succeeds and serves stale pages and dead forms. The fix is not to pick a side now; it's to write the code so the side can be switched with config.</p>
+
+        <h4>Hosting options, ranked</h4>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Option</th><th>Gets you</th><th>Trade-off</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Vercel</strong></td><td>Everything, zero config, ISR and webhook revalidation out of the box, preview URLs per branch</td><td>Not AWS; per-seat cost. <em>Best default.</em></td></tr>
+              <tr><td><strong>AWS Amplify Hosting</strong></td><td>Full SSR + ISR, managed, stays inside AWS and satisfies an "it must be AWS" mandate</td><td>Occasional lag behind new Next releases. <em>Best if AWS is required.</em></td></tr>
+              <tr><td><strong>OpenNext</strong> (SST/CDK → Lambda + CloudFront)</td><td>Full feature set on your own AWS account</td><td>Real infrastructure to own and debug.</td></tr>
+              <tr><td><strong>Docker</strong> on EC2/ECS, <code>next start</code></td><td>Full feature set, completely portable, no vendor</td><td>You run the server, the scaling, and the TLS.</td></tr>
+              <tr><td><strong>S3 + CloudFront</strong>, <code>output: 'export'</code></td><td>Cheapest and most bulletproof — it's just files</td><td>No ISR, no API routes, no image optimisation. Content updates require a CI rebuild.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="verdict">
+          <span class="tag">Decision taken</span>
+          <p>DevOps has not confirmed, but <strong>S3 is the expected target</strong> — so <code>output: 'export'</code> is the <em>default</em> build, not an afterthought. The more restrictive mode is the default deliberately: anything on the "No" list above now breaks the build on the commit that introduces it, instead of surfacing on launch day. If hosting lands on Vercel or Amplify instead, <code>npm run build:server</code> turns ISR and Route Handlers back on with no source changes.</p>
+        </div>
+
+        <h4>Proven, not assumed — three real export failures already caught</h4>
+        <p>Running the export build during scaffolding surfaced exactly the class of problem your teamlead has been burned by. All three are fixed in the committed code:</p>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Build error</th><th>Cause</th><th>Fix applied</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><code>Page "/[slug]" returned an empty array from generateStaticParams()</code></td>
+                <td>No CMS configured yet, so there were no slugs. Static export requires every dynamic route to produce at least one path.</td>
+                <td>The 13 live slugs are committed in <code>src/content/seed-posts.ts</code> and used until <code>CMS_API_URL</code> is set. Doubles as the canonical list of URLs that must survive the migration.</td>
+              </tr>
+              <tr>
+                <td><code>export const dynamic = "force-static" not configured on route "/sitemap.xml"</code></td>
+                <td><code>sitemap.ts</code> compiles to a route handler; because it awaits a fetch, Next treats it as dynamic.</td>
+                <td><code>export const dynamic = "force-static"</code> in <code>sitemap.ts</code> and <code>robots.ts</code>.</td>
+              </tr>
+              <tr>
+                <td>Latent: empty params on <code>/blog/page/[page]</code></td>
+                <td>Would break the build the moment the blog fits on a single page — a bug that only appears months later.</td>
+                <td>Falls back to one page and renders an empty state instead of returning <code>[]</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Also worth knowing: <code>lucide-react</code> v1 has <strong>removed its brand icons</strong> (Twitter, Facebook, Instagram, YouTube), so the four social marks are inline SVGs in <code>components/layout/social-icons.tsx</code> rather than a dependency that can drop them again.</p>
+
+        <h4>Static-first rules that keep the S3 escape hatch open</h4>
+        <ol class="rules">
+          <li><b>All data access goes through <code>src/lib/api/*</code>.</b> No component ever calls <code>fetch</code>. Switching from fetch-at-build to fetch-in-browser then touches one folder, not forty files.</li>
+          <li><b>All form submissions go through <code>src/lib/api/forms.ts</code></b>, which posts to <code>process.env.NEXT_PUBLIC_FORM_ENDPOINT</code>. Point that at our own <code>/api/contact</code> today, or at Resend / HubSpot / an API Gateway Lambda under static export. The components never know.</li>
+          <li><b>One <code>&lt;Img&gt;</code> wrapper</b> around <code>next/image</code>, so <code>unoptimized</code> becomes a single-line change.</li>
+          <li><b>Middleware is off-limits</b> for anything the site needs to function. Redirects go in <code>next.config.ts</code>.</li>
+          <li><b>Revalidation is centralised</b> in <code>app/api/revalidate/route.ts</code> — one CMS webhook. Under static export the same webhook triggers a CI rebuild instead. Same contract.</li>
+          <li><b>Run <code>next build</code> from day one in CI</b>, on every PR. Build breakage found on commit 12 is a ten-minute fix; found on launch day it is a weekend.</li>
+        </ol>
+      </section>
+
+      <!-- ============ 04 ============ -->
+      <section class="part" id="structure">
+        <span class="part-no">PART 04</span>
+        <h2>Folder structure</h2>
+        <p class="dek">Organised so that a page file is a table of contents, a section file is a layout, and the words live somewhere neither of them do. That separation is what keeps files short as the site grows.</p>
+
+<pre><b>D:\Amplitech-Nextjs\</b>
+├─ <i># config — root only, nothing else lives here</i>
+├─ next.config.ts            <i>output mode, images, trailingSlash</i>
+├─ tsconfig.json             <i>@/* → src/*</i>
+├─ components.json           <i>shadcn config (radix-nova, neutral)</i>
+├─ postcss.config.mjs        <i>NO tailwind.config.ts — v4 is CSS-first</i>
+├─ eslint.config.mjs   .prettierrc   .editorconfig
+├─ .env.example              <i>committed. .env.local is not</i>
+├─ README.md
+│
+├─ <b>public/</b>
+│  ├─ images/                <i>hero, student, founder, FAQ art</i>
+│  └─ svg/                   <i>logo + particle_1 / _3 / _6.svg</i>
+│
+└─ <b>src/</b>
+   ├─ <b>app/</b>                          <i>ROUTING ONLY — no business logic</i>
+   │  ├─ layout.tsx                  <i>html/body, fonts, Header + Footer</i>
+   │  ├─ page.tsx                    <i>Home</i>
+   │  ├─ globals.css
+   │  ├─ not-found.tsx  error.tsx  loading.tsx
+   │  ├─ sitemap.ts  robots.ts       <i>generated, not hand-written</i>
+   │  │
+   │  ├─ <u>(marketing)/</u>                <i>route group — adds NO url segment</i>
+   │  │  ├─ why-choose-ampliteach/page.tsx
+   │  │  ├─ features-and-benefits/page.tsx
+   │  │  ├─ little-rockers-program/page.tsx
+   │  │  ├─ pricing/page.tsx
+   │  │  ├─ contact-us/page.tsx
+   │  │  ├─ privacy-policy/page.tsx
+   │  │  └─ terms-of-service/page.tsx
+   │  │
+   │  ├─ blog/
+   │  │  ├─ page.tsx                 <i>index, 6 per page</i>
+   │  │  ├─ loading.tsx
+   │  │  └─ page/[page]/page.tsx     <i>/blog/page/2</i>
+   │  │
+   │  └─ <u>(posts)/[slug]/</u>             <i>root-level post urls, SEO preserved</i>
+   │     └─ page.tsx                 <i>dynamicParams = false (export)</i>
+   │
+   │  <i>NOTE: no app/api/ — static export has no Route Handlers.</i>
+   │  <i>Forms post to NEXT_PUBLIC_FORM_ENDPOINT instead.</i>
+   │
+   ├─ <b>components/</b>                   <i>generic — knows nothing about AmpliTeach</i>
+   │  ├─ ui/          <i>shadcn — button input textarea label accordion</i>
+   │  │               <i>card sheet separator badge sonner skeleton</i>
+   │  │               <i>(managed by the shadcn CLI; ours to edit)</i>
+   │  ├─ layout/      <i>Header TopBar NavLinks MobileMenu Footer</i>
+   │  │               <i>SocialLinks SocialIcons Breadcrumbs</i>
+   │  ├─ common/      <i>Container Section SectionHeading FeatureCard</i>
+   │  │               <i>BenefitList TestimonialCard CtaBanner Img</i>
+   │  │               <i>ParticleDecor MapEmbed</i>
+   │  └─ forms/       <i>ContactForm TrialSignupForm NewsletterForm</i>
+   │                  <i>FormField SubmitButton</i>
+   │
+   ├─ <b>features/</b>                     <i>one folder per page — its sections live here</i>
+   │  ├─ home/sections/     <i>Hero Overview Features StudentBenefits</i>
+   │  │                     <i>TrialCta Testimonials Faqs TransformCta</i>
+   │  ├─ why-choose/sections/
+   │  ├─ features-benefits/sections/
+   │  ├─ little-rockers/sections/
+   │  ├─ pricing/    <i>sections/ + components/PricingCard, PlanGrid</i>
+   │  ├─ contact/    <i>sections/ContactInfo, ContactMap</i>
+   │  └─ blog/       <i>components/BlogCard BlogGrid PostHeader PostBody</i>
+   │                 <i>TableOfContents RelatedPosts BlogSearch</i>
+   │
+   ├─ <b>content/</b>                      <i>every word of static copy, typed</i>
+   │  ├─ site.ts        <i>name, phone, email, address, socials</i>
+   │  ├─ navigation.ts  <i>header nav + footer quick links</i>
+   │  ├─ home.ts  features.ts  faqs.ts  testimonials.ts  contact.ts
+   │  ├─ pricing-plans.ts       <i>fallback if CMS is unreachable</i>
+   │  ├─ seed-posts.ts          <i>the 13 live slugs — see Part 03</i>
+   │  └─ why-choose.ts  little-rockers.ts
+   │
+   ├─ <b>lib/</b>
+   │  ├─ api/          <i>THE ONLY PLACE THAT FETCHES</i>
+   │  │  ├─ client.ts  <i>fetch wrapper: tags, revalidate, errors</i>
+   │  │  ├─ posts.ts   <i>getPosts getPost getPostSlugs getRelated</i>
+   │  │  ├─ pricing.ts <i>CMS, with committed fallback plans</i>
+   │  │  └─ forms.ts   <i>submitContact / submitTrial / subscribe</i>
+   │  ├─ cms/          <i>wordpress.ts → normalised types (swap CMS here only)</i>
+   │  ├─ seo/          <i>buildMetadata() + json-ld.ts</i>
+   │  ├─ validation/   <i>zod schemas shared by client AND server</i>
+   │  ├─ utils/        <i>cn format pagination headings</i>
+   │  └─ constants/    <i>routes.ts — never hard-code a url</i>
+   │
+   ├─ <b>hooks/</b>       <i>useMediaQuery useScrollLock useActiveHeading</i>
+   ├─ <b>types/</b>       <i>post.ts plan.ts common.ts index.ts</i>
+   └─ <b>config/</b>      <i>env.ts — zod-validated env, fails the build loudly</i>
+
+<i>Design tokens are NOT in a styles/ folder: Tailwind v4 is CSS-first,</i>
+<i>so they live in src/app/globals.css under @theme.</i>
+</pre>
+
+        <h4>Why <code>components/</code> and <code>features/</code> are both there</h4>
+        <p><code>components/</code> holds things that would work on any site — a <code>Button</code>, an <code>Accordion</code>. <code>features/</code> holds things that only make sense here — <code>home/sections/Faqs.tsx</code>. Without that split, one <code>components/</code> folder reaches 90 files by launch and nobody can tell what's safe to change. With it, you always know: touching <code>ui/</code> affects the whole site, touching <code>features/home/</code> affects one page.</p>
+
+        <h4>The seven rules that keep files short</h4>
+        <ol class="rules">
+          <li><b>A page file only composes.</b> Imports sections, exports <code>metadata</code>, returns them in order. 20–40 lines, always.</li>
+          <li><b>A section file only lays out.</b> It maps over data from <code>content/</code> or <code>lib/api/</code>. No hard-coded sentences in JSX.</li>
+          <li><b>Copy lives in <code>src/content/*.ts</code></b> as typed arrays. Marketing changes one line in one file and never opens a component. This alone is what keeps section files under 60 lines.</li>
+          <li><b>Server Components by default.</b> <code>'use client'</code> goes on the smallest possible leaf — the accordion, not the section that contains it. Every misplaced <code>'use client'</code> drags its whole subtree into the browser bundle.</li>
+          <li><b>Never <code>fetch</code> in a component.</b> Always through <code>lib/api/</code>. This is rule 1 of Part 03 wearing a different hat.</li>
+          <li><b>One component per file</b>, named export, an <code>index.ts</code> barrel per folder so imports read <code>import { Button, Card } from '@/components/ui'</code>.</li>
+          <li><b>Absolute imports only</b> — <code>@/features/home/sections/Hero</code>. No <code>../../../</code> anywhere; it survives file moves.</li>
+        </ol>
+
+        <h4>What a page file looks like under these rules</h4>
+<pre><i>// src/app/page.tsx — the entire Home page</i>
+<b>import</b> { buildMetadata } <b>from</b> '@/lib/seo/metadata'
+<b>import</b> { Hero, Overview, Features, StudentBenefits,
+         TrialCta, Testimonials, Faqs, TransformCta } <b>from</b> '@/features/home/sections'
+
+<b>export const</b> metadata = buildMetadata({
+  title: 'All-in-One Music School Management Software',
+  description: 'Scheduling, communication, payments, invoicing and payroll…',
+  path: '/',
+})
+
+<b>export default function</b> HomePage() {
+  <b>return</b> (
+    &lt;&gt;
+      &lt;Hero /&gt;  &lt;Overview /&gt;  &lt;Features /&gt;  &lt;StudentBenefits /&gt;
+      &lt;TrialCta /&gt;  &lt;Testimonials /&gt;  &lt;Faqs /&gt;  &lt;TransformCta /&gt;
+    &lt;/&gt;
+  )
+}</pre>
+        <p>Eight sections, one screen of code, nothing to scroll. Every page in the project should read like this.</p>
+      </section>
+
+      <!-- ============ 05 ============ -->
+      <section class="part" id="stack">
+        <span class="part-no">PART 05</span>
+        <h2>Stack &amp; scripts</h2>
+        <p class="dek">Deliberately small. Every dependency is a thing that can break a build eighteen months from now.</p>
+
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Package</th><th>Role</th><th>Why this one</th></tr></thead>
+            <tbody>
+              <tr><td class="r">next 16.3.4 · react 19.2</td><td>Framework</td><td>App Router, pinned exactly — not <code>^</code></td></tr>
+              <tr><td class="r">typescript</td><td>Types</td><td>Non-negotiable. Catches at build what you'd otherwise catch in production</td></tr>
+              <tr><td class="r">tailwindcss v4</td><td>Styling</td><td>Per the teamlead. <strong>CSS-first — no <code>tailwind.config.ts</code></strong>; tokens live in <code>globals.css</code> under <code>@theme</code></td></tr>
+              <tr><td class="r">shadcn/ui</td><td>UI library</td><td>Per the teamlead. <code>radix-nova</code> preset, neutral base, CSS variables. Copies source into <code>components/ui/</code> — not a runtime dependency, so it's ours to edit</td></tr>
+              <tr><td class="r">radix-ui</td><td>Primitives</td><td>Pulled in by shadcn — accessible accordion, sheet, label</td></tr>
+              <tr><td class="r">clsx · tailwind-merge</td><td>Class merging</td><td>The <code>cn()</code> helper every component uses</td></tr>
+              <tr><td class="r">zod</td><td>Validation</td><td>One schema validates the form in the browser <em>and</em> the payload server-side</td></tr>
+              <tr><td class="r">react-hook-form · @hookform/resolvers</td><td>Forms</td><td>3 forms; uncontrolled inputs, minimal re-renders</td></tr>
+              <tr><td class="r">lucide-react</td><td>Icons</td><td>Tree-shaken SVGs. Note: v1 dropped brand icons — socials are local SVGs</td></tr>
+              <tr><td class="r">sonner</td><td>Toasts</td><td>Form success / failure feedback</td></tr>
+              <tr><td class="r">prettier + tailwind plugin</td><td>Formatting</td><td>Sorts Tailwind classes so diffs stay reviewable</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note">
+          <span class="tag">Skip these for now</span>
+          <p>No Redux or Zustand — there is no global client state on a brochure site. No <code>framer-motion</code> until a specific animation needs it; CSS transitions cover hovers and reveals. No <code>@tailwindcss/typography</code> — post prose is styled with a handful of child selectors in <code>PostBody</code>. No carousel until testimonials grow past one (then Embla at ~5&nbsp;kB, not Swiper at ~40).</p>
+        </div>
+
+        <h4>Scripts</h4>
+<pre>"dev":          "next dev"
+"build":        "next build"              <i>← static export, the default</i>
+"build:server": "cross-env NEXT_BUILD_MODE=server next build"
+"serve:static": "npx serve out"           <i>← check the exported site locally</i>
+"start":        "next start"
+"lint":         "eslint"
+"typecheck":    "tsc --noEmit"
+"format":       "prettier --write ."
+<b>"verify":       "npm run typecheck &amp;&amp; npm run lint &amp;&amp; npm run build"</b></pre>
+        <p><code>npm run verify</code> is the one that matters. Wire it to a pre-push hook and to CI on every PR, and the deployment surprises in Part 03 stop being possible. It currently passes clean.</p>
+
+        <h4>Current build output</h4>
+<pre>Route (app)
+┌ ○ /                                    <i>Static</i>
+├ ○ /_not-found
+├   /[slug]
+│ ├ ● /best-music-school-scheduling-software      <i>SSG</i>
+│ ├ ● /maximizing-efficiency-in-music-school
+│ └ ● [+10 more paths]
+├ ○ /blog
+├   /blog/page/[page]
+│ ├ ● /blog/page/2
+│ └ ● /blog/page/3
+├ ○ /contact-us          ├ ○ /features-and-benefits
+├ ○ /little-rockers-program  ├ ○ /pricing
+├ ○ /privacy-policy      ├ ○ /terms-of-service
+├ ○ /robots.txt          ├ ○ /sitemap.xml
+└ ○ /why-choose-ampliteach
+
+<b>28/28 pages static. No SSR. No dynamic routes.</b></pre>
+        <p>The exported <code>out/</code> folder contains the post URLs as root-level directories — <code>out/best-music-school-scheduling-software/index.html</code> — confirming the existing SEO paths are preserved byte-for-byte.</p>
+      </section>
+
+      <!-- ============ 06 ============ -->
+      <section class="part" id="questions">
+        <span class="part-no">PART 06</span>
+        <h2>What's settled, and what still blocks</h2>
+        <p class="dek">Two of the original four decisions are now made. Three items remain — and one of them stops a form from working at all, so it needs an owner this week.</p>
+
+        <h4>Settled</h4>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Decision</th><th>Outcome</th></tr></thead>
+            <tbody>
+              <tr><td>Hosting</td><td><strong>Assume S3 static export.</strong> Built as the default; <code>NEXT_BUILD_MODE=server</code> is the escape hatch if DevOps lands elsewhere.</td></tr>
+              <tr><td>Styling / UI</td><td><strong>Tailwind v4 + shadcn/ui</strong>, per the teamlead. Installed and wired.</td></tr>
+              <tr><td>Blog URLs</td><td><strong>Mirrored at the domain root.</strong> Zero SEO risk, and the exported folders prove it.</td></tr>
+              <tr><td>Design approach</td><td><strong>Faithful rebuild, cleanly tokenised.</strong> Structure and copy are in place; the palette is a placeholder pending item 3 below.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Still open</h4>
+        <div class="qs">
+          <div class="q">
+            <span class="n">BLOCKER · needs an owner</span>
+            <h3>Who provides the form endpoint?</h3>
+            <p>Static export has no Route Handlers, so the contact, trial and newsletter forms <strong>cannot work on S3</strong> without an endpoint outside this app: API Gateway + Lambda, Formspree, HubSpot, or similar. The code is ready — it reads <code>NEXT_PUBLIC_FORM_ENDPOINT</code> and needs nothing else. Until it's set, submissions log to the console so development isn't blocked.</p>
+            <span class="rec"><em>Ask</em> DevOps for an API Gateway + Lambda, or approve a third-party form service.</span>
+          </div>
+          <div class="q">
+            <span class="n">OPEN 02</span>
+            <h3>Which CMS, and who publishes?</h3>
+            <p>Headless WordPress is assumed — the 13 posts already live there and editors keep the admin they know. Alternatives are Sanity or Strapi (both need migration), or MDX files if only developers will ever publish. Whichever it is, only <code>src/lib/cms/</code> changes.</p>
+            <span class="rec"><em>Also confirm</em> that the CMS webhook can trigger a CI rebuild — that's how content goes live on S3.</span>
+          </div>
+          <div class="q">
+            <span class="n">OPEN 03</span>
+            <h3>Brand palette and fonts?</h3>
+            <p>The site currently runs on shadcn's neutral placeholder tokens and Geist. Replacing them is a single edit to <code>:root</code> in <code>globals.css</code> — no component touches a hex value. Send brand hex codes and font files, or point me at a Figma file and I'll extract them.</p>
+            <span class="rec"><em>Fallback</em> I extract the current theme's colours and type scale from the live site.</span>
+          </div>
+          <div class="q">
+            <span class="n">OPEN 04</span>
+            <h3>Assets and legal copy?</h3>
+            <p>Section layouts are built with neutral placeholder blocks marked <code>TODO</code> where images go. I need the hero image, student photo, founder portrait, logo and particle SVGs — plus the approved privacy policy and terms copy, which are currently stubs.</p>
+            <span class="rec"><em>Note</em> Record real width/height in <code>src/content/*.ts</code>; static export has no image optimiser to guess for us.</span>
+          </div>
+        </div>
+
+        <h4>Build order from here</h4>
+        <ol class="rules">
+          <li><b>Done — scaffold and shell.</b> Config, data layer, SEO, validation, layout, all 12 routes, and a green <code>npm run verify</code> producing 28 static pages.</li>
+          <li><b>Brand pass</b> — swap the placeholder tokens for real colours and fonts, then style the sections against the live site.</li>
+          <li><b>Assets</b> — drop images into <code>public/</code> and replace the <code>TODO</code> placeholder blocks with <code>&lt;Img /&gt;</code>.</li>
+          <li><b>Connect the CMS</b> — set <code>CMS_API_URL</code>; the seed posts fall away automatically and real content flows into the blog and pricing.</li>
+          <li><b>Wire the form endpoint</b> — one env var once item 1 above has an owner.</li>
+          <li><b>Ship-ready</b> — OG images, Lighthouse pass, CloudFront config for clean URLs, and <code>npm run verify</code> in CI on every PR.</li>
+        </ol>
+      </section>
+
+      <footer class="end">
+        Architecture proposal · AmpliTeach WordPress → Next.js 15 · prepared from the live site at ampliteach.com
+      </footer>
+
+    </main>
+  </div>
+</div>

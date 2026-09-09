@@ -1,0 +1,652 @@
+<title>Claude Config Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:    #f4f6f6;
+    --surface:  #ffffff;
+    --surface-2:#eceff0;
+    --ink:      #13191a;
+    --ink-2:    #354143;
+    --muted:    #5a6668;
+    --line:     #dbe1e1;
+    --line-2:   #c3cccc;
+    --accent:   #0f5c63;
+    --accent-soft: #e2eeef;
+    --brass:    #8a6d24;
+    --brass-soft:#f3ecdb;
+    --keep:     #2c6b4f;
+    --keep-soft:#e4efe8;
+    --warn:     #8a5c12;
+    --warn-soft:#f6eeda;
+    --drop:     #9c3128;
+    --drop-soft:#f7e6e4;
+    --shadow:   0 1px 2px rgba(19,25,26,.05), 0 8px 24px -16px rgba(19,25,26,.18);
+
+    --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:    #0d1112;
+      --surface:  #151b1c;
+      --surface-2:#1c2425;
+      --ink:      #e6eceb;
+      --ink-2:    #c2cccb;
+      --muted:    #909d9e;
+      --line:     #263030;
+      --line-2:   #354242;
+      --accent:   #63c3c9;
+      --accent-soft: #16292b;
+      --brass:    #cfae62;
+      --brass-soft:#251f10;
+      --keep:     #6fbf95;
+      --keep-soft:#14251c;
+      --warn:     #d9a94a;
+      --warn-soft:#241c0d;
+      --drop:     #e2938a;
+      --drop-soft:#2a1614;
+      --shadow:   0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:    #0d1112;
+    --surface:  #151b1c;
+    --surface-2:#1c2425;
+    --ink:      #e6eceb;
+    --ink-2:    #c2cccb;
+    --muted:    #909d9e;
+    --line:     #263030;
+    --line-2:   #354242;
+    --accent:   #63c3c9;
+    --accent-soft: #16292b;
+    --brass:    #cfae62;
+    --brass-soft:#251f10;
+    --keep:     #6fbf95;
+    --keep-soft:#14251c;
+    --warn:     #d9a94a;
+    --warn-soft:#241c0d;
+    --drop:     #e2938a;
+    --drop-soft:#2a1614;
+    --shadow:   0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 28px 96px; }
+
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    padding: 56px 0 32px;
+    margin-bottom: 44px;
+  }
+  .eyebrow {
+    font-family: var(--display);
+    font-size: 11.5px; font-weight: 600;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 18px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(2.1rem, 5.2vw, 3.35rem);
+    line-height: 1.02; letter-spacing: -0.025em;
+    text-wrap: balance; margin: 0 0 20px;
+  }
+  .standfirst {
+    font-size: 1.2rem; color: var(--ink-2);
+    max-width: 64ch; margin: 0 0 28px;
+  }
+  .facts {
+    display: flex; flex-wrap: wrap; gap: 10px 32px;
+    font-family: var(--display); font-size: 12.5px; color: var(--muted);
+  }
+  .facts b {
+    display: block; font-weight: 600; font-size: 11px;
+    letter-spacing: .13em; text-transform: uppercase;
+    color: var(--muted); opacity: .75;
+  }
+  .facts span { color: var(--ink); font-weight: 500; }
+
+  .cols { display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 1000px) {
+    .cols { grid-template-columns: 176px minmax(0, 1fr); gap: 56px; align-items: start; }
+    .rail { position: sticky; top: 32px; }
+  }
+  .rail ol {
+    list-style: none; margin: 0 0 40px; padding: 0;
+    display: flex; flex-wrap: wrap; gap: 6px 18px;
+    font-family: var(--display); font-size: 12.5px;
+  }
+  @media (min-width: 1000px) { .rail ol { flex-direction: column; gap: 11px; margin-bottom: 0; } }
+  .rail a { color: var(--muted); text-decoration: none; display: block; border-left: 2px solid transparent; }
+  @media (min-width: 1000px) { .rail a { padding-left: 12px; border-left-color: var(--line-2); } }
+  .rail a:hover { color: var(--accent); border-left-color: var(--accent); }
+  .rail a i { font-style: normal; font-variant-numeric: tabular-nums; opacity: .55; margin-right: 7px; }
+
+  .part { padding-top: 8px; margin-bottom: 72px; scroll-margin-top: 24px; }
+  .part-no {
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    color: var(--accent); letter-spacing: .1em; display: block; margin-bottom: 8px;
+  }
+  h2 {
+    font-family: var(--display); font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 1.95rem);
+    letter-spacing: -0.018em; line-height: 1.14;
+    margin: 0 0 10px; text-wrap: balance;
+  }
+  .dek {
+    color: var(--muted); font-size: 1.04rem; max-width: 68ch;
+    margin: 0 0 32px; padding-bottom: 22px; border-bottom: 1px solid var(--line);
+  }
+  h3 { font-family: var(--display); font-weight: 600; font-size: 1.12rem; margin: 40px 0 12px; }
+  h4 {
+    font-family: var(--display); font-size: 11.5px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin: 32px 0 12px;
+  }
+  p { margin: 0 0 16px; max-width: 72ch; }
+  li { margin-bottom: 8px; }
+  strong { font-weight: 600; color: var(--ink); }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  code {
+    font-family: var(--mono); font-size: .855em;
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 3px; padding: 1px 5px; color: var(--ink); white-space: nowrap;
+  }
+
+  .scroller {
+    overflow-x: auto; border: 1px solid var(--line);
+    border-radius: 4px; background: var(--surface); margin: 0 0 20px;
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 700px; }
+  thead th {
+    font-family: var(--display); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+    text-align: left; padding: 12px 16px;
+    border-bottom: 1px solid var(--line-2); background: var(--surface-2); white-space: nowrap;
+  }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.r { font-family: var(--mono); font-size: 12.5px; color: var(--ink); }
+  td.n { font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+
+  .v {
+    display: inline-block; font-family: var(--display);
+    font-size: 10.5px; font-weight: 600; letter-spacing: .07em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 3px;
+    white-space: nowrap; border: 1px solid;
+  }
+  .v.keep { color: var(--keep); border-color: var(--keep); background: var(--keep-soft); }
+  .v.edit { color: var(--warn); border-color: var(--warn); background: var(--warn-soft); }
+  .v.drop { color: var(--drop); border-color: var(--drop); background: var(--drop-soft); }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 5px; padding: 22px 24px; margin: 0 0 20px; box-shadow: var(--shadow);
+  }
+  .card > :last-child { margin-bottom: 0; }
+  .card h4 { margin-top: 0; }
+
+  .alarm {
+    border-left: 3px solid var(--drop); background: var(--drop-soft);
+    border-radius: 0 4px 4px 0; padding: 18px 22px; margin: 0 0 22px;
+  }
+  .alarm > :last-child { margin-bottom: 0; }
+  .alarm .tag {
+    font-family: var(--display); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--drop);
+    display: block; margin-bottom: 7px;
+  }
+  .note {
+    border-left: 3px solid var(--brass); background: var(--brass-soft);
+    border-radius: 0 4px 4px 0; padding: 18px 22px; margin: 0 0 22px;
+  }
+  .note > :last-child { margin-bottom: 0; }
+  .note .tag {
+    font-family: var(--display); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--brass);
+    display: block; margin-bottom: 7px;
+  }
+  .verdict {
+    border-left: 3px solid var(--accent); background: var(--accent-soft);
+    border-radius: 0 4px 4px 0; padding: 18px 22px; margin: 0 0 22px;
+  }
+  .verdict > :last-child { margin-bottom: 0; }
+  .verdict .tag {
+    font-family: var(--display); font-size: 10.5px; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+    display: block; margin-bottom: 7px;
+  }
+
+  .grid2 { display: grid; gap: 18px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+
+  pre {
+    font-family: var(--mono); font-size: 12.8px; line-height: 1.62;
+    background: var(--surface); color: var(--ink-2);
+    border: 1px solid var(--line); border-radius: 5px;
+    padding: 20px 22px; overflow-x: auto; margin: 0 0 20px; tab-size: 2;
+  }
+  pre b { color: var(--accent); font-weight: 600; }
+  pre i { color: var(--muted); font-style: normal; }
+  pre u { text-decoration: none; color: var(--drop); }
+
+  ol.rules { counter-reset: r; list-style: none; padding: 0; margin: 0 0 24px; }
+  ol.rules > li {
+    counter-increment: r; position: relative;
+    padding-left: 40px; margin-bottom: 18px; max-width: 72ch;
+  }
+  ol.rules > li::before {
+    content: counter(r, decimal-leading-zero);
+    position: absolute; left: 0; top: 1px;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    color: var(--accent); border: 1px solid var(--line-2);
+    border-radius: 3px; padding: 1px 5px;
+  }
+  ol.rules b { font-family: var(--display); font-weight: 600; }
+
+  .tally {
+    display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    margin: 0 0 24px;
+  }
+  .tile {
+    border: 1px solid var(--line); border-radius: 5px;
+    background: var(--surface); padding: 16px 18px;
+  }
+  .tile b {
+    display: block; font-family: var(--display); font-size: 10.5px;
+    font-weight: 600; letter-spacing: .13em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .tile span {
+    font-family: var(--display); font-size: 1.9rem; font-weight: 700;
+    letter-spacing: -0.02em; font-variant-numeric: tabular-nums; display: block; line-height: 1.05;
+  }
+  .tile em { font-style: normal; font-size: 12.5px; color: var(--muted); font-family: var(--display); }
+  .tile.k span { color: var(--keep); }
+  .tile.e span { color: var(--warn); }
+  .tile.d span { color: var(--drop); }
+
+  footer.end {
+    border-top: 1px solid var(--line); padding-top: 24px;
+    color: var(--muted); font-size: 13.5px; font-family: var(--display);
+  }
+  a:focus-visible, .rail a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Audit of <code style="font-size:11px">.claude/</code> — rules, skills &amp; agents</p>
+    <h1>Claude Config Audit</h1>
+    <p class="standfirst">What each rule and skill does, how the four config types are meant to be used, and a keep-or-remove verdict for all 27 of them — measured against the Next.js project we actually have.</p>
+    <div class="facts">
+      <div><b>Audited</b> <span>8 rules · 17 skills · 1 agent · 2 CLAUDE.md</span></div>
+      <div><b>Payload</b> <span>163 files · 1.3 MB</span></div>
+      <div><b>Written for</b> <span>React&nbsp;Vite ERP · ~500 screens</span></div>
+      <div><b>Our project</b> <span>Next.js 16 static site · 8 pages</span></div>
+    </div>
+
+    <div class="alarm" style="margin-top:28px">
+      <span class="tag">Headline finding</span>
+      <p><strong>This <code>.claude/</code> folder belongs to a different project.</strong> It was written for a React&nbsp;+&nbsp;<strong>Vite</strong> ERP platform with react-router, TanStack Query, an <code>erp-ui</code> component kit and roughly 500 CRUD screens. Ours is a Next.js 16 App Router marketing site with 8 pages and no backend of its own. The rules contain <strong>114 references</strong> to Vite / react-router / ERP internals and <strong>one</strong> passing mention of Next.js. Every internal doc link in it — <code>PROJECT_STRUCTURE.md</code>, <code>ROUTING.md</code>, <code>CODE_QUALITY.md</code>, <code>RBAC_IMPLEMENTATION.md</code>, <code>ESLINT_SETUP.md</code> — points at a file that does not exist here.</p>
+      <p>Left in place it is not merely unused: <code>.claude/CLAUDE.md</code> loads automatically in <em>every</em> session and gives instructions that are <strong>actively wrong</strong> for this codebase. Details in Part 02.</p>
+    </div>
+  </header>
+
+  <div class="cols">
+    <nav class="rail" aria-label="Contents">
+      <ol>
+        <li><a href="#types"><i>01</i>The four types</a></li>
+        <li><a href="#conflict"><i>02</i>The conflict</a></li>
+        <li><a href="#rules"><i>03</i>All 8 rules</a></li>
+        <li><a href="#skills"><i>04</i>All 17 skills</a></li>
+        <li><a href="#agent"><i>05</i>The agent</a></li>
+        <li><a href="#action"><i>06</i>What to do</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <!-- ============ 01 ============ -->
+      <section class="part" id="types">
+        <span class="part-no">PART 01</span>
+        <h2>The four config types, and when each one fires</h2>
+        <p class="dek">You have four different mechanisms in that folder and they load at completely different times. Knowing which is which is most of knowing how to use them.</p>
+
+        <div class="scroller">
+          <table>
+            <thead>
+              <tr><th>Type</th><th>Lives in</th><th>When it loads</th><th>Use it for</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>CLAUDE.md</strong></td>
+                <td class="r">CLAUDE.md<br>.claude/CLAUDE.md</td>
+                <td><strong>Every session, automatically</strong>, before you type anything</td>
+                <td>The short, always-true facts about the project: stack, structure, conventions, the commands that must pass. Keep it <em>small</em> — you pay for it on every single turn.</td>
+              </tr>
+              <tr>
+                <td><strong>Rules</strong></td>
+                <td class="r">.claude/rules/*.md</td>
+                <td>Only when read. Not automatic — they load because CLAUDE.md tells me to open them</td>
+                <td>Deep standards too long for CLAUDE.md. A pointer in CLAUDE.md plus the detail in the rule file. Good pattern, and the one your ERP project is using.</td>
+              </tr>
+              <tr>
+                <td><strong>Skills</strong></td>
+                <td class="r">.claude/skills/&lt;name&gt;/SKILL.md</td>
+                <td>On demand — you type <code>/name</code>, or the <code>description</code> matches what you asked for</td>
+                <td>Repeatable procedures: "scaffold this", "set up that", "write the MR description". Only the one-line description is always in context; the body loads when triggered.</td>
+              </tr>
+              <tr>
+                <td><strong>Agents</strong></td>
+                <td class="r">.claude/agents/*.md</td>
+                <td>When explicitly asked, in a <strong>separate context</strong></td>
+                <td>Work you want done without its file-reading filling up your main conversation. A reviewer, a searcher. It reports back a conclusion.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>The distinction that matters most</h4>
+        <p><strong>A rule is a constraint; a skill is a procedure.</strong> A rule says "never use <code>any</code>" — it applies to everything you do, forever. A skill says "here is how to set up commitlint" — you invoke it once and it's done. If you find yourself writing a rule that begins "when the user asks…", it's a skill. If you write a skill that says "always…", it's a rule.</p>
+
+        <div class="note">
+          <span class="tag">The cost nobody mentions</span>
+          <p>Context is finite, and CLAUDE.md is spent first. Here is what this folder currently costs:</p>
+          <div class="scroller" style="margin-top:14px">
+            <table style="min-width:520px">
+              <thead><tr><th>File set</th><th class="n">Size</th><th class="n">≈ Tokens</th><th>Loaded</th></tr></thead>
+              <tbody>
+                <tr><td class="r">.claude/CLAUDE.md</td><td class="n">69 KB</td><td class="n">~18,000</td><td><strong>Every session, unconditionally</strong></td></tr>
+                <tr><td class="r">rules/ (8 files)</td><td class="n">342 KB</td><td class="n">~87,000</td><td>Whenever CLAUDE.md's "MANDATORY — read before any change" is obeyed</td></tr>
+                <tr><td class="r">skills/ (17)</td><td class="n">909 KB</td><td class="n">~233,000</td><td>Only the triggered one — descriptions always resident</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>So before a single line of your code is read, ~18k tokens of another project's architecture is already in context — and following its own instructions would pull in ~87k more. That budget is better spent on your actual files.</p>
+        </div>
+      </section>
+
+      <!-- ============ 02 ============ -->
+      <section class="part" id="conflict">
+        <span class="part-no">PART 02</span>
+        <h2>Where it contradicts what we built</h2>
+        <p class="dek">Not a style difference. These are instructions that would produce broken code in a Next.js App Router project.</p>
+
+        <div class="grid2">
+          <div class="card">
+            <h4>1 · <code>page.tsx</code> means the opposite thing</h4>
+            <p>Their CLAUDE.md: <em>"<code>page.tsx</code> is a thin route entry… it imports that component, optionally applies the <code>withPageHeader</code> HOC, and default-exports."</em> That's a react-router leaf module.</p>
+            <p>In Next.js App Router, <code>page.tsx</code> <strong>is</strong> the route — its position in the folder tree defines the URL. There is no <code>withPageHeader</code>, no react-router, no <code>createBrowserRouter</code>.</p>
+          </div>
+          <div class="card">
+            <h4>2 · The folder structure is a different one</h4>
+            <p>It mandates <code>src/app/</code>, <code>src/modules/</code>, <code>src/shared/</code>, <code>src/lib/</code>, <code>src/core/</code> with a strict one-way import graph — enforced by their ESLint config.</p>
+            <p>Ours is <code>app/ components/ features/ content/ lib/ hooks/ types/ config/</code>. Their <code>eslint-setup</code> skill would fail our entire <code>src/</code>, and <code>src/app/</code> means "the router" to us and "the composition root" to them.</p>
+          </div>
+          <div class="card">
+            <h4>3 · Components that don't exist here</h4>
+            <p>Four rules mandate imports from <code>@/shared/ui/erp-ui</code>, <code>@/shared/ui/form</code>, <code>@/shared/table</code>, <code>@/shared/modal</code>, <code>@/shared/storage</code>, <code>@/core/utils</code> — <code>ErpButton</code>, <code>ErpViewField</code>, <code>DataTable</code>, <code>modalService</code>, <code>displayDate</code>.</p>
+            <p>None of them exist in this repo. We use shadcn/ui in <code>components/ui/</code>. Following those rules produces imports that don't resolve.</p>
+          </div>
+          <div class="card">
+            <h4>4 · Patterns for features we don't have</h4>
+            <p>The rules cover data tables with collapsible group subtotals, file uploads with presigned S3 URLs, RBAC permission gating, PATCH envelope semantics, editable grids, and a modal registry.</p>
+            <p>Our site has <strong>zero</strong> tables, uploads, auth, and modals. Login is a link to <code>app.ampliteach.com</code> — a separate product we don't touch.</p>
+          </div>
+        </div>
+
+        <h4>Two CLAUDE.md files that disagree</h4>
+        <p>There are currently two, and both load:</p>
+<pre><b>CLAUDE.md</b>              <i>→ @AGENTS.md — Next.js 16's own generated guidance.</i>
+                       <i>  Correct for us. Re-created by `next dev`, so leave it.</i>
+<u>.claude/CLAUDE.md</u>      <i>→ 69 KB describing a React Vite ERP platform.</i>
+                       <i>  Wrong for us, and 3.8× larger than everything else combined.</i></pre>
+        <p>One says "this is Next.js 16, read the version's own docs before writing code". The other says "this is a React Vite ERP, put screens in <code>src/modules/</code>". They cannot both be followed.</p>
+
+        <div class="verdict">
+          <span class="tag">On your TypeScript reminder</span>
+          <p>Already handled, and it's the one place this folder and our project agree. The project is <strong>TypeScript with <code>strict: true</code></strong>, <code>tsc --noEmit</code> is wired as <code>npm run typecheck</code> inside <code>npm run verify</code>, and it currently passes clean. <code>typescript-rule.md</code> is the single rule in that folder worth keeping — see Part 03.</p>
+        </div>
+      </section>
+
+      <!-- ============ 03 ============ -->
+      <section class="part" id="rules">
+        <span class="part-no">PART 03</span>
+        <h2>All 8 rules</h2>
+        <p class="dek">What each one governs, and whether it survives the move to Next.js. Sizes matter here — the top two are 190 KB between them.</p>
+
+        <div class="scroller">
+          <table>
+            <thead>
+              <tr><th>Rule</th><th class="n">Size</th><th>What it's for</th><th>Verdict &amp; why</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="r">typescript-rule.md</td>
+                <td class="n">7 KB</td>
+                <td>No <code>any</code>, explicit return types, <code>import type</code>, type guards, unions over enums, interface vs type, a passing <code>tsc --noEmit</code>.</td>
+                <td><span class="v edit">Keep — 2 edits</span> The only genuinely stack-agnostic rule in the set, and it matches how the project is already written. Fix: its import example shows <code>react-router-dom</code> and <code>@/modules/...</code>, and it says <code>npm run type-check</code> — ours is <code>npm run typecheck</code>.</td>
+              </tr>
+              <tr>
+                <td class="r">eslint-rule.md</td>
+                <td class="n">18 KB</td>
+                <td>"Zero ESLint errors, always" — run <code>npm run lint</code>, never infer it from a passing <code>tsc</code>, never <code>eslint-disable</code>. Plus kebab-case naming, layer boundaries, barrel-only and absolute imports.</td>
+                <td><span class="v edit">Keep the principle only</span> The discipline is excellent and worth adopting verbatim — it's already in our <code>npm run verify</code>. But the naming and layer sections encode the <code>modules/shared/core</code> architecture we don't use. Take the first paragraph, drop the rest.</td>
+              </tr>
+              <tr>
+                <td class="r">theme-and-ui-rule.md</td>
+                <td class="n">10 KB</td>
+                <td>Every visual change must be theme-aware — no hardcoded colours, use theme tokens — and must reuse the <code>@/shared/ui/erp-ui</code> kit rather than hand-rolling components.</td>
+                <td><span class="v drop">Remove</span> The underlying principle is one we already follow: colours come from tokens in <code>globals.css</code>, components from <code>components/ui/</code>. But the rule enforces it by naming a component kit that isn't here. One line in our CLAUDE.md replaces 10 KB.</td>
+              </tr>
+              <tr>
+                <td class="r">form-fields-rule.md</td>
+                <td class="n">108 KB</td>
+                <td>The single largest file. Governs every input in the ERP: which adapter to use, zod-derived required asterisks, caps reported not applied, GSTIN/pincode/mobile formats, editable-grid cells, country→state cascades.</td>
+                <td><span class="v drop">Remove</span> Deeply impressive and completely inapplicable. It mandates <code>@/shared/ui/form</code> adapters, <code>NUMERIC_FIELD_LIMITS</code>, <code>useFieldLimitError</code>, <code>ErpEditableGrid</code> — none of which exist here. Our three short forms use shadcn inputs + zod, which is 90 lines total.</td>
+              </tr>
+              <tr>
+                <td class="r">api-integration-rule.md</td>
+                <td class="n">82 KB</td>
+                <td>Four-layer data flow — Component → hook → query → api → backend — with TanStack Query key factories, full PATCH payloads, <code>orNull</code> semantics, backend-authored toast messages.</td>
+                <td><span class="v drop">Remove</span> Assumes a live REST backend with mutations. We have <strong>no runtime API</strong>: it's a static site, content is fetched at build time through <code>src/lib/api/</code>, and there are no mutations at all. The layering idea is sound and we already apply a simpler version of it.</td>
+              </tr>
+              <tr>
+                <td class="r">data-table-rule.md</td>
+                <td class="n">42 KB</td>
+                <td>Two table engines picked by data shape, shared toolbar/filter/pagination pieces, per-column aggregation, group subtotals, plus the app-wide date and empty-value display helpers.</td>
+                <td><span class="v drop">Remove</span> The site has no tables, grids or lists of records — the closest thing is a 6-card blog grid. 42 KB for a feature the project doesn't contain.</td>
+              </tr>
+              <tr>
+                <td class="r">file-upload-rule.md</td>
+                <td class="n">66 KB</td>
+                <td>One shared storage service, upload-on-pick, presigned-URL reads, a single preview component, blocking Save while an upload is in flight.</td>
+                <td><span class="v drop">Remove</span> Nothing on this site uploads a file. Static export has no server to upload <em>to</em>.</td>
+              </tr>
+              <tr>
+                <td class="r">modal-rule.md</td>
+                <td class="n">8 KB</td>
+                <td>All confirm/delete prompts go through <code>modalService.open(ModalType.CONFIRM, …)</code>; typed FORM / DRAWER / PREVIEW variants; a registry for domain modals.</td>
+                <td><span class="v drop">Remove</span> We have one <code>Sheet</code> — the mobile nav drawer — and no confirmations, because there is nothing destructive to confirm.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note">
+          <span class="tag">Worth saying plainly</span>
+          <p>These rules are <strong>good work</strong>. The 108 KB form rule documents real bugs with the incident attached — a whitespace-only value satisfying a required field, a date arriving a day early because someone called <code>.toISOString()</code> on a picker value. That's institutional knowledge worth having. It just belongs to the ERP repo, where those components exist and those bugs happened. Keeping a copy here doesn't help that project and actively misleads this one.</p>
+        </div>
+      </section>
+
+      <!-- ============ 04 ============ -->
+      <section class="part" id="skills">
+        <span class="part-no">PART 04</span>
+        <h2>All 17 skills</h2>
+        <p class="dek">Skills are cheaper to keep than rules — only the description stays resident. But a skill that fires on a Next.js project and starts installing Vite plugins is worse than no skill.</p>
+
+        <h4>Keep — genuinely stack-agnostic</h4>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Skill</th><th>What it does</th><th>How to use it</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="r">mr-description</td>
+                <td>Writes a merge-request description — Problem, Solution, Affected Files — from the actual branch diff rather than commit messages.</td>
+                <td><span class="v keep">Keep</span> Works off <code>git diff</code>, so nothing stack-specific. Type <code>/mr-description</code> before opening a PR. Genuinely useful from your first PR onward.</td>
+              </tr>
+              <tr>
+                <td class="r">commit-lint-setup</td>
+                <td>Sets up Husky + lint-staged + commitlint: ESLint and Prettier run on staged files, and commit messages must follow <code>type(scope): subject</code>.</td>
+                <td><span class="v keep">Keep</span> Pure tooling, no framework assumptions. This is the natural companion to <code>npm run verify</code> — it stops a broken commit before it's made. Worth running early.</td>
+              </tr>
+              <tr>
+                <td class="r">skill-creator</td>
+                <td>Creates, edits and benchmarks skills, including running evals to test whether a skill's description triggers reliably.</td>
+                <td><span class="v keep">Keep</span> An official Anthropic plugin (already enabled in <code>settings.json</code>), not a project asset. This is what you'd use to <em>write</em> the Next.js skills we actually want.</td>
+              </tr>
+              <tr>
+                <td class="r">logger-system-setup</td>
+                <td>A pluggable colour-coded debug logger with environment-based on/off switching.</td>
+                <td><span class="v edit">Keep, low priority</span> The one skill that lists Next.js as a supported target. But a static marketing site has almost nothing to debug-log — you likely never invoke it. Harmless to keep.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Remove — Next.js already does this, differently</h4>
+        <p>These aren't just unused; each one solves a problem Next.js solves natively, and running any of them would fight the framework.</p>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Skill</th><th>What it does</th><th>Why it has to go</th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="r">helmet-setup</td>
+                <td>Installs <code>react-helmet-async</code> for dynamic <code>&lt;title&gt;</code> and meta tags in React + Vite + react-router.</td>
+                <td><span class="v drop">Remove</span> <strong>Directly conflicts.</strong> Next.js has a built-in Metadata API — our <code>buildMetadata()</code> helper in <code>src/lib/seo/</code>. Adding Helmet on top would produce duplicate and competing meta tags, which is an SEO problem on a site whose whole point is SEO.</td>
+              </tr>
+              <tr>
+                <td class="r">setup-ui-auto-import</td>
+                <td>Configures <code>unplugin-auto-import</code> so UI components are usable without import statements.</td>
+                <td><span class="v drop">Remove</span> A <strong>Vite plugin</strong> — it does not work with Next.js/Turbopack. And even if it did, hiding imports is actively harmful in App Router, where whether a file is a Server or Client Component depends on what it imports.</td>
+              </tr>
+              <tr>
+                <td class="r">setup-loader-system</td>
+                <td>A centralised swappable loader (spinner/skeleton/NProgress) using the adapter pattern + Zustand.</td>
+                <td><span class="v drop">Remove</span> Next.js handles this with <code>loading.tsx</code> and Suspense — we already have <code>app/blog/loading.tsx</code> using shadcn's Skeleton. Adding Zustand for loading state on a static site is machinery with nothing to do.</td>
+              </tr>
+              <tr>
+                <td class="r">robust-error-handling</td>
+                <td>Pluggable error strategies — form / toast / alert — decoupling forms from error display, with centralised API error management.</td>
+                <td><span class="v drop">Remove</span> The closest call in the set: we <em>do</em> use react-hook-form and Radix. But it's built around a Vite <code>apiClient</code> + TanStack mutation stack we don't have, and Next covers the rest with <code>error.tsx</code> + <code>not-found.tsx</code>. Our three forms report errors inline via zod plus a Sonner toast — about 15 lines.</td>
+              </tr>
+              <tr>
+                <td class="r">eslint-setup</td>
+                <td>Installs 9 ESLint packages and a config enforcing kebab-case filenames, no-Flow, and a strict <code>app → modules → shared → lib → core</code> import graph.</td>
+                <td><span class="v drop">Remove</span> Would <strong>break our lint</strong>. It enforces a folder architecture we deliberately don't use, and would flag every file we've written. We already have <code>eslint-config-next</code>, which additionally catches React Compiler issues <code>tsc</code> can't see. Its own docs point at a missing <code>docs/ESLINT_SETUP.md</code>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Remove — ERP-specific generators with no analogue here</h4>
+        <p>Each of these generates code against the ERP's own layers, menu config, or router. On this project they'd either refuse to run or emit files into folders that don't exist.</p>
+        <div class="scroller">
+          <table>
+            <thead><tr><th>Skill</th><th>What it does</th><th>Blocker</th></tr></thead>
+            <tbody>
+              <tr><td class="r">scaffold-screen</td><td>Scaffolds api/queries/hooks/types/services/locale files for one of the ERP's ~500 sidebar screens, beside its existing <code>page.tsx</code>.</td><td><span class="v drop">Remove</span> No sidebar, no 500 screens, no <code>src/modules/&lt;section&gt;/&lt;module&gt;/pages/</code>.</td></tr>
+              <tr><td class="r">add-module-generator</td><td>Generates a whole ERP business module from a spec: folders, menu config, routes, path definitions, page templates.</td><td><span class="v drop">Remove</span> We have no module system and no menu config; routing is the folder tree itself.</td></tr>
+              <tr><td class="r">implement-api-integration</td><td>Turns a curl command + sample response into a typed 4-layer integration wired into a screen.</td><td><span class="v drop">Remove</span> No runtime API to integrate. Build-time content fetching only.</td></tr>
+              <tr><td class="r">form-integration-generator</td><td>From a form spec, generates labels file, endpoint, zod schema, API fn, React Query mutation, hook wrapper, component.</td><td><span class="v drop">Remove</span> Assumes TanStack mutations and the ERP form kit. Our three forms are already built.</td></tr>
+              <tr><td class="r">reusable-modal-system</td><td>Implements workflow modals against the shared <code>modalService</code> / <code>ModalType</code> registry.</td><td><span class="v drop">Remove</span> No modal system, and no CRUD workflows to put in one.</td></tr>
+              <tr><td class="r">migrate-screen-routing</td><td>Migrates a screen's Add/Edit/View from local <code>useState</code> to URL-backed routing via <code>useScreenRouteState</code>.</td><td><span class="v drop">Remove</span> Solves a react-router problem. In App Router every page already has a real, refresh-safe URL by construction.</td></tr>
+              <tr><td class="r">enforce-ui-guard</td><td>Wires button-level RBAC gating (<code>&lt;Can&gt;</code>) onto a screen's Add/Edit/Delete/Export actions.</td><td><span class="v drop">Remove</span> The site has <strong>no authentication and no roles</strong> — login is an external link. Also needs a missing <code>docs/RBAC_IMPLEMENTATION.md</code>.</td></tr>
+              <tr><td class="r">keyboard-tab-navigation</td><td>ERP-style keyboard flow: Tab/Enter advance through numbered fields, Enter on the last field submits.</td><td><span class="v drop">Remove</span> Right for an operator doing 200 records a day; wrong for a public site, where Enter-to-advance breaks the browser behaviour visitors expect.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Remove — build artefacts that shouldn't be in a repo at all</h4>
+        <p>Roughly two-thirds of the 163 files are not skills. They're output from running <code>skill-creator</code>'s benchmarks in the other project:</p>
+<pre><u>skills/implement-api-integration-workspace/</u>   <i>eval runs, gradings, timings,</i>
+<u>skills/reusable-modal-system-workspace/</u>       <i>generated ERP source under</i>
+<u>skills/robust-error-handling-workspace/</u>        <i>with_skill/ and without_skill/</i>
+<u>skills/skill-creator/scripts/__pycache__/</u>      <i>compiled Python (.pyc)</i>
+<u>skills/robust-error-handling.skill</u>             <i>packaged duplicates of</i>
+<u>skills/logger-system-setup/logger-system-setup.skill</u>  <i>skills already unpacked</i></pre>
+        <p>These have no effect on behaviour — they're just weight, and they contain generated ERP code that will confuse anyone grepping this repo. <span class="v drop">Remove regardless</span> of what you decide about the skills themselves.</p>
+      </section>
+
+      <!-- ============ 05 ============ -->
+      <section class="part" id="agent">
+        <span class="part-no">PART 05</span>
+        <h2>The agent</h2>
+        <p class="dek">One agent, and it's the easiest call in the audit.</p>
+
+        <div class="card">
+          <h4><code>agents/code-quality-reviewer.md</code> · runs on Haiku</h4>
+          <p><strong>What it's for:</strong> you hand it specific file paths and it produces a compliance report — per-file status, standards met, issues with severity and recommendation, an overall score and an APPROVED / NEEDS REVISION verdict. It runs in its own context, so reading all those files doesn't consume your main conversation.</p>
+          <p><strong>Why it can't work here:</strong> its entire method is <em>"review the complete <code>docs/CODE_QUALITY.md</code> document to understand all applicable standards"</em> — and it's told to cite specific sections when reporting a violation. <code>docs/CODE_QUALITY.md</code> <strong>does not exist in this repo.</strong> It would either fail immediately or invent standards to review against, which is worse than not reviewing.</p>
+          <p><strong>Verdict:</strong> <span class="v drop">Remove</span> — but the <em>idea</em> is good and worth rebuilding later against a real standards file. Meanwhile the built-in <code>/code-review</code> command does the same job with no setup, reviewing your actual diff.</p>
+        </div>
+
+        <div class="note">
+          <span class="tag">Also worth knowing</span>
+          <p><code>.claude/settings.local.json</code> is <strong>yours</strong> — it's the growing allowlist of commands you've approved me to run without asking (npm, shadcn, the site fetches). Leave it alone; it's working as intended. <code>settings.json</code> is the shared one, and it currently just enables the <code>skill-creator</code> plugin.</p>
+        </div>
+      </section>
+
+      <!-- ============ 06 ============ -->
+      <section class="part" id="action">
+        <span class="part-no">PART 06</span>
+        <h2>What I'd do</h2>
+        <p class="dek">The tally, then the order. Nothing here is urgent for correctness of the code we've written — it's about not being misled on the next thing we write.</p>
+
+        <div class="tally">
+          <div class="tile k"><b>Keep</b><span>4</span><em>3 skills + 1 plugin</em></div>
+          <div class="tile e"><b>Keep, edited</b><span>2</span><em>typescript + eslint principle</em></div>
+          <div class="tile d"><b>Remove</b><span>21</span><em>7 rules · 13 skills · 1 agent</em></div>
+          <div class="tile d"><b>Files dropped</b><span>~140</span><em>of 163</em></div>
+        </div>
+
+        <ol class="rules">
+          <li><b>Replace <code>.claude/CLAUDE.md</code> — the single highest-value change.</b> A Next.js version of it is roughly <strong>2 KB, not 69 KB</strong>: our stack, our folder structure, the eight rules that keep files short, the static-export constraints, and the three commands that must pass. Most of that content already exists in the <code>README.md</code> I wrote — it's a condense-and-move, not new writing. This alone stops every future session from starting with wrong assumptions.</li>
+          <li><b>Trim <code>rules/</code> to one file.</b> Keep <code>typescript-rule.md</code> with the two fixes from Part 03. Fold the "zero ESLint errors, never <code>eslint-disable</code>" discipline and the "no hardcoded colours" principle into the new CLAUDE.md as two lines each. Delete the other seven — that's <strong>335 KB</strong> of another project's architecture gone.</li>
+          <li><b>Trim <code>skills/</code> to four.</b> <code>mr-description</code>, <code>commit-lint-setup</code>, <code>skill-creator</code>, and <code>logger-system-setup</code> if you want it. Delete the other thirteen and all the <code>*-workspace/</code> artefacts.</li>
+          <li><b>Delete the agent</b>, and use the built-in <code>/code-review</code> until there's a real standards file to point a custom reviewer at.</li>
+          <li><b>Run <code>commit-lint-setup</code>.</b> With <code>npm run verify</code> already green, a pre-commit hook makes the discipline automatic rather than remembered — which is exactly the class of problem your teamlead is trying to avoid.</li>
+          <li><b>Later, write the skills this project actually wants.</b> Once the brand pass and CMS wiring are done, the repeatable procedures here are things like <em>add a new marketing page</em> (route + section + content file + metadata + sitemap entry) and <em>verify a static export before deploy</em>. Use <code>skill-creator</code> to build them, in this repo, against files that exist.</li>
+        </ol>
+
+        <div class="verdict">
+          <span class="tag">Before I delete anything</span>
+          <p>Two things worth confirming with your teamlead first. <strong>One:</strong> was this folder copied in deliberately as a starting template, or by accident? If it was deliberate, the intent was probably "reuse our standards" — and the honest answer is that the <em>standards</em> transfer but the <em>files</em> don't, because they're written against components this project doesn't have. <strong>Two:</strong> this repo isn't under git yet. I'd rather <code>git init</code> and commit the current state first, so removing 140 files is a revertible commit instead of an irreversible delete. Say the word and I'll do it in that order.</p>
+        </div>
+      </section>
+
+      <footer class="end">
+        Config audit · 8 rules · 17 skills · 1 agent · 163 files · 1.3 MB · measured against Next.js 16 static export
+      </footer>
+
+    </main>
+  </div>
+</div>

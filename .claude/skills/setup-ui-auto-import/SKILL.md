@@ -1,0 +1,393 @@
+---
+name: setup-ui-auto-import
+description: Set up global auto-import for React UI components in a Vite + React project. Makes all shared UI components (Button, Form, Input, Dialog, Select, etc.) automatically imported without writing import statements. Use this when setting up a new React project or migrating an existing one to enable clean component usage without repetitive imports. This is a step-by-step reference guide that follows the unplugin-auto-import pattern.
+disable-model-invocation: true
+---
+
+# UI Auto-Import Setup Guide
+
+A complete step-by-step checklist for setting up global auto-import of UI components in a Vite + React application using `unplugin-auto-import`.
+
+## Why This Matters
+
+Without auto-import, every component file needs explicit imports:
+
+```tsx
+import { Button } from '@/shared/ui/button';
+import { Form, FormInput } from '@/shared/ui/form';
+```
+
+With auto-import, developers just use components without imports — the plugin injects them at build time:
+
+```tsx
+// No imports needed! Button, Form, FormInput are globally available
+<Form>
+  <Button>Submit</Button>
+</Form>
+```
+
+---
+
+## Prerequisites
+
+- Vite project configured with React
+- TypeScript set up (tsconfig.json with path aliases)
+- `@/` alias pointing to `src/`
+- Existing `src/shared/ui/` folder with component subfolders
+
+---
+
+## Step 1: Create Root UI Barrel
+
+**File:** `src/shared/ui/index.ts`
+
+Create this file and re-export all components from subfolders:
+
+```ts
+// Button
+export * from './button';
+
+// Form system (complex multi-export)
+export * from './form';
+
+// Input primitive
+export * from './input';
+
+// Label
+export * from './label';
+
+// Dialog/Modal primitives (from @radix-ui/react-dialog wrapper)
+export * from './modal';
+
+// Select
+export * from './select';
+
+// Switch
+export * from './switch';
+
+// Textarea
+export * from './textarea';
+
+// Note: drawer/, loader/, table/ are currently stubs — add them here once implemented
+```
+
+**Why:** This creates a single source of truth for all UI component exports. The plugin needs this to know what's available for auto-import.
+
+---
+
+## Step 2: Install unplugin-auto-import
+
+Run this command in your project root:
+
+```bash
+npm install -D unplugin-auto-import
+```
+
+This adds unplugin-auto-import as a dev dependency. It's a well-maintained Vite plugin by Anthony Fu (creator of Vite).
+
+---
+
+## Step 3: Update vite.config.ts
+
+Add the AutoImport plugin to your `defineConfig`:
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import AutoImport from 'unplugin-auto-import/vite';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [
+    react(),
+    AutoImport({
+      imports: [
+        {
+          '@/shared/ui': [
+            // Button
+            'Button',
+
+            // Form system
+            'Form',
+            'FormProvider',
+            'FormItem',
+            'FormLabel',
+            'FormControl',
+            'FormDescription',
+            'FormMessage',
+            'FormField',
+            'FormInput',
+            'FieldWrapper',
+            'Error',
+
+            // Input
+            'Input',
+
+            // Label
+            'Label',
+
+            // Dialog primitives
+            'Dialog',
+            'DialogPortal',
+            'DialogOverlay',
+            'DialogClose',
+            'DialogTrigger',
+            'DialogContent',
+            'DialogHeader',
+            'DialogFooter',
+            'DialogTitle',
+            'DialogDescription',
+
+            // Select
+            'Select',
+            'SelectGroup',
+            'SelectValue',
+            'SelectTrigger',
+            'SelectContent',
+            'SelectItem',
+            'SelectSeparator',
+            'SelectScrollUpButton',
+            'SelectScrollDownButton',
+
+            // Switch
+            'Switch',
+
+            // Textarea
+            'Textarea',
+          ],
+        },
+      ],
+      // Generate TypeScript declarations so IDE knows about global components
+      dts: 'src/types/auto-imports.d.ts',
+    }),
+  ],
+  resolve: {
+    alias: { '@': path.resolve(process.cwd(), 'src') },
+  },
+  // ... rest of config unchanged
+});
+```
+
+**Key options:**
+
+- `imports`: Maps module path to array of exported names
+- `dts`: Path where TypeScript declarations are auto-generated
+
+---
+
+## Step 4: Update tsconfig.app.json
+
+Add the generated declaration file to TypeScript's `include` array:
+
+```json
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "src/types/auto-imports.d.ts"]
+}
+```
+
+This tells TypeScript to recognize global component declarations.
+
+---
+
+## Step 5: First Run
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+On first run, unplugin-auto-import will generate `src/types/auto-imports.d.ts` automatically. You'll see it appear in the file system:
+
+```ts
+// This file is auto-generated by unplugin-auto-import
+declare global {
+  const Button: (typeof import('@/shared/ui'))['Button'];
+  const Form: (typeof import('@/shared/ui'))['Form'];
+  const FormProvider: (typeof import('@/shared/ui'))['FormProvider'];
+  // ... all other components
+}
+export {};
+```
+
+✅ **Do NOT edit this file manually** — it regenerates every time you change `vite.config.ts`.
+
+---
+
+## Step 6: Verify It Works
+
+### Check 1: Dev Server
+
+```bash
+npm run dev
+```
+
+✅ Server starts with no errors  
+✅ `src/types/auto-imports.d.ts` exists
+
+### Check 2: Type Recognition
+
+Open any component file and use a UI component without importing:
+
+```tsx
+export function MyComponent() {
+  return <Button>Click me</Button>; // No import!
+}
+```
+
+✅ No red squiggly line (TypeScript recognizes it)  
+✅ IDE autocomplete works when you type `<`
+
+### Check 3: TypeScript Check
+
+```bash
+npx tsc --noEmit
+```
+
+✅ Zero errors  
+✅ Components recognized as globals
+
+### Check 4: Production Build
+
+```bash
+npm run build
+```
+
+✅ Build succeeds  
+✅ No warnings about unused imports
+
+---
+
+## Adding New UI Components
+
+When you create a new component (e.g., `Checkbox`):
+
+### 1. Create component folder
+
+```
+src/shared/ui/checkbox/
+├── checkbox.tsx
+├── checkbox-variants.ts (if needed)
+└── index.ts
+```
+
+### 2. Update `src/shared/ui/index.ts`
+
+Add one line:
+
+```ts
+// Checkbox
+export * from './checkbox';
+```
+
+### 3. Update `vite.config.ts`
+
+Add the component name to the imports array:
+
+```ts
+'@/shared/ui': [
+  'Button',
+  'Checkbox',  // ← NEW
+  'Form',
+  // ...
+]
+```
+
+### 4. Regenerate types
+
+Restart `npm run dev` (or save `vite.config.ts`). The plugin regenerates declarations automatically.
+
+---
+
+## Troubleshooting
+
+### Problem: "Component is not defined"
+
+**Cause:** Component not in `vite.config.ts` imports array.  
+**Fix:**
+
+1. Add component name to `imports` array
+2. Restart `npm run dev`
+
+### Problem: Duplicate imports
+
+**Cause:** Component both explicitly imported AND auto-imported.  
+**Fix:** Remove the explicit `import` statement. Let the plugin handle it.
+
+### Problem: TypeScript doesn't recognize components
+
+**Cause:** `src/types/auto-imports.d.ts` not in `tsconfig.app.json` include.  
+**Fix:** Add it to the `include` array and restart.
+
+### Problem: Generated file keeps changing in git
+
+**Cause:** File is auto-generated; commit it and formatting shifts.  
+**Fix:** Add to `.gitignore`:
+
+```
+src/types/auto-imports.d.ts
+```
+
+Developers run `npm run dev` once locally to generate it.
+
+---
+
+## How It Works (The Flow)
+
+```
+1. Component uses <Button> (no import)
+         ↓
+2. unplugin-auto-import scans the file
+         ↓
+3. Checks: is 'Button' in imports['@/shared/ui']? YES
+         ↓
+4. Injects: import { Button } from '@/shared/ui'
+         ↓
+5. Import resolves to: src/shared/ui/index.ts (root barrel)
+         ↓
+6. Barrel re-exports from: src/shared/ui/button/index.ts
+         ↓
+7. Final component loaded from: src/shared/ui/button/button.tsx
+         ↓
+8. TypeScript knows it's global (via auto-imports.d.ts)
+         ↓
+✅ Component works, no manual import needed
+```
+
+---
+
+## Files Changed
+
+| File                          | Change                                   |
+| ----------------------------- | ---------------------------------------- |
+| `src/shared/ui/index.ts`      | **Create** — root barrel                 |
+| `vite.config.ts`              | **Update** — add AutoImport plugin       |
+| `tsconfig.app.json`           | **Update** — include auto-imports.d.ts   |
+| `src/types/auto-imports.d.ts` | **Generated** — don't edit               |
+| `package.json`                | **Updated** — unplugin-auto-import added |
+
+---
+
+## Benefits
+
+✅ No repetitive import statements  
+✅ Full TypeScript type checking  
+✅ IDE autocomplete for all components  
+✅ Tree-shaking unaffected (imports are per-file)  
+✅ Clean component code  
+✅ Single source of truth for UI exports
+
+---
+
+## Related Skills & Docs
+
+- [CORE_VS_SHARED.md](../../docs/CORE_VS_SHARED.md) — Architecture guide for shared vs core
+- [UI_AUTO_IMPORT.md](../../docs/UI_AUTO_IMPORT.md) — Detailed walkthrough with before/after examples
+- unplugin-auto-import docs: https://github.com/antfu/unplugin-auto-import
