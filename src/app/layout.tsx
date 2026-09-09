@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { env } from "@/config/env";
 import { SITE } from "@/content/site";
 import { organizationJsonLd } from "@/lib/seo";
@@ -8,7 +8,21 @@ import { Footer, Header } from "@/components/layout";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+/**
+ * Poppins, matching ampliteach.com — the live theme sets it on body, the nav
+ * and every heading (h1–h4 at 800, h5 700, h6 600).
+ *
+ * Poppins is not a variable font on Google Fonts, so the weights are listed
+ * explicitly. The live site only requests `Poppins:400,500` yet its CSS asks
+ * for 600/700/800, so every heading there is a browser-synthesised faux bold;
+ * loading the real weights is the one place this deliberately differs.
+ */
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
@@ -22,7 +36,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
+    <html lang="en" className={cn("font-sans", poppins.variable)}>
       <body className="flex min-h-dvh flex-col antialiased">
         <a
           href="#main"
