@@ -8,6 +8,33 @@ privacy, terms. That is the whole scope.
 rendering table, and the static-export constraints live there and are not
 repeated here. Architecture study: `docs/nextjs-architecture-plan.html`.
 
+## Project requirements
+
+These come from the client and govern every other decision in this file.
+
+1. **Pixel-perfect parity with ampliteach.com, animations included.** Design,
+   content and media are reproduced **as-is** — not reinterpreted, not
+   modernised. A more contemporary type scale, a fluid heading, a cleaner
+   accent is a **regression** against this requirement, not an upgrade.
+2. **Parity at every viewport** — desktop, tablet and mobile alike.
+3. **Responsive across all six breakpoints.** This is the one place we go
+   beyond the live site, which is not responsive. `xs`–`xl`
+   (480/600/768/1024/1200) are the live site's own boundaries, so a live
+   `@media (max-width: 599px)` rule ports straight to `sm:`. Tokens are in
+   `src/app/globals.css`.
+4. **Never deviate silently.** Extract real values from the live site's
+   **stylesheets**, not its declared theme globals — those are Elementor
+   factory defaults, not the brand. Where a judgement call would change the
+   visual result, **ask** rather than choose. Every agreed difference is
+   recorded in [`docs/PARITY.md`](../docs/PARITY.md); add to that log instead
+   of deciding quietly.
+5. **Build order.** Finish and confirm setup before any page work, then build
+   **page by page, starting from the home page**. If page work comes up
+   mid-setup, note it and move on.
+
+[`docs/PARITY.md`](../docs/PARITY.md) holds the measured live-site values, how
+they were measured, the deviation log, and the open visual questions.
+
 ## Stack
 
 Next.js 16 (App Router) · React 19 · TypeScript strict · **Tailwind v4** ·
