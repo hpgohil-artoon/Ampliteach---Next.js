@@ -146,10 +146,29 @@
   --muted-foreground: #818a91;
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* Error, deliberately NOT the shadcn default.
+   *
+   * The brand is red, so shadcn's stock --destructive collided with it almost
+   * exactly — #E7000B against the brand's #FF1616, a 1.3° hue and 0.05
+   * lightness apart. A required-field asterisk, an error message and an
+   * invalid input's border were therefore all rendering in what read as the
+   * brand colour, right beside a brand-red submit button.
+   *
+   * This deep crimson separates on BOTH channels — ~11° of hue and 0.12 of
+   * lightness — so it stays distinguishable where it actually appears: 12px
+   * text and a 1px border. Lightness alone is not enough at those sizes.
+   *
+   *   #BF0037 = oklch(0.510 0.204 17.7)
+   *   6.42:1 on white, and 5.88:1 on the /10 tint that Badge and Button
+   *   render their text on — both clear WCAG AA for small text (4.5:1).
+   *
+   * No --destructive-foreground: it is only ever used as text or a low-alpha
+   * tint, never as a solid fill.
+   */
+  --destructive: #bf0037;
 
-  /* Status — form feedback, toasts, badges. Same shape as --destructive, which
-   * shadcn already ships: deeper + more chroma in light, lighter in dark. */
+  /* Status — form feedback, toasts, badges. Same shape as --destructive:
+   * deeper + more chroma in light, lighter in dark. */
   --success: oklch(0.627 0.194 149.214);
   --success-foreground: oklch(0.985 0 0);
   --warning: oklch(0.769 0.188 70.08);
@@ -201,7 +220,13 @@
   --muted: oklch(0.269 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  /* Same collision on the dark ground, where the brand stays #FF1616: the
+   * stock #FF6467 was only 6.4° of hue from it. This rose is 17.8° away and
+   * lighter, which is the conventional direction for an error colour on dark.
+   *
+   *   #F8718A = oklch(0.716 0.166 10.8), 7.28:1 on the dark background.
+   */
+  --destructive: #f8718a;
 
   /* Status — lifted for contrast against the dark ground. */
   --success: oklch(0.723 0.219 149.579);
