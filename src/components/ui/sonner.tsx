@@ -1,6 +1,5 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 import {
   CircleCheckIcon,
@@ -10,12 +9,26 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
+/**
+ * NOTE — diverges from the shadcn CLI output on purpose. Do not restore the
+ * `useTheme()` call on the next `shadcn add sonner`.
+ *
+ * The stock component reads `next-themes`' `useTheme()`, but this app mounts no
+ * `ThemeProvider`. next-themes' hook is
+ * `() => useContext(ctx) ?? { setTheme, themes: [] }` — the fallback has no
+ * `theme` key at all, so the stock `const { theme = "system" }` resolved to
+ * "system", and Sonner then followed `prefers-color-scheme`. A visitor with the
+ * OS set to dark got a dark toast on a site that is light everywhere else
+ * (nothing ever adds the `.dark` class).
+ *
+ * The site matches ampliteach.com, which is light-only, so the toast is pinned
+ * to light. If dark mode is ever a real feature, add a ThemeProvider and read
+ * the theme from it — not from a hook with no provider behind it.
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
-
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme="light"
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-4" />,
