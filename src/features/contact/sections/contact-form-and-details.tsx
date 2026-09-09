@@ -1,17 +1,7 @@
 import { CONTACT_PAGE } from "@/content/contact";
 import { ContactForm } from "@/components/forms";
 import { Card, CardContent } from "@/components/ui/card";
-import { Container, MapEmbed, Section, SectionHeading } from "@/components/common";
-
-export function ContactHero() {
-  return (
-    <Section spacing="tight">
-      <Container size="narrow">
-        <SectionHeading as="h1" title={CONTACT_PAGE.heading} description={CONTACT_PAGE.body} />
-      </Container>
-    </Section>
-  );
-}
+import { Container, Section } from "@/components/common";
 
 export function ContactFormAndDetails() {
   return (
@@ -44,16 +34,6 @@ export function ContactFormAndDetails() {
             ))}
           </ul>
         </div>
-      </Container>
-    </Section>
-  );
-}
-
-export function ContactMap() {
-  return (
-    <Section spacing="tight" tone="muted">
-      <Container>
-        <MapEmbed src={CONTACT_PAGE.map.src} title={CONTACT_PAGE.map.title} />
       </Container>
     </Section>
   );

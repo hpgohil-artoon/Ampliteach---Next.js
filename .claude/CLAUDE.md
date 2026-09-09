@@ -72,14 +72,51 @@ automatically: `--brand` → `bg-brand`. Opacity modifiers work normally
 (`bg-primary/90`) — v4 handles alpha via `color-mix()` internally, so the old
 manual `color-mix()` workaround is not needed here.
 
+## File structure — one thing per file
+
+**One exported component per file. No exceptions under `features/`.** A file is
+named for the thing you would point at in a screenshot, so "the pricing cards
+are misaligned on tablet" leads to exactly one file. This is the template for
+every page; `features/home/` and `features/blog/` are the reference.
+
+```
+src/app/(marketing)/<page>/page.tsx   route entry: metadata + compose. 20–40 lines.
+src/content/<page>.ts                 every word of copy, typed
+
+src/features/<page>/
+├─ sections/                          ONE FILE PER SECTION, named as the design names it
+│  ├─ hero.tsx
+│  ├─ overview.tsx
+│  └─ index.ts                        barrel — its order IS the page outline
+└─ components/                        a piece shared by two sections on this page,
+   └─ pricing-card.tsx                or one extracted from a section that grew
+```
+
+**`sections/index.ts` is a barrel — re-exports only, never components.** Putting
+two sections in one file is the specific mistake this rule prevents:
+`why-choose/sections/index.tsx` currently holds **six**, and
+`features-benefits` (4), `contact` (3), `pricing` (3) and `little-rockers` (2)
+do the same. Bring each in line the next time it is touched.
+
+**Split a section out when any of these is true:**
+
+- it passes ~80 lines
+- a second component appears in the file
+- a piece of it is needed by another section → move to `components/`
+- it mixes layout with a distinct concern — a form, a carousel, an animation
+
+**One mechanism, one home.** Anything cross-cutting — an animation, a scroll
+behaviour, a formatter — is written once (a hook in `src/hooks/`, keyframes as
+`@theme --animate-*` tokens, a helper in `src/lib/utils/`) and imported. Never
+re-implemented per section, or a fix lands in one of thirty copies.
+
 ## Conventions
 
 - **No hex, `rgb()`, named CSS colours or inline colour styles in components.**
   Use the tokens: `bg-background`, `text-foreground`, `bg-card`, `bg-primary`,
   `text-muted-foreground`, `border-border`, `text-destructive`, `bg-brand`.
-  A colour change belongs in `globals.css` and nowhere else. The palette is
-  currently the shadcn placeholder — `--primary` / `--brand-*` / `--font-heading`
-  are awaiting the real brand values.
+  A colour change belongs in `globals.css` and nowhere else — the palette there
+  is measured from the live site, so treat it as data, not as a starting point.
 - **A page file only composes** — imports sections, exports `metadata`, returns
   them in order (20–40 lines). Page metadata is always `buildMetadata()` from
   `@/lib/seo`; never a hand-rolled `Metadata` object, and never react-helmet
