@@ -16,6 +16,47 @@
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
 
+  /* --- Breakpoints --------------------------------------------------------
+   * Every one of xs–xl is a real boundary in ampliteach.com's own CSS, so a
+   * live `@media (max-width: 599px)` rule ports to `sm:` with no arithmetic
+   * and no off-by-one. Extracted from its stylesheets, by frequency:
+   *
+   *   479/480   xs   — where the live container finally goes fluid (90%)
+   *   599/600   sm
+   *   767/768   md   — Elementor's mobile/tablet boundary (40 rules)
+   *   1023/1024 lg   — Elementor's tablet/desktop boundary (24 rules)
+   *   1199/1200 xl   — the live desktop step
+   *
+   * md and lg are byte-identical to Tailwind's stock values, which is lucky
+   * rather than designed — they are Elementor's defaults. sm moves 640→600
+   * and xl 1280→1200 to land on the live boundaries; xs is new (Tailwind
+   * ships none). 2xl stays stock for ultrawide, which the live site has no
+   * opinion about. Kept in rem so md/lg stay exactly as Tailwind defines
+   * them, and so the scale respects a changed browser font size.
+   */
+  --breakpoint-xs: 30rem;
+  --breakpoint-sm: 37.5rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 75rem;
+  --breakpoint-2xl: 96rem;
+
+  /* --- Container widths ---------------------------------------------------
+   * Both are measured live values.
+   *
+   * `site` (1170px) is what page content actually aligns to. Note it is NOT
+   * the 1220px Elementor "content width" setting: that boxed container sits
+   * inside the theme's `.container{width:1170px}`, which clips it. The chain
+   * is .container → .row (negative margin cancelled) → .content-container
+   * (padding:0) → #main_content>.elementor (margin:0 -10px, cancelling the
+   * column gap).
+   *
+   * `wide` (1220px) is the unclipped Elementor boxed width, which the header
+   * template uses because it sits outside the theme container.
+   */
+  --container-site: 73.125rem;
+  --container-wide: 76.25rem;
+
   /* --- Heading scale ------------------------------------------------------
    * ampliteach.com's scale, verbatim. The live theme styles h1–h6 globally
    * and every heading on the site renders at `elementor-size-default`, so
