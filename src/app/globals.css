@@ -15,6 +15,53 @@
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
+
+  /* --- Heading scale ------------------------------------------------------
+   * ampliteach.com's scale, verbatim. The live theme styles h1–h6 globally
+   * and every heading on the site renders at `elementor-size-default`, so
+   * these six values ARE the site's typography — the `elementor-size-*`
+   * classes (15/19/29/39/59px) exist in its CSS but are unused.
+   *
+   *        live px    weight
+   *   h1   40 / 43      800
+   *   h2   30 / 40      800
+   *   h3   24 / 30      800
+   *   h4   20 / 33      800
+   *   h5   18 / 30      700
+   *   h6   16 / 24      600
+   *
+   * Sizes are rem and line-heights unitless — identical rendering at a 16px
+   * root, but they respect a reader who has changed their browser font size,
+   * which the live site's hard px does not.
+   *
+   * The scale is deliberately FLAT: the live theme has no media query that
+   * changes a heading size, so neither does this. Adding a responsive step
+   * is a one-line edit per token here, and nowhere else.
+   */
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 1.075;
+  --text-h1--font-weight: 800;
+
+  --text-h2: 1.875rem;
+  --text-h2--line-height: 1.3333;
+  --text-h2--font-weight: 800;
+
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.25;
+  --text-h3--font-weight: 800;
+
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.65;
+  --text-h4--font-weight: 800;
+
+  --text-h5: 1.125rem;
+  --text-h5--line-height: 1.6667;
+  --text-h5--font-weight: 700;
+
+  --text-h6: 1rem;
+  --text-h6--line-height: 1.5;
+  --text-h6--font-weight: 600;
+
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
@@ -196,6 +243,29 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /* The live theme styles h1–h6 by tag, so bare headings — CMS post bodies
+   * especially, whose HTML carries no classes — get the scale for free. A
+   * component that needs a different level still just sets `text-h3` etc.,
+   * because a utility outranks the base layer. */
+  h1 {
+    @apply text-h1;
+  }
+  h2 {
+    @apply text-h2;
+  }
+  h3 {
+    @apply text-h3;
+  }
+  h4 {
+    @apply text-h4;
+  }
+  h5 {
+    @apply text-h5;
+  }
+  h6 {
+    @apply text-h6;
   }
 }
 

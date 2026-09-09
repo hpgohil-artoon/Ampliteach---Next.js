@@ -9,9 +9,7 @@ export function Hero() {
       <ParticleDecor />
       <Container className="relative grid items-center gap-12 lg:grid-cols-2">
         <div className="flex flex-col items-start gap-6">
-          <h1 className="font-heading text-4xl font-bold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-            {HERO.heading}
-          </h1>
+          <h1 className="font-heading text-h1 text-balance">{HERO.heading}</h1>
           <p className="text-muted-foreground max-w-xl text-lg leading-relaxed">{HERO.body}</p>
           <Button asChild size="lg">
             <Link href={HERO.cta.href} target="_blank" rel="noopener noreferrer">

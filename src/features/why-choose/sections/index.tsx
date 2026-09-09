@@ -21,9 +21,7 @@ export function ProfitClaim() {
   return (
     <Section tone="muted" spacing="tight">
       <Container size="narrow" className="text-center">
-        <h2 className="font-heading text-2xl font-bold text-balance sm:text-3xl">
-          {WHY_CHOOSE.profitClaim.heading}
-        </h2>
+        <h2 className="font-heading text-h2 text-balance">{WHY_CHOOSE.profitClaim.heading}</h2>
         <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
           {WHY_CHOOSE.profitClaim.body}
         </p>
@@ -39,7 +37,7 @@ export function CurriculumAndSupport() {
         {WHY_CHOOSE.blocks.map((block) => (
           <Card key={block.heading} className="h-full">
             <CardContent className="flex flex-col gap-3">
-              <h2 className="font-heading text-xl font-semibold text-balance">{block.heading}</h2>
+              <h2 className="font-heading text-h4 text-balance">{block.heading}</h2>
               <p className="text-muted-foreground leading-relaxed">{block.body}</p>
             </CardContent>
           </Card>
@@ -98,7 +96,7 @@ export function PitchBlocks() {
         {WHY_CHOOSE.pitchBlocks.map((block) => (
           <Card key={block.heading} className="h-full">
             <CardContent className="flex flex-col gap-3">
-              <h2 className="font-heading text-lg font-semibold text-balance">{block.heading}</h2>
+              <h2 className="font-heading text-h5 text-balance">{block.heading}</h2>
               <p className="text-muted-foreground text-sm leading-relaxed">{block.body}</p>
             </CardContent>
           </Card>

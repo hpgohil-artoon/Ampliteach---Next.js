@@ -24,7 +24,7 @@ export function ContactFormAndDetails() {
         </Card>
 
         <div className="flex flex-col gap-6">
-          <h2 className="font-heading text-xl font-semibold">Contact details</h2>
+          <h2 className="font-heading text-h4">Contact details</h2>
           <ul className="flex flex-col gap-5 text-sm">
             {CONTACT_PAGE.details.map((detail) => (
               <li key={detail.label} className="flex flex-col gap-1">

@@ -11,7 +11,7 @@ export function FeatureCard({ title, description, icon: Icon }: Feature) {
             <Icon className="size-5" aria-hidden />
           </span>
         ) : null}
-        <h3 className="font-heading text-lg font-semibold">{title}</h3>
+        <h3 className="font-heading text-h5">{title}</h3>
         <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
       </CardContent>
     </Card>

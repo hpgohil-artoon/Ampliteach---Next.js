@@ -22,9 +22,7 @@ export function PageTitle() {
         <Breadcrumbs
           items={[{ label: "Home", href: ROUTES.home }, { label: "Features & Benefits" }]}
         />
-        <h1 className="font-heading text-4xl font-bold tracking-tight sm:text-5xl">
-          Features &amp; Benefits
-        </h1>
+        <h1 className="font-heading text-h1">Features &amp; Benefits</h1>
       </Container>
     </Section>
   );
@@ -55,11 +53,11 @@ export function TeacherStudentBenefits() {
 
         <div className="grid gap-12 md:grid-cols-2">
           <div className="flex flex-col gap-5">
-            <h3 className="font-heading text-xl font-semibold">For Teachers</h3>
+            <h3 className="font-heading text-h4">For Teachers</h3>
             <BenefitList items={TEACHER_BENEFITS} />
           </div>
           <div className="flex flex-col gap-5">
-            <h3 className="font-heading text-xl font-semibold">For Students</h3>
+            <h3 className="font-heading text-h4">For Students</h3>
             <BenefitList items={STUDENT_PAGE_BENEFITS} />
           </div>
         </div>

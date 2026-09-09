@@ -38,7 +38,7 @@ export function PlanGrid({ plans }: { plans: PricingPlan[] }) {
           .filter((group) => group.plans.length > 0)
           .map((group) => (
             <div key={group.title} className="flex flex-col gap-8">
-              <h2 className="font-heading text-2xl font-bold tracking-tight">{group.title}</h2>
+              <h2 className="font-heading text-h3">{group.title}</h2>
               <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {group.plans.map((plan) => (
                   <li key={plan.id}>
@@ -61,7 +61,7 @@ export function EnterprisePricing() {
       <Container size="narrow">
         <Card>
           <CardContent className="flex flex-col items-center gap-4 text-center">
-            <h2 className="font-heading text-2xl font-bold text-balance">{enterprise.heading}</h2>
+            <h2 className="font-heading text-h3 text-balance">{enterprise.heading}</h2>
             <p className="text-muted-foreground leading-relaxed">{enterprise.body}</p>
             <p className="font-heading text-xl font-semibold">{enterprise.priceLabel}</p>
             <Button asChild size="lg">

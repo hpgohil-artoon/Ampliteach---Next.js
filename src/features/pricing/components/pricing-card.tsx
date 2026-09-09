@@ -13,7 +13,7 @@ export function PricingCard({ plan }: { plan: PricingPlan }) {
     <Card className={cn("flex h-full flex-col", plan.featured && "border-primary shadow-md")}>
       <CardHeader className="flex flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-heading text-lg font-semibold">{plan.name}</h3>
+          <h3 className="font-heading text-h5">{plan.name}</h3>
           {plan.featured ? <Badge>Most popular</Badge> : null}
         </div>
 

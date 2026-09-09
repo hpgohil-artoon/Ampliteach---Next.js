@@ -31,14 +31,7 @@ export function SectionHeading({
         <p className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">{eyebrow}</p>
       ) : null}
 
-      <Tag
-        className={cn(
-          "font-heading text-balance",
-          Tag === "h1"
-            ? "text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
-            : "text-3xl font-bold tracking-tight sm:text-4xl",
-        )}
-      >
+      <Tag className={cn("font-heading text-balance", Tag === "h1" ? "text-h1" : "text-h2")}>
         {title}
       </Tag>
 
