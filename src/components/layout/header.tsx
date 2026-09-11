@@ -39,7 +39,14 @@ export function Header() {
           <HeaderLogo />
 
           <div className="ml-auto flex items-center">
-            <nav aria-label="Main" className="hidden xl:block">
+            {/* `font-nav`, not the inherited `font-sans`. The live menu widget
+             * declares `Poppins, sans-serif` where `body` declares a bare
+             * `Poppins` — and since nothing loads Poppins (see globals.css),
+             * that trailing generic is the whole difference: the nav lands on
+             * Arial while the contact strip above it lands on Times New Roman.
+             * Measured live, `Features & Benefits` inks 140.52px; in Times it
+             * is 130.7px and in real Poppins 152.75px. */}
+            <nav aria-label="Main" className="font-nav hidden xl:block">
               {/* 15px left + 10px right per item, and `line-height: 5` — 80px of
                * hit area inside the 110px bar, which is where the nav's optical
                * centring comes from. */}
@@ -54,8 +61,15 @@ export function Header() {
 
             {/* Padding, radius, 12px uppercase label and the #0B0B0B hover all
              * come from `components/ui/button.tsx` — the site's one button
-             * definition. Nothing button-shaped is styled locally. */}
-            <Button asChild className="ml-[30px] hidden md:inline-flex">
+             * definition. Nothing button-shaped is styled locally.
+             *
+             * `font-sans` is the exception, and it is a real live difference
+             * rather than a preference: this button is NOT a gt3 widget, so it
+             * never gets the `.elementor_gt3_btn_text { font-family: Roboto }`
+             * base rule the hero and feature-grid CTAs inherit. Its label
+             * inherits Poppins from `body` instead. Measured: the live label
+             * inks 40.16px, and `font-body`'s Arial gave 41.89px. */}
+            <Button asChild className="ml-[30px] hidden font-sans md:inline-flex">
               <Link href={LOGIN_LINK.href} target="_blank" rel="noopener noreferrer">
                 {LOGIN_LINK.label}
               </Link>

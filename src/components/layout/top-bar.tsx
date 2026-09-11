@@ -21,11 +21,23 @@ import { SocialLinks } from "./social-links";
 export function TopBar() {
   return (
     <div className="border-hairline hidden border-b lg:block">
-      <div className="max-w-wide mx-auto flex min-h-[46px] items-center justify-between">
+      {/* No `min-h`. The live strip's height is set by its LEFT column, whose
+       * widget-wrap is `padding: 10px` around a 27px line box — 47px, plus the
+       * section's 1px border for the 48px the header's first section measures.
+       * The socials column is taller than the line box (31.19px) but does not
+       * stretch the row; it is centred inside the 47px, 7.9px down, which is
+       * where the live chips sit. A `min-h-[46px]` left the whole page 1px
+       * high. */}
+      <div className="max-w-wide mx-auto flex items-center justify-between">
         {/* No hover state anywhere in here, deliberately. The live section does
          * set `a:hover{color:#5747E4}`, but both the glyph and the label carry
          * their own colour on a child element, so nothing of it ever renders. */}
-        <ul className="flex items-center gap-5 pl-[10px] text-sm">
+        {/* `leading-[27px]` is the live line box, and it is not Tailwind's
+         * default for this size: `text-sm` ships a paired 20px line-height,
+         * where the live strip inherits `body { line-height: 27px }`. That is
+         * 7px of height per row, and it is what makes the 46px strip's content
+         * sit where the live one does. */}
+        <ul className="flex items-center gap-5 py-[10px] pl-[10px] text-sm leading-[27px]">
           <li>
             <a href={SITE.phoneHref} className="flex items-center gap-[8.5px]">
               <PhoneIcon className="text-primary size-3.5 shrink-0" />
