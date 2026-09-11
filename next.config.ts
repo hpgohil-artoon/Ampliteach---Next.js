@@ -14,6 +14,16 @@ import type { NextConfig } from "next";
  */
 const isStaticExport = process.env.NEXT_BUILD_MODE !== "server";
 
+/**
+ * The host the CMS serves uploaded media from.
+ *
+ * Editors pick images in the CMS, so their URLs are absolute and point at the
+ * CMS's own domain — next/image refuses a remote host that is not listed here.
+ * This file is one of the two places allowed to read process.env directly (the
+ * other is src/config/env.ts); next.config cannot import from src.
+ */
+const cmsMediaHost = process.env.NEXT_PUBLIC_CMS_MEDIA_HOST;
+
 const nextConfig: NextConfig = {
   output: isStaticExport ? "export" : undefined,
 
@@ -27,8 +37,9 @@ const nextConfig: NextConfig = {
     // <Img> wrapper falls back to plain, pre-sized images.
     unoptimized: isStaticExport,
     remotePatterns: [
-      { protocol: "https", hostname: "www.ampliteach.com" },
-      { protocol: "https", hostname: "ampliteach.com" },
+      { protocol: "https" as const, hostname: "www.ampliteach.com" },
+      { protocol: "https" as const, hostname: "ampliteach.com" },
+      ...(cmsMediaHost ? [{ protocol: "https" as const, hostname: cmsMediaHost }] : []),
     ],
   },
 

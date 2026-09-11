@@ -16,6 +16,8 @@ export function FormField({
   required,
   hint,
   className,
+  labelClassName,
+  tone = "default",
   children,
 }: {
   name: string;
@@ -24,32 +26,70 @@ export function FormField({
   required?: boolean;
   hint?: string;
   className?: string;
+  labelClassName?: string;
+  /**
+   * `inverse` is for a form sitting on a coloured ground — the trial band is
+   * brand red, where the default muted grey and `--destructive` red are both
+   * invisible. The live site does the same: it recolours its validation tips
+   * to white for exactly this section.
+   */
+  tone?: "default" | "inverse";
   children: ReactNode;
 }) {
   const errorId = `${name}-error`;
   const hintId = `${name}-hint`;
+  const inverse = tone === "inverse";
 
   return (
-    <div className={cn("flex flex-col gap-2", className)}>
-      <Label htmlFor={name}>
-        {label}
-        {required ? (
-          <span className="text-destructive" aria-hidden>
-            *
-          </span>
-        ) : null}
+    // The live Elementor form rhythm, which every form on the site shares.
+    // Solved from the trial band's measured positions, and the four values are
+    // mutually consistent: a 24px label box, 12px to the control, a 41px
+    // control and 26px beneath give the live 103px field-row pitch exactly,
+    // and the whole band then comes out at its measured 666px.
+    <div className={cn("mb-[26px] flex flex-col gap-3", className)}>
+      <Label
+        htmlFor={name}
+        // `font-body`, NOT the inherited Poppins. Measured: live "Last name"
+        // is 72px wide, Poppins renders it at 81px with the same 12px cap
+        // height — the live labels are set in the body stack, like the copy
+        // beside them. 16px/400 too, not shadcn's 14px/500.
+        className={cn(
+          "font-body text-base leading-normal font-normal",
+          inverse && "text-primary-foreground",
+          labelClassName,
+        )}
+      >
+        {/* One flex item, so the asterisk sits in normal text flow 2px after
+         * the last letter as it does live. Left as a direct child it becomes
+         * a flex item of `Label` and picks up its `gap`, which put an 11px
+         * hole before it. */}
+        <span>
+          {label}
+          {required ? (
+            <span className={inverse ? undefined : "text-destructive"} aria-hidden>
+              *
+            </span>
+          ) : null}
+        </span>
       </Label>
 
       {children}
 
       {hint && !error ? (
-        <p id={hintId} className="text-muted-foreground text-xs">
+        <p
+          id={hintId}
+          className={cn("text-xs", inverse ? "text-primary-foreground" : "text-muted-foreground")}
+        >
           {hint}
         </p>
       ) : null}
 
       {error ? (
-        <p id={errorId} role="alert" className="text-destructive text-xs">
+        <p
+          id={errorId}
+          role="alert"
+          className={cn("text-xs", inverse ? "text-primary-foreground" : "text-destructive")}
+        >
           {error}
         </p>
       ) : null}

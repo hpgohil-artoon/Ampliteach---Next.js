@@ -1,8 +1,6 @@
+import { PricingPage } from "@/features/pricing";
 import { buildMetadata } from "@/lib/seo";
 import { getPricingPlans } from "@/lib/api/pricing";
-import { TRANSFORM_CTA } from "@/content/home";
-import { CtaBanner } from "@/components/common";
-import { EnterprisePricing, PlanGrid, PricingHero } from "@/features/pricing/sections";
 
 export const metadata = buildMetadata({
   title: "Pricing",
@@ -16,15 +14,8 @@ export const metadata = buildMetadata({
  * revalidate). Set NEXT_BUILD_MODE=server and add `export const revalidate`
  * below to turn this into an ISR page instead.
  */
-export default async function PricingPage() {
+export default async function Page() {
   const plans = await getPricingPlans();
 
-  return (
-    <>
-      <PricingHero />
-      <PlanGrid plans={plans} />
-      <EnterprisePricing />
-      <CtaBanner {...TRANSFORM_CTA} />
-    </>
-  );
+  return <PricingPage plans={plans} />;
 }

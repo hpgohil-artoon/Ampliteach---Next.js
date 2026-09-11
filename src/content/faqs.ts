@@ -1,19 +1,26 @@
 import type { Faq } from "@/types";
 
+/**
+ * The three home-page FAQs, verbatim from the live section.
+ *
+ * The `Q:` and `A:` prefixes are part of the live copy — they sit inside the
+ * heading and the paragraph, not in the section's markup — so they stay in the
+ * strings rather than being added at render time.
+ */
 export const HOME_FAQS: Faq[] = [
   {
-    question: "How quickly can we be set up?",
+    question: "Q: How quickly can I start using AmpliTeach?",
     answer:
-      "Most schools are live within a few days. Our onboarding team migrates your existing student and scheduling data for you, so you are not re-entering anything by hand.",
+      "A: Getting started with AmpliTeach is fast and easy. Most schools are fully set up and using our music school CRM within days.",
   },
   {
-    question: "What training and support is included?",
+    question: "Q: Does AmpliTeach offer any training or support?",
     answer:
-      "Onboarding, teacher training and ongoing support are included with every plan. You get a real person who knows music schools, not a ticket queue.",
+      "A: Yes! We offer comprehensive training and support to ensure you get the most out of the AmpliTeach music school management software.",
   },
   {
-    question: "Is our data secure?",
+    question: "Q: How does AmpliTeach protect my data and privacy?",
     answer:
-      "Yes. All data is encrypted in transit and at rest, payments are handled by a PCI-compliant processor, and you can export your own data at any time.",
+      "A: AmpliTeach uses industry-standard encryption to ensure that your data is always safe and secure.",
   },
 ];

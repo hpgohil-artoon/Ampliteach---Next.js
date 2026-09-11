@@ -1,14 +1,5 @@
+import { WhyChoosePage } from "@/features/why-choose";
 import { buildMetadata } from "@/lib/seo";
-import { TRANSFORM_CTA } from "@/content/home";
-import { CtaBanner } from "@/components/common";
-import {
-  CurriculumAndSupport,
-  FounderMessage,
-  PitchBlocks,
-  ProfitClaim,
-  TakeTeacherHome,
-  WhyChooseHero,
-} from "@/features/why-choose/sections";
 
 export const metadata = buildMetadata({
   title: "Why Choose AmpliTeach",
@@ -17,16 +8,6 @@ export const metadata = buildMetadata({
   path: "/why-choose-ampliteach",
 });
 
-export default function WhyChooseUsPage() {
-  return (
-    <>
-      <WhyChooseHero />
-      <ProfitClaim />
-      <CurriculumAndSupport />
-      <FounderMessage />
-      <TakeTeacherHome />
-      <PitchBlocks />
-      <CtaBanner {...TRANSFORM_CTA} />
-    </>
-  );
+export default function Page() {
+  return <WhyChoosePage />;
 }

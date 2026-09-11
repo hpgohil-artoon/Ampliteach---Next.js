@@ -80,17 +80,31 @@ are misaligned on tablet" leads to exactly one file. This is the template for
 every page; `features/home/` and `features/blog/` are the reference.
 
 ```
-src/app/(marketing)/<page>/page.tsx   route entry: metadata + compose. 20–40 lines.
-src/content/<page>.ts                 every word of copy, typed
+src/app/(marketing)/<page>/page.tsx   ROUTE ONLY: generateMetadata, params, data,
+                                      404. Returns <XPage content={…} />. ~10–25 lines.
+src/content/<page>.ts                 every word of copy, as a PageContent object
+src/types/content/blocks.ts           the block shapes — one per section design
+src/lib/api/<page>.ts                 CMS fetch, committed content as the fallback
+src/lib/cms/page-content.ts           zod validation of the CMS payload
 
 src/features/<page>/
-├─ sections/                          ONE FILE PER SECTION, named as the design names it
+├─ <page>-page.tsx                    maps content.blocks through the renderer
+├─ section-renderer.tsx               block `type` → section component (a switch)
+├─ index.ts                           barrel — exports the page component
+├─ sections/                          ONE FILE PER SECTION, named for its block type
 │  ├─ hero.tsx
 │  ├─ overview.tsx
-│  └─ index.ts                        barrel — its order IS the page outline
+│  └─ index.ts                        barrel
 └─ components/                        a piece shared by two sections on this page,
    └─ pricing-card.tsx                or one extracted from a section that grew
 ```
+
+**A route file never composes a page.** It resolves routing concerns —
+`metadata`/`generateMetadata`, `generateStaticParams`, awaiting `params`,
+`notFound()`, and build-time data via `src/lib/api/` — then renders the single
+`<XPage />` from `features/<page>/`, passing anything it fetched as props. So
+"where is this page's outline?" has one answer, and it is never in `app/`.
+`features/legal/` holds both legal stubs, since they share `content/legal.ts`.
 
 **`sections/index.ts` is a barrel — re-exports only, never components.** Putting
 two sections in one file is the specific mistake this rule prevents:
@@ -110,6 +124,39 @@ behaviour, a formatter — is written once (a hook in `src/hooks/`, keyframes as
 `@theme --animate-*` tokens, a helper in `src/lib/utils/`) and imported. Never
 re-implemented per section, or a fix lands in one of thirty copies.
 
+## Content is data, and the CMS will serve it
+
+The client has confirmed **every page's text comes from a CMS**. The CMS does
+not exist yet; the site must already be built as though it did.
+[`docs/CMS-CONTRACT.md`](../docs/CMS-CONTRACT.md) is the agreed API shape and
+the spec the CMS is being built against. `features/home/` is the reference
+implementation — convert the other pages to match as each is touched.
+
+**A page is `seo` plus an ordered, toggleable list of blocks.** Editors reorder
+sections and switch them off, so the order lives in `content.blocks`, never in
+JSX. Four rules follow from that:
+
+1. **A section never depends on its neighbours.** It owns its own background
+   and its own vertical spacing — including any trailing spacer. Any block must
+   render correctly in any position, next to any other block.
+2. **A section reads its block prop and nothing else.** No section imports from
+   `src/content/` — that import is what makes copy un-CMS-able.
+3. **Copy is plain strings.** No HTML, no markdown in a content field. Emphasis
+   that must exist is a separate field (see the hero's `body.emphasis`), never
+   markup inside one.
+4. **Nothing in a content field can be a function or a component.** An icon is
+   a name resolved by `src/lib/icons/`, not a `LucideIcon`. If it cannot
+   survive `JSON.parse(JSON.stringify(x))`, it does not belong in content.
+
+**The fallback is permanent, not scaffolding.** `src/content/<page>.ts` holds
+the real copy in the CMS's own shape. `lib/api/<page>.ts` prefers the CMS and
+falls back to it when `CMS_API_URL` is unset, the fetch fails, or the payload
+fails zod validation — always logging why. A CMS outage must never blank a page
+or fail a build.
+
+**SEO comes from content too** — `buildPageMetadata(content)` in
+`generateMetadata`, not a hand-written title in the route file.
+
 ## Conventions
 
 - **No hex, `rgb()`, named CSS colours or inline colour styles in components.**
@@ -117,12 +164,14 @@ re-implemented per section, or a fix lands in one of thirty copies.
   `text-muted-foreground`, `border-border`, `text-destructive`, `bg-brand`.
   A colour change belongs in `globals.css` and nowhere else — the palette there
   is measured from the live site, so treat it as data, not as a starting point.
-- **A page file only composes** — imports sections, exports `metadata`, returns
-  them in order (20–40 lines). Page metadata is always `buildMetadata()` from
-  `@/lib/seo`; never a hand-rolled `Metadata` object, and never react-helmet
-  (it does not work in the App Router).
-- **Copy lives in `src/content/*.ts`**, typed. No hard-coded sentences in JSX —
-  a section maps over data from `content/` or `lib/api/`.
+- **A page file only composes** — it takes resolved content and maps its blocks
+  through the section renderer (20–40 lines). Page metadata is always
+  `buildPageMetadata()` (or `buildMetadata()` where there is no page content
+  yet) from `@/lib/seo`; never a hand-rolled `Metadata` object, and never
+  react-helmet (it does not work in the App Router).
+- **Copy lives in `src/content/*.ts`**, typed, in the CMS's own shape. No
+  hard-coded sentences in JSX and no `@/content` import inside a section — a
+  section renders the block it is handed.
 - **Server Components by default.** `'use client'` goes on the smallest leaf.
   Today only: `NavLinks`, `MobileMenu`, `BlogSearch`, `TableOfContents`, the
   three forms, `error.tsx`.

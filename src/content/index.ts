@@ -1,5 +1,6 @@
 export * from "./site";
 export * from "./navigation";
+export * from "./shared";
 export * from "./home";
 export * from "./features";
 export * from "./faqs";

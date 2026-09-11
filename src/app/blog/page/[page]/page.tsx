@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
+import { BlogPaginatedPage } from "@/features/blog";
 import { buildMetadata } from "@/lib/seo";
 import { getAllPosts, getPosts } from "@/lib/api/posts";
 import { POSTS_PER_PAGE } from "@/lib/constants/routes";
 import { totalPages as countPages } from "@/lib/utils/pagination";
-import { Container, Section, SectionHeading } from "@/components/common";
-import { BlogGrid, BlogPagination, BlogSearch } from "@/features/blog/components";
 
 /**
  * Prebuilds /blog/page/2, /blog/page/3, … from the post count.
@@ -44,7 +43,7 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-export default async function BlogPaginatedPage({ params }: Props) {
+export default async function Page({ params }: Props) {
   const { page: pageParam } = await params;
   const page = Number(pageParam);
 
@@ -53,13 +52,6 @@ export default async function BlogPaginatedPage({ params }: Props) {
   const [{ posts, totalPages }, allPosts] = await Promise.all([getPosts(page), getAllPosts()]);
 
   return (
-    <Section>
-      <Container className="flex flex-col gap-12">
-        <SectionHeading as="h1" eyebrow={`Page ${page}`} title="Blog" />
-        <BlogSearch posts={allPosts} />
-        <BlogGrid posts={posts} />
-        <BlogPagination page={page} totalPages={totalPages} />
-      </Container>
-    </Section>
+    <BlogPaginatedPage page={page} posts={posts} allPosts={allPosts} totalPages={totalPages} />
   );
 }

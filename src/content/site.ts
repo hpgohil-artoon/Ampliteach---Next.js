@@ -17,8 +17,9 @@ export const SITE = {
     country: "US",
   },
   geo: { latitude: 41.4534943, longitude: -72.8168593 },
+  /** The footer's About paragraph, verbatim from the live site. */
   about:
-    "AmpliTeach has been described as innovative, groundbreaking and radical. Built by music school owners with over 25 years of combined experience.",
+    "AmpliTeach has been described as innovative, groundbreaking and radical. Our complete system and platform to manage your lesson business was created by music school owners with over 25 years experience running successful music schools.",
 } as const;
 
 export const SITE_ADDRESS_LINE = `${SITE.address.street} ${SITE.address.city} ${SITE.address.state} ${SITE.address.postalCode}`;

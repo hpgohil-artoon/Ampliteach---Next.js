@@ -1,8 +1,14 @@
 import type { Feature } from "@/types";
+import { ICONS } from "@/lib/icons";
 import { Card, CardContent } from "@/components/ui/card";
+import { RichText } from "./rich-text";
 
 /** Used 12× on the homepage and 9× on Features & Benefits. */
-export function FeatureCard({ title, description, icon: Icon }: Feature) {
+export function FeatureCard({ title, description, icon }: Feature) {
+  // A lookup in a module-level table, not a component built here: an unknown
+  // name from the CMS drops the icon instead of breaking the card.
+  const Icon = icon ? (ICONS[icon] ?? null) : null;
+
   return (
     <Card className="h-full transition-shadow hover:shadow-md">
       <CardContent className="flex flex-col gap-3">
@@ -12,7 +18,9 @@ export function FeatureCard({ title, description, icon: Icon }: Feature) {
           </span>
         ) : null}
         <h3 className="font-heading text-h5">{title}</h3>
-        <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          <RichText runs={description} />
+        </p>
       </CardContent>
     </Card>
   );

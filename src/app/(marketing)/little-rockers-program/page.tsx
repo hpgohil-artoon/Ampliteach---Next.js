@@ -1,7 +1,5 @@
+import { LittleRockersPage } from "@/features/little-rockers";
 import { buildMetadata } from "@/lib/seo";
-import { TRANSFORM_CTA } from "@/content/home";
-import { CtaBanner } from "@/components/common";
-import { LittleRockersHero, ProgramDescription } from "@/features/little-rockers/sections";
 
 export const metadata = buildMetadata({
   title: "Little Rockers Program",
@@ -10,12 +8,6 @@ export const metadata = buildMetadata({
   path: "/little-rockers-program",
 });
 
-export default function LittleRockersPage() {
-  return (
-    <>
-      <LittleRockersHero />
-      <ProgramDescription />
-      <CtaBanner {...TRANSFORM_CTA} />
-    </>
-  );
+export default function Page() {
+  return <LittleRockersPage />;
 }
