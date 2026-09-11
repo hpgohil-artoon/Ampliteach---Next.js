@@ -6,6 +6,10 @@ import type { SVGProps } from "react";
  * lucide-react v1 removed its brand icons (Twitter/Facebook/Instagram/YouTube),
  * so these live here rather than depending on an icon package that may drop
  * them again. Sized with `currentColor` so they inherit link colour.
+ *
+ * `TwitterIcon` is deliberately the **X** mark, not the bird that the live
+ * site's `fab fa-twitter` class asks for — agreed with the client, and logged as
+ * deviation 14 in docs/PARITY.md.
  */
 type IconProps = SVGProps<SVGSVGElement>;
 

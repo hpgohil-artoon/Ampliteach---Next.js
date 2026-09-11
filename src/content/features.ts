@@ -1,141 +1,270 @@
-import {
-  Award,
-  BookOpen,
-  CalendarRange,
-  CreditCard,
-  GraduationCap,
-  Mail,
-  MessageSquare,
-  Rocket,
-  Settings2,
-  Sparkles,
-  TrendingUp,
-  Wallet,
-} from "lucide-react";
 import type { Feature } from "@/types";
 
-/** Homepage — "Features That Drive Success". */
+/**
+ * Homepage — "Features That Drive Success".
+ *
+ * Twelve icon-boxes, transcribed run-for-run from the live markup: each
+ * `<strong>` becomes a bold run and the one `<br>` becomes `breakAfter`. The
+ * live source pads some `<strong>` tags with spaces (`<strong> foo </strong>`)
+ * and doubles a few others; HTML collapses both, so the runs here carry single
+ * spaces and render identically.
+ */
 export const HOME_FEATURES: Feature[] = [
   {
+    icon: "calendar-alt",
     title: "Effortless Drag-and-Drop Scheduling",
-    description:
-      "Build and rearrange your entire lesson calendar by dragging. Conflicts and room clashes are caught before they happen.",
-    icon: CalendarRange,
+    description: [
+      { text: "Simplify scheduling with a flexible " },
+      { text: "music school management platform", bold: true },
+      { text: " built for schools of any size.", breakAfter: true },
+      {
+        text: "Use our intuitive drag-and-drop interface to manage lessons, assign teachers, and optimize room usage.",
+      },
+    ],
+    bullets: [
+      [{ text: "Effortlessly assign rooms and instructors." }],
+      [{ text: "Flexible teacher and room schedule views." }],
+      [{ text: "Lesson banking for missed or rescheduled classes." }],
+    ],
   },
   {
+    icon: "comments",
     title: "Automated Text and Email Alerts",
-    description:
-      "Lesson reminders, cancellations and payment notices go out on their own, so nobody misses a thing.",
-    icon: MessageSquare,
+    description: [
+      { text: "Keep everyone in sync", bold: true },
+      { text: " with automatic " },
+      { text: "text and email alerts.", bold: true },
+      { text: " Ensure students, parents, and teachers never miss a beat." },
+    ],
+    bullets: [
+      [{ text: "Automated", bold: true }, { text: " reminders for lessons and schedules." }],
+      [
+        { text: "Real-time " },
+        { text: "notifications", bold: true },
+        { text: " for rescheduling or cancellations." },
+      ],
+      [{ text: "Billing alerts", bold: true }, { text: " to keep payments on track." }],
+    ],
   },
   {
+    icon: "file-invoice",
     title: "Secure Autopay and Invoicing",
-    description:
-      "Collect tuition automatically with stored payment methods, and send invoices that reconcile themselves.",
-    icon: CreditCard,
+    description: [
+      { text: "Automate payments and invoicing", bold: true },
+      { text: " with reliable, secure billing. Collect tuition seamlessly with our " },
+      { text: "autopay feature.", bold: true },
+    ],
+    bullets: [
+      [
+        { text: "Customizable payment plans", bold: true },
+        { text: " to fit your school’s needs." },
+      ],
+      [{ text: "Fast and accurate" }, { text: " payment tracking and reports.", bold: true }],
+      [
+        { text: "Easy" },
+        { text: " invoicing", bold: true },
+        { text: " for lessons and products." },
+      ],
+    ],
   },
   {
+    icon: "file-powerpoint",
     title: "Simplified Payroll",
-    description:
-      "Teacher hours flow straight from the schedule into payroll — no spreadsheets, no double entry.",
-    icon: Wallet,
+    description: [
+      { text: "Streamline payroll management", bold: true },
+      {
+        text: " for your staff. With quick setup and automated reports, focus on growth instead of admin.",
+      },
+    ],
+    bullets: [
+      [
+        { text: "Easy " },
+        { text: "payroll setup", bold: true },
+        { text: " and detailed reporting." },
+      ],
+      [{ text: "Tax season reports", bold: true }, { text: " for hassle-free accounting." }],
+    ],
   },
   {
+    icon: "school",
     title: "Engaged School Community",
-    description:
-      "Chat, announcements and shared practice goals keep teachers, students and parents connected all week.",
-    icon: Sparkles,
+    description: [
+      { text: "Connect students, teachers, and parents", bold: true },
+      { text: " through" },
+      { text: " interactive dashboards.", bold: true },
+      { text: " Keep everyone informed and engaged." },
+    ],
+    bullets: [
+      [
+        { text: "Student dashboards", bold: true },
+        { text: " for schedules, assignments, and quizzes." },
+      ],
+      [{ text: "Teacher tools", bold: true }, { text: " to track progress and update parents." }],
+      [
+        { text: "Interactive learning tools", bold: true },
+        { text: " to boost student engagement." },
+      ],
+    ],
   },
   {
+    icon: "chart-line",
     title: "Grow with Build My Biz",
-    description:
-      "Marketing playbooks, ad templates and sales training built specifically for growing a music school.",
-    icon: TrendingUp,
+    description: [
+      { text: "Expand your school", bold: true },
+      { text: " with resources tailored for success. The toolkit supports " },
+      { text: "business", bold: true },
+      { text: " growth and " },
+      { text: "teacher development.", bold: true },
+    ],
+    bullets: [
+      [{ text: "Access to " }, { text: "sales and business training.", bold: true }],
+      [{ text: "Comprehensive " }, { text: "teacher training materials.", bold: true }],
+      [{ text: "Essential " }, { text: "forms, documents, and worksheets.", bold: true }],
+    ],
   },
   {
+    icon: "edit",
     title: "Customizable Platform",
-    description:
-      "Match your branding, set your own lesson types, terms and policies, and configure what each role can see.",
-    icon: Settings2,
+    description: [
+      { text: "Adapt AmpliTeach", bold: true },
+      {
+        text: " to fit your school’s unique needs. Set permissions and tailor features to suit your school’s structure.",
+      },
+    ],
+    bullets: [
+      [{ text: "Fully customizable " }, { text: "music school CRM", bold: true }],
+      [{ text: "Multi-location and room support." }],
+      [{ text: "Role-based access controls." }],
+    ],
   },
   {
+    icon: "envelope",
     title: "Intuitive Email Tools",
-    description:
-      "Send targeted group email to any segment of your school — one studio, one teacher's roster, or everyone.",
-    icon: Mail,
+    description: [
+      { text: "Manage communications", bold: true },
+      { text: " from your dashboard. Send emails to" },
+      { text: " targeted groups", bold: true },
+      { text: " of students, parents, and staff effortlessly." },
+    ],
+    bullets: [
+      [
+        { text: "Reach " },
+        { text: "specific groups,", bold: true },
+        { text: " like instrument-based or active students." },
+      ],
+      [{ text: "Attachment support", bold: true }, { text: " for announcements and updates." }],
+    ],
   },
   {
+    icon: "certificate",
     title: "Teacher Training and Certification",
-    description:
-      "Onboard new teachers with structured training, and certify them on your curriculum as they progress.",
-    icon: GraduationCap,
+    description: [
+      { text: "High-quality training", bold: true },
+      {
+        text: " ensures teaching excellence. Teachers learn valuable information that helps keep students motivated and increases retention!",
+      },
+    ],
+    bullets: [
+      [
+        { text: "Optional " },
+        { text: "Teacher Certification", bold: true },
+        { text: " for instructors." },
+      ],
+    ],
   },
   {
+    icon: "bezier-curve",
     title: "Free Music Curriculum",
-    description:
-      "Thousands of lessons, videos, audio tracks and worksheets included at no extra cost.",
-    icon: BookOpen,
+    description: [
+      { text: "Gain access to Rock House Method’s " },
+      { text: "award-winning curriculum", bold: true },
+      { text: " for various instruments." },
+    ],
+    bullets: [
+      [
+        { text: "Over 5,000 multimedia lessons", bold: true },
+        { text: " for structured learning." },
+      ],
+      [{ text: "Teachers assign lessons in just a few clicks." }],
+    ],
   },
   {
+    icon: "chart-bar",
     title: "Revenue Opportunities",
-    description:
-      "Add group classes, recitals and programs like Little Rockers to open new income streams.",
-    icon: Award,
+    description: [{ text: "Sell instruments and accessories directly to students at a profit." }],
+    bullets: [
+      [{ text: "Direct-to-student sales", bold: true }, { text: " for increased income." }],
+    ],
   },
   {
+    icon: "handshake",
     title: "Easy Onboarding",
-    description:
-      "Our team migrates your existing student database for you. Most schools are running within days.",
-    icon: Rocket,
+    description: [
+      { text: "Our team supports a " },
+      { text: "smooth setup,", bold: true },
+      { text: " so you’re up and running quickly." },
+    ],
+    bullets: [[{ text: "Comprehensive onboarding guidance.", bold: true }]],
   },
 ];
 
-/** Features & Benefits page — "Features include:". */
+/**
+ * Features & Benefits page. Placeholder copy and lucide icons — this page has
+ * not been rebuilt against the live site yet, so treat none of it as measured.
+ */
 export const PAGE_FEATURES: Feature[] = [
   {
     title: "Lesson Scheduling",
-    description: "Drag-and-drop scheduling for private lessons, group classes and make-ups.",
-    icon: CalendarRange,
+    description: [
+      { text: "Drag-and-drop scheduling for private lessons, group classes and make-ups." },
+    ],
+    icon: "calendar-range",
   },
   {
     title: "Payroll",
-    description: "Teacher pay calculated from the schedule, ready to approve and export.",
-    icon: Wallet,
+    description: [
+      { text: "Teacher pay calculated from the schedule, ready to approve and export." },
+    ],
+    icon: "wallet",
   },
   {
     title: "Teacher Certification",
-    description: "Train and certify your teachers on the AmpliTeach curriculum.",
-    icon: GraduationCap,
+    description: [{ text: "Train and certify your teachers on the AmpliTeach curriculum." }],
+    icon: "graduation-cap",
   },
   {
     title: "Income Opportunities",
-    description: "Programs and add-ons designed to increase revenue per student.",
-    icon: TrendingUp,
+    description: [{ text: "Programs and add-ons designed to increase revenue per student." }],
+    icon: "trending-up",
   },
   {
     title: "Lesson Library",
-    description: "Thousands of on-demand lessons across instruments and levels.",
-    icon: BookOpen,
+    description: [{ text: "Thousands of on-demand lessons across instruments and levels." }],
+    icon: "book-open",
   },
   {
     title: "Payments",
-    description: "Autopay, invoicing, and reporting on every dollar owed and collected.",
-    icon: CreditCard,
+    description: [
+      { text: "Autopay, invoicing, and reporting on every dollar owed and collected." },
+    ],
+    icon: "credit-card",
   },
   {
     title: "Business Tools",
-    description: "Enrolment tracking, retention reporting and admin workflows.",
-    icon: Settings2,
+    description: [{ text: "Enrolment tracking, retention reporting and admin workflows." }],
+    icon: "settings",
   },
   {
     title: "Practice Platform",
-    description: "Assignments, practice logging and reminders that students actually use.",
-    icon: Sparkles,
+    description: [
+      { text: "Assignments, practice logging and reminders that students actually use." },
+    ],
+    icon: "sparkles",
   },
   {
     title: "Curriculum",
-    description: "An award-winning curriculum included with every plan.",
-    icon: Award,
+    description: [{ text: "An award-winning curriculum included with every plan." }],
+    icon: "award",
   },
 ];
 

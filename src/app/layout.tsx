@@ -4,7 +4,7 @@ import { env } from "@/config/env";
 import { SITE } from "@/content/site";
 import { organizationJsonLd } from "@/lib/seo";
 import { cn } from "@/lib/utils";
-import { Footer, Header } from "@/components/layout";
+import { BackToTop, Footer, Header } from "@/components/layout";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -24,6 +24,16 @@ const poppins = Poppins({
   display: "swap",
 });
 
+/*
+ * Roboto is deliberately NOT loaded. The live home page's text widgets declare
+ * `font-family: "Roboto", Sans-serif` but the site never fetches Roboto, so
+ * that copy renders in the generic sans — Arial on Windows, Helvetica on macOS.
+ * A screen recording confirms it: the hero eyebrow measures 474px where real
+ * Roboto ExtraBold gives 398px. `--font-body` in globals.css therefore declares
+ * the same unloaded stack, so we fall through to the same face the live site
+ * does. See deviation 17 in docs/PARITY.md.
+ */
+
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   // "%s | AmpliTeach" for every page; the home page overrides with `absolute`.
@@ -37,7 +47,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={cn("font-sans", poppins.variable)}>
-      <body className="flex min-h-dvh flex-col antialiased">
+      {/* No `antialiased`. ampliteach.com never sets `-webkit-font-smoothing`,
+       * and forcing greyscale smoothing renders every glyph on the site a
+       * touch lighter than the live one on macOS — a whole-site weight shift
+       * from one utility class. */}
+      <body className="flex min-h-dvh flex-col">
         <a
           href="#main"
           className="focus:bg-background sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:rounded-md focus:px-4 focus:py-2"
@@ -50,6 +64,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </main>
         <Footer />
+
+        {/* Site chrome, not footer content — the live button is fixed to the
+         * viewport and lives outside the footer section. */}
+        <BackToTop />
 
         <Toaster position="top-center" />
 

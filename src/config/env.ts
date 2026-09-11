@@ -10,6 +10,8 @@ import { z } from "zod";
 const schema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
   CMS_API_URL: z.string().url().optional(),
+  /** Hostname only (no scheme) — mirrored in next.config.ts's remotePatterns. */
+  NEXT_PUBLIC_CMS_MEDIA_HOST: z.string().optional().or(z.literal("")),
   NEXT_PUBLIC_FORM_ENDPOINT: z.string().url().optional().or(z.literal("")),
   NEXT_BUILD_MODE: z.enum(["server", "export"]).optional(),
   NEXT_PUBLIC_GA_ID: z.string().optional().or(z.literal("")),
@@ -18,6 +20,7 @@ const schema = z.object({
 const parsed = schema.safeParse({
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   CMS_API_URL: process.env.CMS_API_URL,
+  NEXT_PUBLIC_CMS_MEDIA_HOST: process.env.NEXT_PUBLIC_CMS_MEDIA_HOST,
   NEXT_PUBLIC_FORM_ENDPOINT: process.env.NEXT_PUBLIC_FORM_ENDPOINT,
   NEXT_BUILD_MODE: process.env.NEXT_BUILD_MODE,
   NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,

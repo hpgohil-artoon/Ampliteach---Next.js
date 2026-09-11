@@ -1,5 +1,5 @@
+import { ContactPage } from "@/features/contact";
 import { buildMetadata } from "@/lib/seo";
-import { ContactFormAndDetails, ContactHero, ContactMap } from "@/features/contact/sections";
 
 export const metadata = buildMetadata({
   title: "Contact Us",
@@ -13,12 +13,6 @@ export const metadata = buildMetadata({
  * by a client component posting to an external endpoint. "Dynamic page" and
  * "dynamic form" are not the same thing; this needs no SSR.
  */
-export default function ContactUsPage() {
-  return (
-    <>
-      <ContactHero />
-      <ContactFormAndDetails />
-      <ContactMap />
-    </>
-  );
+export default function Page() {
+  return <ContactPage />;
 }

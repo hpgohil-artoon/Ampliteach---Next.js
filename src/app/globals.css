@@ -13,8 +13,27 @@
  * hard-code a hex value in a component.
  */
 @theme inline {
+  /* --- Fonts ---------------------------------------------------------------
+   * TWO families, because the live site has two.
+   *
+   * `sans` is Poppins — the nav, and every `h1`–`h6` via the theme's
+   * `h1{font-family:Poppins}` rules. It is the only font the live site
+   * actually loads (`Poppins:400,500`, plus an unused Rubik).
+   *
+   * `body` is `Roboto, Sans-serif` **declared but not loaded** — exactly what
+   * every one of the 56 text-widget rules on the live home page says. Roboto is
+   * never fetched there (only `Poppins:400,500|Rubik:400` is), so the stack
+   * falls through to the generic sans: Arial on Windows, Helvetica on macOS.
+   *
+   * A screen recording of the live site settles it — its hero eyebrow measures
+   * 474px wide at 44px/800, where real Roboto ExtraBold gives 398px. The live
+   * face is unmistakably Arial Bold. So we declare the same stack rather than
+   * loading Roboto, and inherit the same fallback on the same machine.
+   * See deviation 17 in docs/PARITY.md.
+   */
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
+  --font-body: Roboto, sans-serif;
 
   /* --- Breakpoints --------------------------------------------------------
    * Every one of xs–xl is a real boundary in ampliteach.com's own CSS, so a
@@ -42,17 +61,23 @@
   --breakpoint-2xl: 96rem;
 
   /* --- Container widths ---------------------------------------------------
-   * Both are measured live values.
+   * Both are measured live values, and which one applies depends on how the
+   * page is RENDERED, not on where it sits in the nav.
    *
-   * `site` (1170px) is what page content actually aligns to. Note it is NOT
-   * the 1220px Elementor "content width" setting: that boxed container sits
-   * inside the theme's `.container{width:1170px}`, which clips it. The chain
-   * is .container → .row (negative margin cancelled) → .content-container
-   * (padding:0) → #main_content>.elementor (margin:0 -10px, cancelling the
-   * column gap).
+   * `wide` (1220px) — every Elementor page: the whole marketing site plus
+   * /blog. On those pages the theme's 10-level wrapper chain is transparent,
+   * because `body.elementor-page .site_wrapper .container.container-sidebar_none`
+   * sets `width:100%` — specificity (0,4,1), so it beats bare
+   * `.container{width:1170px}` and all five of its stepped media queries
+   * (media queries add no specificity). Nothing clips the 1220px box.
+   * Verified by measurement: at a 1901px viewport the live hero's first ink
+   * is at x=341, and a centred 1220px box starts at x=340.5 (1170px would be
+   * x=365.5).
    *
-   * `wide` (1220px) is the unclipped Elementor boxed width, which the header
-   * template uses because it sits outside the theme container.
+   * `site` (1170px) — single post pages ONLY. Those are theme-rendered, not
+   * Elementor: the body carries no `elementor-page` class and the wrapper no
+   * `container-sidebar_none`, so the override misses and `.container`'s
+   * 1170px — with its stepped 998/740/560/420/90% steps — genuinely applies.
    */
   --container-site: 73.125rem;
   --container-wide: 76.25rem;
@@ -106,6 +131,53 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
+  --color-hairline: var(--hairline);
+  --color-blush: var(--blush);
+  --color-blush-deep: var(--blush-deep);
+  --color-blush-warm: var(--blush-warm);
+  --color-footer: var(--footer);
+
+  /* --- Entrance animations -------------------------------------------------
+   * The live site's, verbatim from its animate.css build. Elementor renders a
+   * widget with `.elementor-invisible` (`visibility: hidden`) and, once the
+   * element scrolls into view, swaps that for `.animated <name>` so the
+   * keyframes run. `.animated` is 1.25s; `.animated-slow` is 2s.
+   *
+   * Declared here rather than per section so a timing change is one edit —
+   * `Reveal` in components/common is the only thing that applies them.
+   */
+  --animate-slide-in-left: slide-in-left 1.25s both;
+  --animate-slide-in-right: slide-in-right 1.25s both;
+  --animate-zoom-in: zoom-in 1.25s both;
+
+  @keyframes slide-in-left {
+    from {
+      transform: translate3d(-100%, 0, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      transform: translate3d(100%, 0, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes zoom-in {
+    from {
+      opacity: 0;
+      transform: scale3d(0.3, 0.3, 0.3);
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  --color-header-ink: var(--header-ink);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -172,6 +244,41 @@
   --brand-foreground: #ffffff;
   /* Provably a tint of the brand, so it cannot drift from it. */
   --brand-muted: color-mix(in oklab, var(--brand) 8%, #ffffff);
+
+  /* The live site's hairline rule — `border-color:#F0EFF3` under the header's
+   * top bar, and the divider between megamenu columns. Deliberately NOT folded
+   * into --border (shadcn's ~#e5e5e5), which every card, input and table on the
+   * site already draws with: swapping that is a site-wide visual change and is
+   * logged as an open question in docs/PARITY.md instead. */
+  --hairline: #f0eff3;
+
+  /* The feature grid's ground — `background-color: #FFFAFB` on the live
+   * section. Used twice there: behind the section, and behind its heading,
+   * which sits ON the decorative bracket and has to knock a notch out of it. */
+  --blush: #fffafb;
+
+  /* A second, slightly warmer pink — `#FFF7F8` behind the Student Benefits
+   * band. Close enough to `--blush` to look like a mistake, different enough
+   * to see when the two sections meet, so both are kept as measured. */
+  --blush-deep: #fff7f8;
+
+  /* The footer's ground — `background-color: #222` on the live footer section.
+   * Not `--foreground` (`#0B0B0B`), which is the darker ink the social chips
+   * use *on top of* this; the two sit side by side in the footer and the
+   * difference is what makes the chips visible. */
+  --footer: #222222;
+
+  /* And a third — `#FFF8F8` behind the Testimonials + FAQs section. One step
+   * off `--blush-deep`, which is almost certainly an Elementor accident, but
+   * measured is measured: the three are kept apart rather than unified, so
+   * nobody has to guess later which sections were really the same colour. */
+  --blush-warm: #fff8f8;
+
+  /* `color` on the header's main bar (Elementor section bbf218a), which the
+   * hamburger's three bars inherit through `border-top: 2px solid currentColor`
+   * — the only place it is actually visible. It is an `ewebot` theme leftover
+   * rather than a brand colour; PARITY.md flags it for the client. */
+  --header-ink: #3b3663;
 
   --background: #ffffff;
   --foreground: #0b0b0b;
@@ -245,6 +352,14 @@
   --brand: #ff1616;
   --brand-foreground: #ffffff;
   --brand-muted: color-mix(in oklab, var(--brand) 22%, #0b0b0b);
+  /* Both are light-ground values with no live dark counterpart, so they are
+   * expressed against the dark ground rather than guessed at as new hexes. */
+  --hairline: oklch(1 0 0 / 10%);
+  --header-ink: oklch(0.985 0 0);
+  --blush: oklch(0.205 0 0);
+  --blush-deep: oklch(0.205 0 0);
+  --blush-warm: oklch(0.205 0 0);
+  --footer: oklch(0.205 0 0);
 
   --primary: var(--brand);
   --primary-foreground: var(--brand-foreground);

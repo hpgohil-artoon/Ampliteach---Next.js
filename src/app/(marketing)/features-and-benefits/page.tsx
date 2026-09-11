@@ -1,12 +1,5 @@
+import { FeaturesBenefitsPage } from "@/features/features-benefits";
 import { buildMetadata } from "@/lib/seo";
-import { TRANSFORM_CTA } from "@/content/home";
-import { CtaBanner } from "@/components/common";
-import {
-  BuildMyBiz,
-  FeaturesGrid,
-  PageTitle,
-  TeacherStudentBenefits,
-} from "@/features/features-benefits/sections";
 
 export const metadata = buildMetadata({
   title: "Features & Benefits",
@@ -15,14 +8,6 @@ export const metadata = buildMetadata({
   path: "/features-and-benefits",
 });
 
-export default function FeaturesAndBenefitsPage() {
-  return (
-    <>
-      <PageTitle />
-      <FeaturesGrid />
-      <TeacherStudentBenefits />
-      <BuildMyBiz />
-      <CtaBanner {...TRANSFORM_CTA} />
-    </>
-  );
+export default function Page() {
+  return <FeaturesBenefitsPage />;
 }
