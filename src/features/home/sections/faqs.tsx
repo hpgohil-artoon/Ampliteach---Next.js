@@ -58,7 +58,11 @@ export function Faqs({ block }: { block: FaqsBlock }) {
 
   return (
     <section id={block.anchorId ?? undefined} className="bg-blush-warm">
-      <Container gutter={false} className="p-2.5 max-lg:px-[5px]">
+      {/* `pb-5`, not `p-2.5`'s 10px. This is the last of the two blocks that
+       * make up the live section, so it carries that section's 10px of
+       * widget-wrap bottom padding on top of its own 10px — see the note on
+       * `testimonials`. Together the pair measures the live 999.44px. */}
+      <Container gutter={false} className="p-2.5 pb-5 max-lg:px-[5px]">
         <div className="flex flex-col md:flex-row">
           {/* Two levels, as live has them: the COLUMN is 50% wide, and the
            * inner wrapper carries the 30px margin and the 10px column-gap
@@ -68,9 +72,14 @@ export function Faqs({ block }: { block: FaqsBlock }) {
            * makes the pair overflow and shrink. Either way the column ends up
            * ~10px too wide and its centred button drifts off. */}
           <div className={cn("w-full max-md:order-2 md:w-1/2", mediaFirst && "md:order-2")}>
+            {/* `px-2.5`, NOT `p-2.5`. The 10px is Elementor's column gap and
+             * it is horizontal only — the live column's own widget-wrap
+             * supplies the 10px above the heading, and the `Container` already
+             * carries that. A vertical 10px here as well pushed this whole
+             * column's content 10px below the live one. */}
             <div
               className={cn(
-                "p-2.5 max-md:px-[5px] max-md:pt-[45px]",
+                "px-2.5 max-md:px-[5px] max-md:pt-[45px]",
                 mediaFirst ? "md:ml-[30px]" : "md:mr-[30px]",
               )}
             >
@@ -108,7 +117,11 @@ export function Faqs({ block }: { block: FaqsBlock }) {
               ) : null}
 
               {block.cta ? (
-                <div className={GT3_CENTERED_BUTTON_ROW}>
+                /* `pb-5` is the live button widget's own 20px bottom margin —
+                 * the last widget in this column, so it is the 20px that makes
+                 * the column's content the measured 549.63px. Padding rather
+                 * than a margin so it cannot collapse out through the column. */
+                <div className={cn("pb-5", GT3_CENTERED_BUTTON_ROW)}>
                   <Button asChild variant="wipe" size="cta">
                     <a href={block.cta.href}>{block.cta.label}</a>
                   </Button>

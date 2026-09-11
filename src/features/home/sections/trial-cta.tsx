@@ -29,10 +29,11 @@ export function TrialCta({ block }: { block: TrialCtaBlock }) {
        * what the live form column measures, and what makes each field in a
        * two-up row 270px. Drop either one and every input is 5–10px wide. */}
       <Container gutter={false} className="p-2.5">
-        {/* `mb-[31px]` is measured, not chosen: the live label ink sits 117px
-         * into the band, and a 30px/40px heading starting 30px in leaves
-         * exactly 31px before the row. */}
-        <h2 className="font-body text-primary-foreground mb-[31px] text-center text-[18px] leading-[1.4] font-black md:text-[30px] md:leading-10">
+        {/* `mb-5` is the live heading widget's own 20px margin, plainly. It was
+         * 31px to make the label ink land 117px into the band — a figure that
+         * only needed 11px of help because the form below was 30px short of the
+         * live 495px. With the form right, the live margin is right. */}
+        <h2 className="font-body text-primary-foreground mb-5 text-center text-[18px] leading-[1.4] font-black md:text-[30px] md:leading-10">
           {block.heading}
         </h2>
 
@@ -56,9 +57,11 @@ export function TrialCta({ block }: { block: TrialCtaBlock }) {
           </div>
         </div>
 
-        {/* 9px below the row, measured — not the 20px Elementor widget gap,
-         * which put the note 3px low. */}
-        <p className="font-body text-primary-foreground mt-[9px] text-left text-[11px] font-semibold italic md:text-center md:text-[18px]">
+        {/* No top margin. The live note sits immediately under the two-column
+         * row — 585px in, which is the 70px above the row plus the row's own
+         * 515px — and the band then closes on its measured 625.38px of content.
+         * The 9px this used to carry was the other half of the short form. */}
+        <p className="font-body text-primary-foreground text-left text-[11px] font-semibold italic md:text-center md:text-[18px]">
           {block.privacyNote}
         </p>
       </Container>

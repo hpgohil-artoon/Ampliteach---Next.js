@@ -12,15 +12,23 @@ import { RichText } from "./rich-text";
  *   gap       30px between icon and content · 10px ≤767
  *   title     Roboto 26px/900 on a 30px line box, brand red, 5px below
  *   body      Roboto 18px · 13.5px ≤767, `line-height: 1.6875`
- *   bullets   `list-style: disc`, 18px · 15px ≤1024 · 13.5px ≤767, on a fixed
- *             27px line box. The 18px is MEASURED off a browser screenshot,
- *             not derived: the live CSS sets 15px and 13.5px for the two
- *             smaller steps but nothing for desktop, which reads as "inherit
- *             16px from `body`" — yet the same bullet string measures 328px on
- *             the live site against 288px at 16px, a ratio of 1.14.
+ *   bullets   `list-style: disc`, **Poppins** 16px · 15px ≤1024 · 13.5px ≤767,
+ *             on a fixed 27px line box. Unlike the title and description above
+ *             them — which declare `Roboto, sans-serif` and paint Arial —
+ *             these bullets declare no family of their own and inherit `body`'s
+ *             Poppins, which the live site really does load. Hence `font-sans`
+ *             here rather than the card's `font-body`. Confirmed in real
+ *             Chrome: the live `li` declares `Poppins | 16px` and Chrome
+ *             rasterises 44 glyphs of Poppins in it.
+ *
+ *             The 16px is the live value, not a guess: the live CSS sets 15px
+ *             and 13.5px for the two smaller steps and nothing for desktop, so
+ *             desktop inherits `body`'s 16px. This file previously had 18px
+ *             `font-body`, which wrapped three of these bullets onto a second
+ *             line that the live ones do not have.
  *   indent    80px · 40px ≤1024 · 30px ≤767 — the 80px is the icon's own width
  *             plus its margin, so the list aligns under the text
- *   widget    10px of bottom padding
+ *   widget    NO padding of its own — see the note on the wrapper below
  *
  * `border-double` is not licence: the live border really is
  * `border-style: double`, which paints two rules with a gap and reads visibly
@@ -41,7 +49,13 @@ export function IconBox({ title, description, bullets, icon }: Feature) {
   const Icon = icon ? (ICONS[icon] ?? null) : null;
 
   return (
-    <div className="font-body pb-[10px] text-left md:flex md:items-start">
+    // NO bottom padding. The live `.elementor-icon-box-wrapper` is exactly as
+    // tall as its content (measured 180.13px for the Simplified Payroll card,
+    // matched here to the hundredth), and the only 10px around it belongs to
+    // the grid cell — `p-[10px]` in feature-grid, the live column's own
+    // padding. A `pb-[10px]` here double-counted it and made every card row
+    // 10px taller than the live one.
+    <div className="font-body text-left md:flex md:items-start">
       {Icon ? (
         <span
           aria-hidden
@@ -51,12 +65,12 @@ export function IconBox({ title, description, bullets, icon }: Feature) {
         </span>
       ) : null}
 
-      {/* `pb-[18px]` stands in for a quirk of the live markup: every icon-box
-       * ends with an empty `<p></p>` after its list, and the theme's
-       * `p { margin: 0 0 18px }` makes that empty element 18px of real
-       * vertical space in every card. Reproduced as padding, which is
-       * identical here — the content column is a flex item, so the margin
-       * could not have collapsed out of it either. */}
+      {/* No trailing spacer. The live markup does end each icon-box with an
+       * empty `<p></p>` that the theme's `p { margin: 0 0 18px }` turns into
+       * real space — but that margin is the LAST thing in the content column,
+       * so it collapses through and adds nothing: the live content box measures
+       * 180.13px for the Simplified Payroll card, which is its text and list
+       * alone. This file used to carry an 18px padding for it. */}
       <div className="grow">
         <h3 className="text-primary mb-[5px] text-[26px] leading-[30px] font-black">{title}</h3>
 
@@ -64,14 +78,14 @@ export function IconBox({ title, description, bullets, icon }: Feature) {
           <RichText runs={description} />
         </p>
 
-        {/* The list inherits the card's `font-body`, like the description.
-         * A headless capture of the live page renders these bullets in a serif
-         * face, which is an artefact of that environment rather than the truth:
-         * no webfont loads there. In a real browser the live bullets are the
-         * same sans as the copy above them. Headless is not a reliable witness
-         * for font-family — see "How these values were measured". */}
+        {/* `font-sans` OVERRIDES the card's `font-body`, on purpose: the live
+         * list widget declares no family, so it inherits `body`'s Poppins,
+         * while the title and description above it declare `Roboto,
+         * sans-serif` and paint Arial. So one card legitimately mixes two
+         * faces. Verified in real Chrome — a headless capture shows these
+         * bullets in a serif fallback and is not a witness for font-family. */}
         {bullets?.length ? (
-          <ul className="list-none pl-[30px] text-[13.5px] leading-[27px] md:pl-[40px] md:text-[15px] lg:pl-[80px] lg:text-[18px]">
+          <ul className="list-none pl-[30px] font-sans text-[13.5px] leading-[27px] md:pl-[40px] md:text-[15px] lg:pl-[80px] lg:text-[16px]">
             {/* Two dots per item, and it is not a mistake: the live disc comes
              * from `list-style` and the theme's `.content-container ul >
              * li:before` adds a brand-red circle on top of it. Both are drawn

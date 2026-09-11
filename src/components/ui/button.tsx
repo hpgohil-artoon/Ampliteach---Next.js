@@ -27,12 +27,8 @@ import { Slot } from "radix-ui";
  * `default` is the 13/20 header size; `lg` is the live 16/31; `cta` is the
  * hero's — a 14px label with 5/20 padding and no border, measuring ~31px.
  *
- * The `wipe` variant is the live `hover_type5` animation on the hero CTA. The
- * live site needs four extra spans for it; two pseudo-elements do the same job
- * here with no extra DOM. Each covers half the button in brand red with its
- * transform-origin at the OUTER edge, so on hover both scale to zero: the red
- * retracts outwards while the button's own `#0B0B0B` shows through from the
- * centre. Same `.5s ease` centre-out wipe, same two colours.
+ * The `wipe` variant is the live `hover_type5` animation. Despite the name it
+ * is a **cross-fade**, not a wipe — see the note on the variant below.
  *
  * `font-body` is the label's family and it is NOT optional. The live rule is
  * `.elementor-widget-gt3-core-button .elementor_gt3_btn_text { font-family:
@@ -62,15 +58,31 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary normal-case underline-offset-4 hover:underline",
-        /* The two halves are `calc(50% + 1px)`, NOT `w-1/2`. At an odd box
-         * width each half lands on a half-pixel — a 259px button gives
-         * 129.5 — and the rounding leaves a 1px gap in the middle where the
-         * `#0B0B0B` ground shows through as a hairline down the centre of the
-         * button. Measured: x=633 read `rgb(11,11,11)` between two runs of
-         * brand red. The 1px overlap is invisible (both halves are the same
-         * colour) and harmless on hover, since each retracts towards its own
-         * outer edge. */
-        wipe: "bg-foreground text-primary-foreground relative isolate overflow-hidden border-transparent before:absolute before:inset-y-0 before:left-0 before:-z-10 before:w-[calc(50%+1px)] before:origin-left before:scale-x-100 before:bg-primary before:transition-transform before:duration-500 before:ease-[ease] before:content-[''] after:absolute after:inset-y-0 after:right-0 after:-z-10 after:w-[calc(50%+1px)] after:origin-right after:scale-x-100 after:bg-primary after:transition-transform after:duration-500 after:ease-[ease] after:content-[''] hover:before:scale-x-0 hover:after:scale-x-0",
+        /* `hover_type5`, and it is a CROSS-FADE — the name is the theme's, not
+         * a description. The gt3 stylesheet does define a two-half centre-out
+         * scaleX wipe, and that is what this variant used to reproduce, but
+         * later rules in the same file switch the whole thing off:
+         *
+         *   .front:after, .back:after { display: none }   ← the halves, gone
+         *   .front:before, .back:before { width: 100% }   ← now full-size
+         *   ... { transform: none }                       ← no scaleX at all
+         *   ... { transition: all .6s }                   ← 0.6s, not 0.5s
+         *
+         * Confirmed against the live page with Playwright rather than by
+         * reading: at rest both `:after` compute to `display: none`, the red
+         * `:before` to `opacity: 1` and the black one to `0`; on hover they
+         * swap. So: red fades out, `#0B0B0B` fades in, 600ms `ease`.
+         *
+         * `-inset-0.5` is the live `top/left/right/bottom: -2px` on the covers,
+         * with `overflow: visible`. It is not decoration — the coloured box is
+         * 4px wider and taller than the anchor (272.44 × 35 on a 268.44 × 31
+         * button), which is exactly the 3–4px every measured button width was
+         * short by before.
+         *
+         * The button keeps NO background of its own: the live anchor is
+         * transparent and both colours are layers. `::after` paints over
+         * `::before`, matching the live DOM order (front, then back). */
+        wipe: "text-primary-foreground relative isolate border-transparent before:absolute before:-inset-0.5 before:-z-10 before:rounded-[inherit] before:bg-primary before:opacity-100 before:transition-opacity before:duration-[600ms] before:ease-[ease] before:content-[''] after:absolute after:-inset-0.5 after:-z-10 after:rounded-[inherit] after:bg-foreground after:opacity-0 after:transition-opacity after:duration-[600ms] after:ease-[ease] after:content-[''] hover:before:opacity-0 hover:after:opacity-100",
       },
       size: {
         default:
@@ -78,15 +90,20 @@ const buttonVariants = cva(
         xs: "gap-1 px-3 py-1.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-3",
         sm: "gap-1.5 px-4 py-2.5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "gap-2 px-[31px] py-4 has-data-[icon=inline-end]:pr-6 has-data-[icon=inline-start]:pl-6",
-        /* The hero CTA: 14px label, 5px/20px padding, no border — the live
-         * `size_custom` + `hover_type5` combination, which measures 35px tall.
+        /* The gt3 CTA — the hero's button and the three in the feature grid.
+         * A 14px label with 20px of side padding, no border, in a box whose
+         * height the live anchor DECLARES: `height: 31px`. Read off the live
+         * element's computed style, together with the 21px line box on its
+         * label span, which leaves 5px above and below.
          *
-         * The 25px line box is the measured height, not a derived one. Live it
-         * emerges by accident: the anchor's own font-size is `.714em` (11.42px)
-         * while the label span is 14px, so the line box is the two struts
-         * combined rather than either alone. One declaration reproduces the
-         * result without reproducing the accident. */
-        cta: "gap-2 border-0 px-5 py-[5px] text-sm leading-[25px]",
+         * 35px was the previous value, derived from the anchor's own 11.42px
+         * font-size (`.714em`) plus the label's 14px struts. The arithmetic was
+         * plausible but the live box is simply 31px, and the 4px showed up
+         * three times over in the feature grid.
+         *
+         * Width needs no declaration: 20px either side plus the 228.44px label
+         * gives the live 268.44px box. */
+        cta: "h-[31px] gap-2 border-0 px-5 text-sm leading-[21px]",
         icon: "size-11 p-0",
         "icon-xs": "size-6 p-0 [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-8 p-0 [&_svg:not([class*='size-'])]:size-3.5",

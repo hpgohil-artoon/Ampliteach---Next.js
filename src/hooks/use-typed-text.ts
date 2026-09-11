@@ -4,12 +4,29 @@ import { useEffect, useState } from "react";
 import { useMediaQuery } from "./use-media-query";
 
 /**
- * The live site's typed-text cycle, measured frame by frame off a screen
- * recording of ampliteach.com rather than guessed at.
+ * The live site's typed-text cycle.
  *
- * The widget drives Typed.js with `loop: true` and `fadeOut: true` (its span
- * ships with the `typed-fade-out` class), and carries no `data-settings`, so
- * none of the numbers below are in the page — they come from the recording:
+ * The widget's settings ARE in the page, and they confirm most of this. They
+ * are not a `data-settings` attribute — which is why they were missed — but a
+ * sibling `<script type="application/json" id="settings--5cad399">` inside the
+ * widget container:
+ *
+ *   {"strings":["WHY AMPLITEACH?"],"typeSpeed":80,"startDelay":20,
+ *    "backSpeed":20,"backDelay":1200,"loop":true,"loopCount":0,
+ *    "showCursor":false,"fadeOut":true,"fadeOutDelay":1200}
+ *
+ * `backDelay` is HOLD_MS exactly, `fadeOutDelay` is FADE_MS + BLANK_MS
+ * exactly, `showCursor: false` confirms the absent cursor, and `fadeOut: true`
+ * confirms that it fades rather than backspacing — so `backSpeed` never runs.
+ *
+ * `typeSpeed` is the one number that disagrees, and the recording wins: at 80,
+ * Typed.js's humanizer averages 100ms per character, where the recording of the
+ * live site measures ~128ms. TYPE_MS stays 100 — which humanizes to ~125ms —
+ * because the goal is the cadence a visitor actually sees, not the configured
+ * value the live site fails to hit. Set it to 80 to match the declaration
+ * instead; nothing else needs to change.
+ *
+ * The rest was measured frame by frame off a screen recording:
  *
  *   type      ~128ms per character on average, 5 chars at t=0.216s through to
  *             15 at t=1.499s. The per-character gaps scatter between 84ms and
@@ -30,6 +47,8 @@ const TYPE_MS = 100;
 const HOLD_MS = 1200;
 const FADE_MS = 300;
 const BLANK_MS = 900;
+/** The live widget's `startDelay`, before the first character. */
+const START_MS = 20;
 
 /** Typed.js's own humanizer: `Math.round(Math.random() * speed / 2) + speed`. */
 const humanize = (speed: number) => Math.round((Math.random() * speed) / 2) + speed;
@@ -84,7 +103,10 @@ export function useTypedText(
       after(humanize(speedMs), typeNext);
     };
 
-    after(humanize(speedMs), typeNext);
+    // `startDelay`, not a humanized first character: the live widget declares
+    // 20ms before it begins, where a humanized 100 held the row empty for
+    // 100–150ms after load.
+    after(START_MS, typeNext);
 
     return () => {
       cancelled = true;

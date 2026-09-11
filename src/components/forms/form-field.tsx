@@ -41,36 +41,40 @@ export function FormField({
   const inverse = tone === "inverse";
 
   return (
-    // The live Elementor form rhythm, which every form on the site shares.
-    // Solved from the trial band's measured positions, and the four values are
-    // mutually consistent: a 24px label box, 12px to the control, a 41px
-    // control and 26px beneath give the live 103px field-row pitch exactly,
-    // and the whole band then comes out at its measured 666px.
-    <div className={cn("mb-[26px] flex flex-col gap-3", className)}>
+    // The live Elementor form rhythm, which every form on the site shares —
+    // and it is built from MARGINS, not from a flex `gap`. Measured off the
+    // live trial form, per row:
+    //
+    //   label   margin 10px 0, line box 27px   → first label sits 10px in
+    //   control 41px, margin-bottom 15px
+    //   pitch   10 + 27 + 10 + 41 + 15 = 103px, the live label-to-label step
+    //
+    // A `gap-3` + `mb-[26px]` pair reaches the same 103px total, which is why
+    // this looked right, but it distributes the space differently: the label
+    // landed 10px high and the control 11px high inside every row. Margins do
+    // not collapse in a flex column, so the 15px below and the 10px above the
+    // next label stay distinct, exactly as they do live.
+    <div className={cn("mb-[15px] flex flex-col", className)}>
       <Label
         htmlFor={name}
-        // `font-body`, NOT the inherited Poppins. Measured: live "Last name"
-        // is 72px wide, Poppins renders it at 81px with the same 12px cap
-        // height — the live labels are set in the body stack, like the copy
-        // beside them. 16px/400 too, not shadcn's 14px/500.
+        // `font-body`, NOT the inherited bare `Poppins` — the live labels
+        // declare `Roboto, sans-serif` like the copy beside them, so they land
+        // on Arial while the serif fallback is left to the footer and bullets.
+        // 16px/400 with a 27px line box, not shadcn's 14px/500 and not
+        // Tailwind's paired 24px.
         className={cn(
-          "font-body text-base leading-normal font-normal",
+          "font-body my-[10px] text-base leading-[27px] font-normal",
           inverse && "text-primary-foreground",
           labelClassName,
         )}
       >
-        {/* One flex item, so the asterisk sits in normal text flow 2px after
-         * the last letter as it does live. Left as a direct child it becomes
-         * a flex item of `Label` and picks up its `gap`, which put an 11px
-         * hole before it. */}
-        <span>
-          {label}
-          {required ? (
-            <span className={inverse ? undefined : "text-destructive"} aria-hidden>
-              *
-            </span>
-          ) : null}
-        </span>
+        {/* The asterisk is part of the label's OWN text run, not a coloured
+         * span. The live label is a single text node — `" First name*"` — so
+         * its asterisk inherits the label's colour and metrics; a
+         * `text-destructive` span made it crimson and, being a separate flex
+         * item, also picked up the label's gap. Measured: live "First name*"
+         * inks 81.8px, which is "First name" at 75.58 plus the asterisk. */}
+        {required ? `${label}*` : label}
       </Label>
 
       {children}

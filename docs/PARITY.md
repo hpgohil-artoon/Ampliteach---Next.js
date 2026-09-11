@@ -12,6 +12,59 @@ The live site is WordPress + Elementor on the `ewebot` theme.
 
 ---
 
+## Home page — verified state at 1920px
+
+Last measured against `https://www.ampliteach.com/` in **real Chrome**
+(`channel: "chrome"`, `headless: false`) at a 1920 window — a 1905px layout
+viewport once the scrollbar is taken out — `deviceScaleFactor: 1`, with the live
+page's entrance animations revealed and its typed eyebrow filled. Without any
+one of those four conditions the live page does not measure as a visitor sees
+it; see the notes below, and deviation 3 for what the bundled browser does.
+
+| Check | Result |
+| --- | --- |
+| Page height | **6222px live / 6222px local** |
+| Full-bleed band boundaries | **all 8 identical**, start and end |
+| Vertical position of every matched text run | no step anywhere except ±2px at the header Log In |
+| Painted font face, per region | **identical on every region checked** |
+| Ink width of matched text runs | **164 / 187 identical** to 0.01px |
+| Ink x of matched text runs | **165 / 187 identical** |
+
+Band heights, live and local: feature grid 1974.38 · Student Benefits 88 + 332.8
+· free trial 665.38 · testimonials + FAQ 999.44 · transform CTA 100.75 · closing
+194 · footer 666.19 · copyright 97.4.
+
+**Also verified at 1536, 1440 and 1366**, which all return the same counts as
+1920 — those are above the live site's 1025px desktop boundary, so its layout is
+legitimate there. Below 1025 the live site is not responsive and ours diverges
+by design (deviation 2); nothing under 1024 has been measured.
+
+Both the static build (`out/`) and `next dev` were checked and agree. A
+long-running dev server from an earlier session is still the classic trap — see
+the note below — but Turbopack did pick up every change in this pass.
+
+The remaining ink differences are **not** visual differences, and there is no
+known visual difference left on this page beyond deviations 8 and 22:
+
+- the social links' accessible labels. The live markup labels them with Font
+  Awesome glyph text positioned off-screen at y ≈ −120000; ours are `sr-only`
+  words. Nothing is painted in either case.
+- a space attached to the adjacent run. Our content puts the space at the start
+  of the following run where the live markup puts it at the end of the bold one;
+  the rendered character sequence is identical.
+- every bullet, where Chrome's `Range` rect for a `display: list-item` text node
+  includes the leading marker area on the live side — reported as a uniform
+  +17px x offset that does not exist. A pixel scan puts the glyphs within 1px
+  (live 386.5 / ours 387.5). **Do not "fix" this by removing the 17px indent
+  from `BULLET`**; it would move every bullet 17px left of the live one.
+- the header nav sits 1.61px left, and the Log In label ±2px.
+
+Re-run the harness after any change to a shared component: `Button`,
+`FormField`, `IconBox`, `Container`, `TopBar`, `Footer` and `BULLET` are all
+shared with the other eight routes, which have **not** been measured.
+
+---
+
 ## How these values were measured
 
 **Extract the base widget rules, not just the id-keyed overrides.** Elementor
@@ -79,6 +132,22 @@ while every y agrees — which is the signature of this, not of a real
 difference. Compare **y** freely; for **x**, compare widths and the distance
 between two features in the same image, never absolute x across the two.
 
+**For anything interactive, drive a real browser — the cascade is the only
+authority.** `playwright-core` is a devDependency and launches the installed
+Chrome (`channel: "chrome"`), so there is no browser download. It reads hover,
+scroll and click states that a `--screenshot` capture cannot reach, and it
+resolves whole cascades for you instead of you resolving them by eye.
+
+Use it whenever a rule's final value is in doubt. The `hover_type5` button was
+built as a wipe for a long time because the gt3 stylesheet defines a wipe and
+then cancels it further down the same file; one `getComputedStyle` on the live
+page settled it in seconds. `scratchpad/probe-hover.js` (live state dump),
+`probe-ours.js` (ours, all variants) and `probe-curve.js` (pixel colour sampled
+through a transition) are the three shapes worth keeping.
+
+Note the scripts live outside the project, so they need
+`NODE_PATH=D:\Ampliteach-Nextjs\node_modules` to resolve `playwright-core`.
+
 **Font-size is solvable from a box, and weight from the family's real faces.**
 Where a live declaration is missing or a no-op, render a candidate and measure:
 the trial submit's box is 245px with a measured 31px of padding either side, so
@@ -119,6 +188,68 @@ frame's pixels and POSTs them back. Two traps, both hit:
 Then profile the frames numerically (pixel counts and ink bounding boxes per
 frame) rather than eyeballing them; that is how the typing speed, hold, fade and
 loop period below were pinned, and how the absence of a cursor was proved.
+
+**Drive REAL Chrome through Playwright — `channel: "chrome"`, `headless: false`
+— and compare INK, not boxes.** Everything below was verified that way at
+1920×1080, `deviceScaleFactor: 1`, diffing both sites numerically.
+
+> **Two non-optional guards, and skipping either produces a self-consistent set
+> of wrong numbers — it did, and the wrong conclusion shipped:**
+>
+> 1. `channel: "chrome"`, `headless: false`. Playwright's bundled Chromium never
+>    loads ampliteach.com's webfonts and renders the whole live page in fallback
+>    faces.
+> 2. **Block until Poppins is paintable before measuring anything.** The live
+>    site injects its Google Fonts stylesheet from JS about five seconds in —
+>    after `networkidle` and after `document.fonts.ready`.
+>
+> Deviation 3 has the evidence and the probe that catches both.
+
+Three techniques did the work, and they are worth reusing:
+
+1. **`CSS.getPlatformFontsForNode`** (Chrome DevTools Protocol, via
+   `context.newCDPSession`) reports the face Chrome actually **rasterised**,
+   with a glyph count — the only reliable answer to "what font is this?".
+   `getComputedStyle().fontFamily` returns the *declared* stack and will happily
+   tell you "Poppins" for text painted in something else. Necessary but not
+   sufficient: it reports faithfully about whatever browser you ran it in, so it
+   only settles deviation 3 when run in real Chrome.
+2. **Ink width via `Range.getBoundingClientRect()`** over each text node, rather
+   than the element's box. Ink width is an exact fingerprint of family + size +
+   weight + letter-spacing, so a match within 0.5px means the text renders
+   identically. Element boxes lie constantly: the live site's inline `<span>`
+   heading against our block `<h3>` differs by 7px of inline content area with
+   the baselines in the same place, and a text run's box changes with where an
+   adjacent `<strong>` keeps its space. **174 of 187 matched runs** now share
+   an ink width to the hundredth of a pixel.
+3. **A vertical map** — every matched run in live document order with its y
+   delta, reporting where the delta *steps* rather than its absolute value.
+   Cumulative drift makes absolute deltas meaningless; a step is exactly where
+   space is missing or extra, and the step size is the fix. That turned a
+   "-144px somewhere" into six specific edits.
+
+Where ink and boxes both mislead, **scan the PNG**. The live red bullet dot's
+`::before` reports a transparent background and a 6×7 box that a non-replaced
+inline never applies, so only a pixel scan gives its real size and position
+(deviation 22).
+
+**Three things do not render in a capture, and all three change the layout you
+measure.** Each one produced a wrong conclusion before it was found:
+
+- **Elementor's entrance animations.** Widgets ship with `.elementor-invisible`
+  (`visibility: hidden`) and JS strips the class on scroll; in a capture that JS
+  often does not fire, so the two section headings, the FAQ photo and "Got more
+  questions?" are invisible. Boxes are reserved either way — it is `visibility`,
+  not `display` — so geometry survives, but screenshots do not. Strip the class
+  before capturing.
+- **The typed hero eyebrow.** Typed.js does not initialise, so its span stays
+  empty, its widget collapses from 66px to a 10px strut, and because the hero
+  column is `items-center` **everything in it moves**. Measured that way the
+  hero looked 30px out when it was already correct. Its settings are in the page
+  — a sibling `<script type="application/json" id="settings--…">`, not a
+  `data-settings` attribute — so fill the span from `strings[0]` before
+  measuring.
+- **Lazy images**, as described above.
 
 Two further traps cost real time, so they are worth stating:
 
@@ -213,13 +344,72 @@ the theme sets padding per widget and lets the line box decide the height.
 every button on the site — and it was missing for a long time, leaving all eight
 CTA sites in the Poppins they inherit from `body`. Poppins is narrower here, so
 every label was short: the FAQ button measured 254px against the live 263, and
-the testimonials button 318 against 341. Both land within 3px with `font-body`.
-This is the third time the base-vs-id-keyed split has produced a wrong value —
-see the top of this file.
+the testimonials button 318 against 341. `font-body` brought both to within 3px,
+and the `wipe` inset below closed the last 3px exactly. This is the third time
+the base-vs-id-keyed split has produced a wrong value — see the top of this file.
 
 **Only one button on the home page has a mobile label step.** `1b95fcf`, the
 testimonials button, drops to 12px ≤767; the other five stay at 14px. It is
 therefore a per-instance `max-md:text-xs`, not a change to the `cta` size.
+
+#### `hover_type5` is a CROSS-FADE, not a wipe
+
+The gt3 stylesheet defines a two-half centre-out `scaleX` wipe — and then, in
+the same file, switches all of it off:
+
+```
+.front:after, .back:after     { display: none }    ← the halves, gone
+.front:before, .back:before   { width: 100% }      ← now full-size
+...                           { transform: none }  ← no scaleX at all
+...                           { transition: all .6s }
+```
+
+So what actually animates is **opacity**: the red layer fades out while a
+`#0B0B0B` layer fades in, over **600ms `ease`**. This was built as the wipe for a
+long time, because reading the rules top-down finds the wipe and stops.
+
+Verified with Playwright against the live page rather than by reading — the
+browser resolves the whole cascade:
+
+| | live at rest | live on hover | ours |
+| --- | --- | --- | --- |
+| `.front::before` | opacity **1**, red | opacity **0** | ✓ |
+| `.back::before` | opacity **0**, `#0B0B0B` | opacity **1** | ✓ |
+| `.front/.back::after` | `display: none` | `display: none` | not emitted |
+| transition | `all 0.6s ease` | | `opacity 0.6s ease` |
+| layer box | 272.44 × 35 | | **272.44 × 35** |
+| anchor box | 268.44 × 31 | | **268.44 × 31** |
+
+`transition-property` is narrowed to `opacity` where live says `all`; only
+opacity changes, so the result is identical and nothing else gets animated.
+
+**The covers sit at `-2px` on every side** (`top/left/right/bottom: -2px`, with
+`overflow: visible`), so the painted box is **4px wider and taller than the
+anchor**. That is not cosmetic: it is exactly the 3–4px that every measured
+button width was short by. With the inset, the testimonials button paints
+341.97 against the live 341 and the FAQ button 263.77 against 263 — both
+residuals resolved, and layout is untouched because the layers are absolutely
+positioned.
+
+Sampling the composited pixel through the transition confirms the curve — same
+endpoints, same shape, settled by 600ms:
+
+| t (ms) | live | ours |
+| --- | --- | --- |
+| rest | `255,22,22` | `255,22,22` |
+| 200 | `74,59,59` | `83,62,62` |
+| 400 | `19,18,18` | `21,20,20` |
+| 600 | `11,11,11` | `11,11,11` |
+
+Per-sample offsets differ by a few tens of ms because each read is a screenshot
+plus a canvas decode and the two runs are not clock-synchronised — the `t=0`
+readings already differ. The declarations above are the exact comparison.
+
+**Every live `hover_type5` maps to `wipe` and nothing else does.** Checked by
+inventorying both pages: the header's "Log In" carries no `hover_type` on the
+live site and is correctly `variant="default"`; the trial form's submit is a
+separate `input[type=submit]` treatment; the other six are all `wipe`. The
+header and form-submit hovers are not yet verified against live.
 
 ### Breakpoints
 
@@ -917,17 +1107,114 @@ responsive in the modern sense. Full responsiveness is an explicit project
 requirement, so this is expected to diverge. Everything is token-driven in
 `globals.css`, so adding a responsive step is a one-line edit per token.
 
-### 3. All five real Poppins weights are loaded
+### 3. Only Poppins 400 and 500 are loaded — matching live exactly
 
-The live site requests only `Poppins:400,500` while its CSS asks for
-600/700/800 — so **every heading there is a browser-synthesised faux bold.**
-We load the real weights, so headings render slightly crisper.
+The live site loads **Poppins 400 and 500, and nothing else**, while its CSS
+asks for 600/700/800. So every heavier weight on ampliteach.com is a
+browser-synthesised faux bold off Poppins Medium. Confirmed in real Chrome: the
+live footer heading declares weight 900 and `CSS.getPlatformFontsForNode`
+reports it painting **Poppins Medium**.
+
+`app/layout.tsx` therefore requests `weight: ["400", "500"]`. **Loading the real
+600/700/800 faces is the deviation, not the fix** — it renders those headings
+narrower and cleaner than the live ones. This file previously loaded all five
+and called it an improvement.
+
+#### A wrong turn worth recording, because the tooling causes it
+
+This deviation was briefly rewritten to claim the live site loads **no webfont
+at all** and paints Times New Roman — and the build was changed to match, which
+put the header, both bullet lists, the footer and the trial submit label in a
+serif. That was wrong, and it shipped for one round before the client reported
+it.
+
+There are **two** independent causes, and a harness needs a guard for each.
+
+The live page references the Google Fonts stylesheet twice: once as
+`rel="preload"` carrying a `&ver=` query — which fetches without applying — and
+once as a plain `<link rel="stylesheet">` that JavaScript injects later, without
+the query. Everything depends on that second tag.
+
+**1. Playwright's bundled Chromium never injects it at all.** Polled once a
+second for 25s, the live page's font links stay `[dns-prefetch, preload]`
+forever and `document.fonts` never lists Poppins:
+
+| | Chrome for Testing | real Chrome |
+| --- | --- | --- |
+| font links after 15s | `dns-prefetch, preload` | `dns-prefetch, preload, **stylesheet**` |
+| `document.fonts` | Font Awesome only | **Poppins 400, Poppins 500, Rubik 400 — loaded** |
+| header strip, nav, bullets, footer | Times New Roman / Arial | **Poppins** |
+
+Every conclusion drawn from the first column was false, and it was internally
+consistent enough to be convincing: the local build was measured in the same
+browser, so "both sides paint Times New Roman" read as agreement.
+
+**2. Even in real Chrome the swap lands about five seconds in** — far later than
+`networkidle` or `document.fonts.ready`, both of which resolve while the page is
+still in a fallback face:
+
+```
+t=3.5s  Poppins@40px=301.08  fallback  links=[dns-prefetch, preload]
+t=5.5s  Poppins@40px=358.28  POPPINS   links=[dns-prefetch, preload, stylesheet]
+```
+
+This is why the error looked intermittent: three consecutive runs that waited 3s
+reported Times New Roman and one that waited longer reported Poppins.
+
+**So: launch with `channel: "chrome"` and `headless: false`, and then block
+until Poppins is paintable — refusing to measure if it never is.** A cheap probe
+is to render `Handgloves 12345` at 40px in each declared family and compare
+widths; if a declared `Poppins` matches `serif` or `sans-serif` exactly, it is
+not loading yet:
+
+| declared | width at 40px |
+| --- | --- |
+| `Poppins` | **358.28** (loaded — both sites) |
+| `Arial` / `sans-serif` | 333.59 |
+| `Times New Roman` / `serif` | 301.08 |
+
+What the live site paints, verified in real Chrome and now matched on both
+sides. Note that a single icon-box legitimately mixes two faces:
+
+| Live declaration | Painted | Where |
+| --- | --- | --- |
+| `Poppins` | **Poppins** | `body`: header contact strip, feature-card bullets, the whole footer, the trial submit label |
+| `Poppins, sans-serif` | **Poppins** | the main nav — the generic matters only if Poppins fails |
+| `Roboto, sans-serif` | **Arial**, Arial Black at 900 | the 56 text widgets: hero, headings, buttons, form labels, testimonials, Student Benefits bullets |
 
 ### 4. Rubik is not loaded
 
-The live site loads it but uses it in exactly two rules (a blog button and a
-map info marker). Not worth a second webfont. Add it if literal parity is
-wanted.
+The live site **does** load it — confirmed in real Chrome as `Rubik 400 loaded`
+— but uses it in exactly two rules: a blog button and a map info marker, neither
+on the home page. Not worth a second webfont for that. Add it if literal parity
+is wanted on those two elements.
+
+### 32. The scrollbar is the browser's, and always present — matching live
+
+`globals.css` used to style it: `scrollbar-width: thin` plus a 6px
+`::-webkit-scrollbar`. The live site styles it not at all and forces it on with
+`html { overflow-y: scroll }`.
+
+This is not cosmetic, because the scrollbar comes out of the **layout viewport**
+and therefore moves every centred element on the page:
+
+| | layout viewport at 1920 | 1220px container x |
+| --- | --- | --- |
+| live (`overflow-y: scroll`, default bar) | **1905** | **342.5** |
+| ours, before (thin 6px bar) | 1910 | 345 |
+
+A 6px themed bar reserves 10px where the live one reserves 15, which put
+**every centred text run 2.5px right of the live one** — 112 of 187 measured
+runs, all by exactly 2.5px, with another 42 at 3.5px from sub-pixel rounding.
+It presents as "the padding is slightly off everywhere" and no padding change
+would have fixed it.
+
+`overflow-y: scroll` also pins the gutter, so a short page (404, a legal stub)
+is laid out on the same 1905px as a long one instead of shifting 15px when its
+content crosses the viewport height.
+
+The themed scrollbar is a one-block revert in `globals.css` if the client wants
+it, but it shifts the whole site and must be logged here if it comes back.
 
 ### 5. Type sizes in rem, line-heights unitless
 
@@ -957,6 +1244,20 @@ that placeholder has to be maintained against three different bar heights.
 and no jump. The one thing it does not give us is *when* it pinned, which is
 what `src/hooks/use-stuck.ts` reports so the fade to translucent stays timed to
 the live site's. Confined to `header-bar.tsx` and that hook.
+
+**It has one measurable consequence, and it is in our favour.** The live
+placeholder is **103px for a 110px bar**, so the live header (0–158px) overlaps
+the top of its own page content, which begins at **151px**. Our header is the
+same 158px tall and the content begins at 158, so everything below sits 7px
+lower than on the live site. Nothing is actually obscured live — the hero's
+first 50px is padding — so this reads as "the live page is 7px shorter", not as
+a visible defect either way.
+
+Matching it would mean deliberately reproducing a 7px overlap of the header onto
+the content, i.e. `margin-top: -7px` on `<main>`. **Not done**, on the grounds
+that it reproduces a theme bug with no visual payoff; raise it if the client
+wants the 7px. Note this is measured at desktop; the live placeholder is a JS
+value and may differ at the 80px bar height.
 
 ### 9. Elementor's percentage columns are flex
 
@@ -1025,7 +1326,17 @@ through to the generic sans — Arial on Windows, Helvetica on macOS — while t
 nav and `h1`–`h6` render in real Poppins.
 
 `--font-body` therefore declares the same unloaded stack, so we inherit the same
-fallback face on the same machine. Poppins stays on nav and headings.
+fallback face on the same machine. Poppins stays on `body`, the nav, the footer
+and the feature-card bullets.
+
+**This deviation is correct as written, and was re-confirmed in real Chrome:**
+the live page's `Roboto, sans-serif` copy paints Arial, and Arial Black at
+weight 900. A Roboto woff2 *is* fetched by an unrelated rule, which makes the
+network log misleading — check the painted face, not the request list.
+
+It was briefly generalised to "Poppins is declared but never loaded either",
+which is false. See deviation 3: Poppins does load, and the tool that said
+otherwise was the bundled Chromium.
 
 **This supersedes an earlier decision to load Roboto for real.** That was chosen
 before the consequence was visible; a screen recording of the live site then
@@ -1105,12 +1416,36 @@ The one thing not yet self-contained is the `h1`. Exactly one block per page
 may set `headingLevel: "h1"` (on the home page, the feature grid, matching the
 live document). Nothing enforces it in code; the CMS UI has to.
 
-### 22. Both bullet dots are 7px, where the live pair is 6 and 7
+### 22. Both bullet dots are 7px, where the live pair is 6 and 5
 
 The feature bullets show two dots: a black one from the theme's own `::marker`
-and a brand-red one from Elementor. Measured on the live page they are **6×6 and
-7×7** — a 1px mismatch nobody designed, and visible once you look for it. Ours
-are both 7px, and both come from **one** pseudo-element:
+and a brand-red one from Elementor.
+
+**Re-measured by pixel scan** of the Student Benefits list at 1920, reading the
+rendered PNG rather than the CSS (the live red dot's `::before` reports a
+transparent background and a 6×7 box that a non-replaced inline never applies,
+so computed style is not a witness here):
+
+| | live | ours |
+| --- | --- | --- |
+| black dot | x 353–357, **5–6px** | x 352–358, **7px** |
+| red dot | x 370–375, **6px** | x 370–376, **7px** |
+| vertical centre | y 3224 | y 3222 — **2px high** |
+
+The original "6 and 7" had the red dot roughly right and the black one a pixel
+over. The black dot is the `list-style: disc` marker, so its size tracks the
+list's `font-size`, while the red one is fixed — reproducing that faithfully
+means a size-varying marker, which is exactly what the mechanism below was
+chosen to avoid.
+
+**Everything else about both lists matches.** Text glyphs start within 1px
+(pixel-scanned: live 386.5 / ours 387.5), the ink widths are identical to the
+hundredth of a pixel (265.02px for "Effortlessly assign rooms and
+instructors."), and the list boxes agree exactly (x 360, w 692,
+`padding-left: 10px`). What is left is a 1–2px difference in two decorative
+dots, sitting 2px high.
+
+Ours are both 7px, and both come from **one** pseudo-element:
 
 ```
 before:size-[7px] before:rounded-full before:bg-primary
@@ -1127,11 +1462,32 @@ definition; `IconBox` and `BenefitMedia` both import it.
 ### 23. Form field rhythm lives in `FormField`, once
 
 Every form on the live site is the same Elementor form widget, so its rhythm is
-set as the default in `components/forms/form-field.tsx` rather than per form:
-a 24px label box, 12px to the control, and 26px under each field group, which
-gives the live 103px field-row pitch. The label's `font-body`, 16px and 400
-weight all override shadcn defaults. `components/ui/label.tsx` is CLI-managed
-and is not edited; every override arrives as a `className` from `FormField`.
+set as the default in `components/forms/form-field.tsx` rather than per form.
+The label's `font-body`, 16px and 400 weight all override shadcn defaults.
+`components/ui/label.tsx` is CLI-managed and is not edited; every override
+arrives as a `className` from `FormField`.
+
+**Corrected against the live form's own boxes.** This used to read "a 24px label
+box, 12px to the control, and 26px under each field group", which does reach the
+live 103px row pitch but distributes it differently — the label landed 10px high
+and the control 11px high inside every row. The live composition is margins, not
+a flex `gap`:
+
+| | live |
+| --- | --- |
+| label | `margin: 10px 0`, line box **27px** (not Tailwind's paired 24px) |
+| control | 41px, `margin-bottom: 15px` |
+| pitch | 10 + 27 + 10 + 41 + 15 = **103px** |
+
+Margins do not collapse in a flex column, so the 15px below and the 10px above
+the next label stay distinct, as they do live. The trial form's own arithmetic
+then closes exactly: 4 rows × 103 + 18 + 50 + 15 = **495px**, the live form
+height.
+
+The required asterisk is part of the label's own text run — the live label is a
+single text node, `" First name*"` — so it inherits the label's colour. It was
+previously a `text-destructive` span, which made it crimson and, being a
+separate flex item, also picked up the label's gap.
 
 ### 24. The FAQ questions are a `dl`, not five more `h2`s
 
@@ -1173,15 +1529,44 @@ either side differ by 23px and lands the item 11.5px left. Desktop only: the
 offset was measured at desktop widths and the live mobile rules never touch
 button alignment. Deleting the `md:pr-[23px]` reverts to optical centring.
 
-### 28. The `wipe` button's halves overlap by 1px
+The feature grid's three buttons used to carry their own `mr-[22px]` for the
+same quirk — two mechanisms for one live behaviour. They now use this constant
+as well, so there is one home for it.
 
-`wipe` paints its brand-red fill with two pseudo-elements, each anchored to one
-edge so they can retract outwards on hover. At `w-1/2` an odd box width puts
-each half on a half-pixel — a 259px button gives 129.5 — and the rounding left a
-**1px `#0B0B0B` hairline down the centre of every wipe button**, the hero CTA
-included. Confirmed by sampling: x=633 read `rgb(11,11,11)` between two runs of
-brand red. Both halves are now `calc(50% + 1px)`. The overlap is invisible (same
-colour) and harmless on hover, since each retracts towards its own outer edge.
+### 31. The footer's Quick Links menu is rendered at 95% — reproduced
+
+The WPDA menu plugin wraps that one menu in
+`div.wpda-navbar-collapse { transform: matrix(.95,0,0,.95,0,0) }` with
+`transform-origin: 0 50%`, so the **middle footer column's type really is 5%
+smaller than the two columns either side of it**, on the live desktop site.
+Measured:
+
+| | live | unscaled |
+| --- | --- | --- |
+| "Little Rockers Program" ink | **142.68px** | 150.19px (×0.95 = 142.68) |
+| item pitch | **29.63px** | declared 31.2px (×0.95 = 29.64) |
+| menu block | 148.14px | 156px |
+
+So the declared line-heights in `footer.tsx` are the live *declared* ones —
+31.2px on the link, 32px on the item — and `origin-left scale-95` on the `<nav>`
+scales them to what renders. Collapsing the two into a single "30px" lands 1.4px
+out per row and 8px over the column. The left origin is why the column does not
+also shift: live and local both put the link's left edge at x = 766.66.
+
+The 20px gap above it is **15px**, not the 20px the other two columns get — the
+live menu widget's container declares `padding-top: 15px` where the About text
+and the icon list declare 20px. It sits outside the scale, as it does live.
+
+An obvious plugin accident, reproduced rather than corrected, on the same
+grounds as deviation 27. One class (`scale-95`) reverts it.
+
+### 28. ~~The `wipe` button's halves overlap by 1px~~ — WITHDRAWN
+
+This described a 1px `#0B0B0B` hairline down the centre of every wipe button,
+caused by two half-width pseudo-elements landing on a half-pixel. Both the bug
+and the fix are gone: the halves themselves were wrong. `hover_type5` is a
+cross-fade with **no halves at all** — see "Buttons" above. Kept as a numbered
+entry so the surrounding numbering stays stable.
 
 ### 30. The copyright line keeps its stray space — **needs a client decision**
 

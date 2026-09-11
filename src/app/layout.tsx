@@ -9,29 +9,39 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 /**
- * Poppins, matching ampliteach.com — the live theme sets it on body, the nav
- * and every heading (h1–h4 at 800, h5 700, h6 600).
+ * Poppins, matching ampliteach.com — the live theme sets it on `body`, the nav,
+ * the footer, the feature-card bullets and the trial submit label.
  *
- * Poppins is not a variable font on Google Fonts, so the weights are listed
- * explicitly. The live site only requests `Poppins:400,500` yet its CSS asks
- * for 600/700/800, so every heading there is a browser-synthesised faux bold;
- * loading the real weights is the one place this deliberately differs.
+ * **WEIGHTS 400 AND 500 ONLY, and that is deliberate.** It is exactly what the
+ * live site fetches (`css?family=Poppins:400,500|Rubik:400&display=swap`), while
+ * its CSS asks for 600/700/800 — so every heavier weight on the live site is a
+ * browser-synthesised faux bold off Poppins Medium. Verified: the live footer
+ * heading declares weight 900 and Chrome reports it painting **Poppins Medium**.
+ * Loading the real 600/700/800 faces would render those headings narrower and
+ * cleaner than the live ones, which is the opposite of parity.
+ *
+ * Poppins is not a variable font on Google Fonts, so the weights are explicit.
+ *
+ * How to check this rather than trust it: `CSS.getPlatformFontsForNode` over
+ * CDP reports the face Chrome actually rasterised. It must be run in REAL
+ * Chrome — Playwright's bundled Chrome-for-Testing does not make the live
+ * site's second Google Fonts request and so renders it in fallback faces. That
+ * mistake is written up in docs/PARITY.md, deviation 3.
  */
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500"],
   variable: "--font-sans",
   display: "swap",
 });
 
 /*
- * Roboto is deliberately NOT loaded. The live home page's text widgets declare
- * `font-family: "Roboto", Sans-serif` but the site never fetches Roboto, so
- * that copy renders in the generic sans — Arial on Windows, Helvetica on macOS.
- * A screen recording confirms it: the hero eyebrow measures 474px where real
- * Roboto ExtraBold gives 398px. `--font-body` in globals.css therefore declares
- * the same unloaded stack, so we fall through to the same face the live site
- * does. See deviation 17 in docs/PARITY.md.
+ * Roboto is deliberately NOT loaded, and this one IS confirmed in real Chrome:
+ * the live home page's text widgets declare `font-family: "Roboto", Sans-serif`
+ * and Chrome paints them **Arial** (Arial Black at weight 900). A Roboto woff2
+ * does get fetched by an unrelated rule, but it never reaches this copy.
+ * `--font-body` in globals.css therefore declares the same unloaded stack, so
+ * we fall through to the same face. See deviation 17 in docs/PARITY.md.
  */
 
 export const metadata: Metadata = {

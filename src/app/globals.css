@@ -14,25 +14,39 @@
  */
 @theme inline {
   /* --- Fonts ---------------------------------------------------------------
-   * TWO families, because the live site has two.
+   * TWO faces, because the live site has two — one loaded, one not. Both
+   * verified in REAL Chrome with `CSS.getPlatformFontsForNode`, which reports
+   * the face actually rasterised rather than the one declared.
    *
-   * `sans` is Poppins — the nav, and every `h1`–`h6` via the theme's
-   * `h1{font-family:Poppins}` rules. It is the only font the live site
-   * actually loads (`Poppins:400,500`, plus an unused Rubik).
+   * `sans` is **Poppins, and it really does load** — `body`, the nav, the
+   * footer, the feature-card bullets and the trial submit label all paint it.
+   * Weights 400 and 500 only; see the note in `app/layout.tsx` for why loading
+   * more would be less faithful, not more.
    *
-   * `body` is `Roboto, Sans-serif` **declared but not loaded** — exactly what
-   * every one of the 56 text-widget rules on the live home page says. Roboto is
-   * never fetched there (only `Poppins:400,500|Rubik:400` is), so the stack
-   * falls through to the generic sans: Arial on Windows, Helvetica on macOS.
+   * `body` is `Roboto, Sans-serif` **declared but not loaded** — what every one
+   * of the 56 text-widget rules on the live home page says. That copy paints
+   * Arial, and Arial Black at weight 900. A screen recording settles it: the
+   * live hero eyebrow measures 474px wide at 44px/800, where real Roboto
+   * ExtraBold gives 398px. So we declare the same stack rather than loading
+   * Roboto, and inherit the same fallback on the same machine.
    *
-   * A screen recording of the live site settles it — its hero eyebrow measures
-   * 474px wide at 44px/800, where real Roboto ExtraBold gives 398px. The live
-   * face is unmistakably Arial Bold. So we declare the same stack rather than
-   * loading Roboto, and inherit the same fallback on the same machine.
-   * See deviation 17 in docs/PARITY.md.
+   * `nav` exists because the live theme's menu rule is the one place that adds
+   * a generic — `Poppins, sans-serif` where `body` declares a bare `Poppins`.
+   * With Poppins loaded both paint Poppins, so it is fidelity to the
+   * declaration rather than a visible difference; it decides only what the nav
+   * falls back to if Poppins ever fails. It MUST keep `var(--font-sans)` rather
+   * than a literal "Poppins": next/font self-hosts under a generated family
+   * name, so a literal would miss it and drop the nav to Arial.
+   *
+   * **Do not conclude from a headless capture that these do not load.**
+   * Playwright's bundled Chrome-for-Testing never makes the live site's second
+   * Google Fonts request, renders ampliteach.com in Times New Roman and Arial,
+   * and will convince you the site loads no webfont at all. It does. See
+   * deviation 3 in docs/PARITY.md, which records that mistake in full.
    */
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
+  --font-nav: var(--font-sans), sans-serif;
   --font-body: Roboto, sans-serif;
 
   /* --- Breakpoints --------------------------------------------------------
@@ -456,30 +470,29 @@
   color: var(--brand-foreground);
 }
 
-/* Scrollbars, themed. Firefox gets the standard two-value property; Chrome and
- * Safari need the -webkit- pseudo-elements. Both read the same tokens, so a
- * palette change moves them with everything else. */
+/* THE SCROLLBAR IS THE BROWSER'S, AND IT IS ALWAYS THERE — because that is what
+ * ampliteach.com does: its theme sets `html { overflow-y: scroll }` and styles
+ * the scrollbar not at all.
+ *
+ * This is not cosmetic. The scrollbar comes out of the layout viewport, so its
+ * width moves every centred element on the page:
+ *
+ *   live   `overflow-y: scroll`, default scrollbar   → viewport 1905, 1220px box at x=342.5
+ *   before `scrollbar-width: thin` + a 6px -webkit-  → viewport 1910, 1220px box at x=345
+ *
+ * A themed 6px scrollbar reserves 10px where the live one reserves 15, which
+ * put **every centred run on the page 2.5px right of the live one** — 112 of
+ * 187 measured text runs, all by the same 2.5px. It read as "the padding is
+ * off everywhere" and no amount of padding would have fixed it.
+ *
+ * `overflow-y: scroll` also pins the gutter, so a short page (404, a legal
+ * stub) is laid out on the same 1905px as a long one instead of jumping 15px
+ * when content crosses the viewport height.
+ *
+ * Do not restyle this to taste. If the client asks for a slim scrollbar it has
+ * to be logged in docs/PARITY.md, because it shifts the whole site. */
 html {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--border);
-  border-radius: var(--radius-sm);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--muted-foreground);
+  overflow-y: scroll;
 }
 
 /*

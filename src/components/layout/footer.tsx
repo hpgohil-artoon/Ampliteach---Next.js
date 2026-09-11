@@ -15,7 +15,7 @@ import { SocialLinks } from "./social-links";
  *   divider   a white "tilt" wedge across the top, height = width / 10
  *   columns   three equal thirds, each with Elementor's 10px column gap
  *   spacer    25px above each heading
- *   heading   20px/26px weight 800, white, `letter-spacing: .5px`, with a
+ *   heading   20px/26px weight 900, white, `letter-spacing: .5px`, with a
  *             25×4px brand-red bar pinned to the bottom of its own box
  *   body      16px/27px white
  *   links     white, brand red on hover and for the current page
@@ -31,7 +31,7 @@ import { SocialLinks } from "./social-links";
 
 /** 25px spacer + the heading's own 20px bottom margin, in one place. */
 const HEADING =
-  "relative pb-5 text-[20px] leading-[26px] font-extrabold tracking-[0.5px] text-white after:absolute after:bottom-0 after:left-0 after:h-1 after:w-[25px] after:rounded-[20px] after:bg-primary after:content-['']";
+  "relative pb-5 text-[20px] leading-[26px] font-black tracking-[0.5px] text-white after:absolute after:bottom-0 after:left-0 after:h-1 after:w-[25px] after:rounded-[20px] after:bg-primary after:content-['']";
 
 const CONTACT = [
   { Icon: EnvelopeOpenIcon, label: SITE.email, href: `mailto:${SITE.email}` },
@@ -48,10 +48,13 @@ export function Footer() {
     // section that follows it — with them on the wrapper, the footer's 60–100px
     // of bottom padding rendered *below* the black bar as a strip of `#222`.
     //
-    // NO `font-body` either. Unlike the page sections, none of the live footer's
-    // widgets declare a family, so they inherit the site font (Poppins) — and
-    // Poppins is wider: with `font-body` the About paragraph wrapped to five
-    // lines against the live six, and every line width was out.
+    // NO `font-body`. Unlike the page sections, none of the live footer's
+    // widgets declare a family, so the whole footer inherits `body`'s Poppins.
+    // Confirmed in real Chrome: the About paragraph rasterises 230 glyphs of
+    // Poppins, and these headings paint Poppins Medium — the live site loads
+    // only weights 400 and 500, so their declared 900 is a synthesised bold.
+    // Adding `font-body` here would put the footer in Arial, which is narrower:
+    // the About paragraph then wrapped to five lines against the live six.
     <footer className="mt-auto">
       <section className="bg-footer relative pt-[60px] pb-[60px] text-white lg:pt-[100px] lg:pb-[100px] xl:pt-[200px]">
         {/* The live "tilt" shape divider. `preserveAspectRatio="none"` plus a
@@ -69,7 +72,11 @@ export function Footer() {
           </svg>
         </div>
 
-        <Container gutter={false} className="relative max-lg:px-2.5">
+        {/* `pb-4` is the live inner section's `padding: 0 0 16px` — bottom
+         * only, so it lengthens the band without moving any of the three
+         * columns. Without it the footer measured 623.19px against the live
+         * 639.19, and the copyright bar and page total were 16px short. */}
+        <Container gutter={false} className="relative pb-4 max-lg:px-2.5">
           <FooterParticles />
 
           <div className="relative z-[1] flex flex-col md:flex-row">
@@ -87,11 +94,39 @@ export function Footer() {
                * current page brand red with the same `current-menu-item` rule
                * the header uses, so it is the same mechanism. Only the inactive
                * colour differs, because this one sits on `#222`. */}
-              <nav aria-label="Footer">
+              {/* `scale-95` is not styling — it is the live render. The WPDA
+               * menu plugin wraps this one menu in
+               * `div.wpda-navbar-collapse { transform: matrix(.95,0,0,.95,0,0) }`
+               * with `transform-origin: 0 50%`, so the middle footer column's
+               * type really is 5% smaller than the two columns either side of
+               * it. Measured: the live link inks 142.68px where the same string
+               * unscaled inks 150.19 (×0.95 = 142.68), and the item pitch is
+               * 29.63px against the declared 31.2 (×0.95 = 29.64).
+               *
+               * So the declared line-heights below are the live DECLARED ones —
+               * 31.2px on the link, 32px on the item — and the wrapper scales
+               * them down to what renders. Collapsing the two into a single
+               * "30px" would land 1.4px out per row and 8px out over the
+               * column. The left origin is why the column does not also shift:
+               * live and local both put the link's left edge at x=766.66.
+               *
+               * An obvious plugin accident, reproduced rather than corrected —
+               * see the deviation log in docs/PARITY.md. */}
+              {/* `mt-[15px]`, and it is the one column of the three that is
+               * not 20px: the live menu widget's container declares
+               * `padding-top: 15px` where the About text and the icon list
+               * both get 20px. Measured — the live scaled menu box sits at
+               * +18.9px inside its widget, which is that 15px plus the 3.9px
+               * the 0.95 scale drops its top edge by.
+               *
+               * It sits OUTSIDE the scale, as it does live: the gap belongs to
+               * the widget container and only the menu is scaled, so the 15px
+               * must not be shrunk to 14.25. */}
+              <nav aria-label="Footer" className="mt-[15px] origin-left scale-95">
                 <NavLinks
                   links={FOOTER_QUICK_LINKS}
-                  className="mt-5 text-[16px]"
-                  linkClassName="leading-[30px]"
+                  className="text-[16px] leading-[32px]"
+                  linkClassName="leading-[31.2px]"
                   inactiveClassName="text-white"
                 />
               </nav>

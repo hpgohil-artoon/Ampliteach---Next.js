@@ -67,7 +67,12 @@ export function TrialSignupForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    /* `flex flex-col` so the row margins DO NOT collapse. As a block container
+     * the last field row's 15px bottom margin and the submit's 18px top margin
+     * collapsed to a single 18px, which put the button 15px high and left the
+     * form 465px against the live 495px. Flex items keep both, and the live
+     * 33px gap falls out of 15 + 18. */
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col">
       <div className={ROW}>
         <FormField
           name="firstName"
@@ -191,43 +196,35 @@ export function TrialSignupForm() {
         />
       </FormField>
 
-      {/* Not the shared `Button`: this one is the form's own white-on-red
-       * treatment, 46px tall with 31px of side padding, and it is the only
-       * place on the site that uses it.
+      {/* Not the shared `Button`: this is the form's own white-on-red
+       * treatment and the only place on the site that uses it. Every value
+       * below is read off the live control's own computed style, which is
+       * `input[type=submit].wpcf7-submit`:
        *
-       * `font-body` for the same reason the shared `Button` needs it: the live
-       * form CSS sets `font-family: "Roboto", sans-serif` on its inputs, and
-       * Roboto is declared-but-unloaded (deviation 17), so the label renders
-       * as Arial. This one is a plain `<button>` rather than `Button`, so it
-       * did not pick up that fix.
+       *   height 50px (DECLARED, with border-box) · padding 10px 30px
+       *   border 2px solid #FF1616 · radius 5px · white ground, red label
+       *   12px/23px, weight 500, letter-spacing 0.2px, UPPERCASE
+       *   margin 0 0 15px — no top margin of its own
        *
-       * The size is solved from the ink, because the rule that would have
-       * given it — `form .submit_forminput[type=submit]` — is a typo for
-       * `form .submit_form input[...]` and matches nothing, so its 15px/600
-       * and `padding: 5px 10px` never apply. Measured on the live page: a
-       * 245px box, 30/31px of side padding, and a 184px label at a 9px cap
-       * height. Weight is REGULAR: Arial ships only 400 and 700, so the
-       * `font-semibold` this had before was synthesised and rendered wide —
-       * at 13px semibold the box came out 272px, and at 12px regular 252px.
+       * `font-sans`, NOT `font-body`. The live rule is `font-family: Poppins`,
+       * so this label is the one piece of the form set in Poppins while its
+       * labels and inputs declare Roboto and paint Arial. Weight 500 is a real
+       * loaded face here, not a synthesised one.
        *
-       * 11.5px is solved from the box, and the fraction is the honest answer
-       * rather than a tidy one: the 31px padding either side is measured, so
-       * the label has to be 183px for the box to be the live 245px, and that
-       * is what 11.5px Arial gives. */}
+       * This was previously built as a 46px box with an 11.5px Arial label,
+       * from an ink scan of a screenshot. That scan could not see the 2px red
+       * border — it is the same brand red as the band behind the button — so
+       * it measured the padding box, 245px, and 11.5px was then solved to fit
+       * it. docs/PARITY.md warns about exactly this: "a box's own colour
+       * disqualifies it as the ink test".
+       *
+       * The 33px above the button is `mt-[18px]` plus the 15px the field row
+       * above already carries, and the row arithmetic then closes on the live
+       * form exactly: 4 rows × 103 + 18 + 50 + 15 = 495px. */}
       <button
         type="submit"
         disabled={isSubmitting}
-        // The live gap from the email input's box to the button is 35px, and
-        // this is the whole of it — NOT 9px added to the email group's 26px.
-        // Adjacent sibling margins collapse, so the pair would resolve to
-        // max(26, 9) = 26 and the button would sit 9px high.
-        // `mb-[9px]` is not decoration — it is 9px of the live form column's
-        // height, and two other things depend on it. The copy column is
-        // vertically centred against this column, so 9px here moves the copy
-        // down 4.5px onto its live position; and the band's total height only
-        // resolves to the measured 666px with it. Without it the copy sits
-        // 3-4px high and the whole band is 9px short.
-        className="font-body bg-background text-primary hover:bg-foreground hover:text-primary-foreground mx-auto mt-[35px] mb-[9px] flex h-[46px] items-center justify-center gap-2 rounded-[4px] px-[31px] text-[11.5px] font-medium uppercase transition-colors disabled:opacity-70"
+        className="bg-background text-primary hover:bg-foreground hover:text-primary-foreground border-primary mx-auto mt-[18px] mb-[15px] flex h-[50px] items-center justify-center gap-2 rounded-[5px] border-2 px-[30px] font-sans text-[12px] leading-[23px] font-medium tracking-[0.2px] uppercase transition-colors disabled:opacity-70"
       >
         {isSubmitting ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : null}
         Start your free trial today

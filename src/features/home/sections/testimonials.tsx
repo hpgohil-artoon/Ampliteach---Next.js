@@ -27,7 +27,12 @@ import { Container, GT3_CENTERED_BUTTON_ROW, RichText } from "@/components/commo
 export function Testimonials({ block }: { block: TestimonialsBlock }) {
   return (
     <section className="bg-blush-warm max-md:py-0">
-      <Container gutter={false} className="p-2.5">
+      {/* `pb-0`: this block ends exactly where the FAQ inner section begins on
+       * the live page, 419.81px below the section top. The 10px the live
+       * widget-wrap pads at the BOTTOM belongs to the FAQ block, which is the
+       * last of the pair — it carries it, so the seam adds up to the live
+       * section's 999.44px rather than double-counting 10px here. */}
+      <Container gutter={false} className="p-2.5 pb-0">
         {/* The live 64px spacer widget. A padding rather than an empty div —
          * same result, one less element. */}
         <div className="pt-12.5 md:pt-16" />
@@ -64,9 +69,21 @@ export function Testimonials({ block }: { block: TestimonialsBlock }) {
         ))}
 
         {block.cta ? (
-          // 17px from the copy's last line box, measured. On the live page this
-          // is the location widget's own bottom margin.
-          <div className={cn("mt-[17px]", GT3_CENTERED_BUTTON_ROW)}>
+          /* 20px above and 40px below, and both are the live page's.
+           *
+           * Above: the location widget's own 20px bottom margin. It reads as
+           * 17px if you measure from the last line box, because the live
+           * location widget's inner container is pulled up 20px — which makes
+           * its OUTER box only 5.31px tall while its text renders 20px higher.
+           * The text lands in the same place either way; the flow does not.
+           *
+           * Below: the live button block is 51px tall (the 31px button plus
+           * 20px) and then carries a further 20px margin, and the live section
+           * ends immediately after it. Written as 40px of padding rather than
+           * 20 + a 20px margin: with `pb-0` on the container above, a trailing
+           * margin would collapse straight out through the section and take
+           * the seam with it. */
+          <div className={cn("mt-5 pb-10", GT3_CENTERED_BUTTON_ROW)}>
             {/* `max-md:text-xs` is per-instance on purpose, not a change to the
              * shared `cta` size. All six gt3 buttons on the live page are a
              * 14px label; this is the ONLY one with a `≤767 → 12px` step, so
