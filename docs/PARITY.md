@@ -34,10 +34,45 @@ Band heights, live and local: feature grid 1974.38 · Student Benefits 88 + 332.
 · free trial 665.38 · testimonials + FAQ 999.44 · transform CTA 100.75 · closing
 194 · footer 666.19 · copyright 97.4.
 
-**Also verified at 1536, 1440 and 1366**, which all return the same counts as
-1920 — those are above the live site's 1025px desktop boundary, so its layout is
-legitimate there. Below 1025 the live site is not responsive and ours diverges
-by design (deviation 2); nothing under 1024 has been measured.
+**Also verified at 1536, 1440, 1366 and 1280**, which all return the same counts
+as 1920 — those are above the live site's 1025px desktop boundary, so its layout
+is legitimate there.
+
+**Below 1025 the two sites diverge substantially, and this is now measured.** At
+a 1024 window (a 1009px layout viewport) *every* matched anchor is ≥5px out and
+the page is **344px shorter than live** (6822 vs 7166); at 768 it is 108px
+shorter (8307 vs 8415) with 47 anchors ≥5px. Some of that is deviation 2 working
+as intended — the live site's tablet and mobile rules are Elementor's, not a
+responsive design, and full responsiveness is an explicit project requirement.
+But it has never been separated into "intended" and "wrong", and 344px is far
+more than the deviation alone should produce. **Treat sub-1024 as unverified,
+not as agreed.** See the open questions.
+
+### Images were a blind spot until 2026-09-17
+
+The text harness matches anchors by their text, so images could never match: our
+`alt` text is written properly where the live site uses upload filenames
+(`image-2-1-scaled`, `gitar`, `FAQS`). Every image therefore fell out of the
+comparison silently, and **two real defects sat behind that gap** — the overview
+image 59.5px off horizontally, the FAQ photo 9.76px off vertically, both at every
+desktop width, both visible when flipping between tabs.
+
+Compare images by **DOM rect in document order**, never by matching them the way
+text is matched. `document.images` filtered to boxes over 20px, sorted by `y`,
+gives a stable list on both sides; the live/local pair then reads off directly.
+Note the two lists are not the same length and must not be index-aligned: the
+live hero video overlay is a CSS `background-image` (not an `<img>`) and our
+footer particles are inline SVG (not `<img>`), so live has 7 and we have 5.
+
+A whole-page **pixel diff** is the backstop that would have caught both without
+knowing to look. Screenshot both full pages, diff per row with a ~24/channel
+tolerance, and rank contiguous hot bands by area. The two defects showed up
+immediately as the two largest bands, 453px and 316px tall — image-sized, where
+every other band is a 13–19px text row. After the fix: **399,869 → 219,146
+differing pixels, 3.37% → 1.85% of the canvas**, and the largest remaining band
+is the typed eyebrow caught mid-cycle. Everything left is glyph antialiasing,
+photo re-encoding noise, and the live site's own empty social chips
+(deviation 14).
 
 Both the static build (`out/`) and `next dev` were checked and agree. A
 long-running dev server from an earlier session is still the classic trap — see
@@ -623,7 +658,27 @@ Verified against the live render at a 1905px viewport:
 | | live | ours |
 | --- | --- | --- |
 | paragraph | x962–1550, w589, h290 | x962–1550, w589, h290 |
-| image box | (lazy — see below) | x344–817, w474 |
+| image box | **x402, y652.58, 476×317.59** | **x402, y652.58, 476×317.59** |
+
+**The image is CENTRED in its column, and for a long time ours was not.** The
+row above used to read "image box — live (lazy), ours x344–817" — the live value
+was never taken, because the image does not render in a headless capture, and
+the local value was recorded on its own and assumed correct. It was not: ours
+sat flush at the container's left edge (x342.5) where the live image sits at
+x402, i.e. **59.5px left of live at every desktop width**, for the whole life of
+this section.
+
+The mechanism is Elementor's own base rule, `.elementor-widget-image {
+text-align: center }` with `.elementor-widget-image img { display: inline-block
+}`. The column leaves 595px of content after the wrapper's `padding-right: 15px`,
+the image is `width: 80%` of that = 476px, and centring it offsets it
+(595 − 476) / 2 = **59.5px** — exactly the live x. Reproduced as `text-center` on
+the wrapper plus `inline-block` on the image, matching what `faqs.tsx` already
+did.
+
+This is the **fourth** time the base-vs-id-keyed split has produced a wrong
+value, and the first time it was caught by comparing images rather than text.
+The id-keyed rules for this widget say nothing about alignment.
 
 **The live image never renders in a headless capture.** It ships with a real
 `src` but a `srcset` holding a 60×40 base64 placeholder, which wins until the
@@ -874,6 +929,14 @@ relative to each block's first ink, so the two can be read directly:
 | closing heading | 386..407 | 387..408 |
 | FAQ button | 416..450 | 419..453 |
 | image | 443×443, 31px above the FAQ heading ink | **443×443, 31px** |
+| image box (absolute, 1905px viewport) | x1058.5, y4553.74 | x1058.5, **y4553.61** |
+
+**The image column took `px-2.5`, not `p-2.5` — the same correction its sibling
+column already carried.** Elementor's 10px column gap is horizontal only, and a
+vertical 10px here put the photo **9.76px below** the live one. The text column's
+own note has said this since it was written; the image column was missed because
+images were never compared, only text. Both columns now agree, and the photo
+lands within 0.13px of live.
 
 Everything within 3px, most exact.
 
@@ -1608,6 +1671,14 @@ git history if a later page turns out to want a card.
 ## Open questions — awaiting a visual decision
 
 Do not resolve these unilaterally.
+
+- **Sub-1024 parity has never been agreed.** The live site does have tablet and
+  mobile rules and our page does not match them: −344px of page height at 1024,
+  −108px at 768, with every anchor out at 1024. Requirement 2 asks for parity at
+  every viewport; requirement 3 adds responsiveness the live site does not have.
+  Those two pull in opposite directions below 1025 and the conflict has never
+  been resolved, only logged as deviation 2. Decide which wins before any further
+  work below 1024 — the answer changes whether this is a bug list or a feature.
 
 - **The "Click here to see more testimonials" button links to `#`.** That is
   the live `href` — the button currently goes nowhere. Kept as-is rather than

@@ -132,7 +132,10 @@ export function Faqs({ block }: { block: FaqsBlock }) {
 
           {block.image ? (
             <div className={cn("w-full max-md:order-1 md:w-1/2", mediaFirst && "md:order-1")}>
-              <div className="p-2.5 max-md:px-[5px]">
+              {/* `px-2.5`, NOT `p-2.5` — the same correction the text column
+               * above carries. Elementor's 10px column gap is horizontal only;
+               * a vertical 10px here put the photo 9.76px below the live one. */}
+              <div className="px-2.5 max-md:px-[5px]">
                 {/* The live widget is pulled up 20px and right 55px, letting the
                  * photo break out of its column — reproduced as measured, and
                  * dropped below 1025px where the live rule zeroes it. */}

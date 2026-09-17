@@ -35,13 +35,19 @@ export function Overview({ block }: { block: OverviewBlock }) {
               mediaFirst ? "md:order-1" : "md:order-2",
             )}
           >
-            <div className="pr-[15px]">
+            {/* `text-center` + `inline-block` is Elementor's own
+             * `.elementor-widget-image { text-align: center }` with its
+             * `img { display: inline-block }`. The image is 80% of the 595px
+             * this wrapper leaves, so centring offsets it (595 − 476) / 2 =
+             * 59.5px — which is exactly where the live image sits. Left-aligned
+             * it was 59.5px left of live at every desktop width. */}
+            <div className="pr-[15px] text-center">
               <Img
                 src={block.image.src}
                 alt={block.image.alt}
                 width={block.image.width}
                 height={block.image.height}
-                className="h-auto w-4/5"
+                className="inline-block h-auto w-4/5"
               />
             </div>
           </div>
