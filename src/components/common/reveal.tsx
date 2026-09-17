@@ -24,12 +24,25 @@ import { cn } from "@/lib/utils";
  *
  * `prefers-reduced-motion` skips the whole thing: no hiding, no animation.
  */
-export type RevealAnimation = "slide-in-left" | "slide-in-right" | "zoom-in";
+export type RevealAnimation =
+  | "slide-in-left"
+  | "slide-in-right"
+  | "zoom-in"
+  | "fade-in"
+  | "fade-in-up"
+  | "fade-in-left"
+  | "fade-in-right"
+  | "rotate-in-up-right";
 
 const ANIMATION_CLASS: Record<RevealAnimation, string> = {
   "slide-in-left": "animate-slide-in-left",
   "slide-in-right": "animate-slide-in-right",
   "zoom-in": "animate-zoom-in",
+  "fade-in": "animate-fade-in",
+  "fade-in-up": "animate-fade-in-up",
+  "fade-in-left": "animate-fade-in-left",
+  "fade-in-right": "animate-fade-in-right",
+  "rotate-in-up-right": "animate-rotate-in-up-right",
 };
 
 export function Reveal({

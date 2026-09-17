@@ -42,14 +42,29 @@ export function Container({
    * column's own percentage padding instead. Measured — the live hero's text
    * starts at x=340.5, exactly the box edge, so any gutter here pushes the
    * whole section in by that much.
+   *
+   * `"elementor"` is that box's OWN inset, which is not zero below 1200px and
+   * not a round number either. Measured off ampliteach.com's boxed container at
+   * each of its breakpoints:
+   *
+   *   ≥1200   0     (the 1220px box, centred)
+   *   1025    3px
+   *   768     4px
+   *   600     10px
+   *   480     20px
+   *
+   * It is Elementor's negative-gutter compensation rather than a designed
+   * gutter, which is why the numbers look arbitrary — they are. Declared once
+   * here so no section has to restate them.
    */
-  gutter?: boolean;
+  gutter?: boolean | "elementor";
 }) {
   return (
     <div
       className={cn(
         "mx-auto w-full",
-        gutter && "px-5 sm:px-6 lg:px-8",
+        gutter === true && "px-5 sm:px-6 lg:px-8",
+        gutter === "elementor" && "px-5 sm:px-[10px] md:px-1 lg:px-[3px] xl:px-0",
         size === "narrow" && "max-w-3xl",
         size === "post" && "max-w-site",
         (size === "default" || size === "wide") && "max-w-wide",

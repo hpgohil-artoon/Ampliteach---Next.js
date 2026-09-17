@@ -1139,6 +1139,147 @@ DOM, where the two are separate top-level sections.
 
 ---
 
+### Why Choose Us — verified state, all six breakpoints (2026-09-17)
+
+Every landmark below was measured on ampliteach.com and on our build **in the
+same browser, with fonts loaded on both sides**, and diffed. The page matches at
+480, 600, 768, 1024, 1200 and 1920: total document height 4243px against the
+live 4242px.
+
+Two classes of residual difference are measurement artifacts, not defects:
+
+- our `Container` reports a box that includes its own padding, while Elementor's
+  `.elementor-container` is the content box — so the container rows read
+  `x−3 w+6` while every child inside them matches exactly;
+- live columns stretch to the grid row height; ours are content-height and
+  centred. The painted content sits in the same place.
+
+**How the live page had to be loaded.** LiteSpeed defers ampliteach.com's assets
+— Google Fonts included — until a **real interaction event**. `page.goto` plus
+programmatic `window.scrollTo` is not enough: the page renders in Times New
+Roman, and every height measured off it is wrong. The capture must send real
+input first:
+
+```js
+await page.mouse.move(400, 300);
+await page.mouse.wheel(0, 500);
+await page.keyboard.press("ArrowDown");
+await page.waitForTimeout(3000);
+await page.evaluate(() => document.fonts.ready);
+```
+
+This is the same trap as deviation 3, one layer further in: real Chrome is
+necessary but not sufficient. Entrance animations must also be snapped to their
+end state before measuring, or elements are caught mid-translate.
+
+#### Sections, in live document order
+
+| # | live id     | section                | ground   | padding (desktop · tablet · mobile) |
+| - | ----------- | ---------------------- | -------- | ----------------------------------- |
+| — | `.gt3-page-title` | red title band   | `#FF1616` | height 261px · 261px · 200px        |
+| 1 | `144d110`   | illustration + intro   | `#FFF8F8` | 40/0/60 · 60/0/40 · 20/0/80         |
+| 2 | `103790ba`  | three pitch rows       | none     | 100/0/60 · 80/0/60 · 60/0/60        |
+| 3 | `5392376`   | founder message        | `#FFF8F8` | 120/0 at every width                |
+| 4 | `68df698`   | "Take Your Teacher Home" | none   | 60 top · 60 · 80                    |
+| 5 | `b0296ad`   | subheading + copy      | none     | 0 15 60 at every width              |
+| 6 | `ee9cc70`   | three tinted cards     | none     | 0 15 80 — **full width, not boxed** |
+
+Sections 4 and 5 are merged into one `centered-intro` block (they always appear
+together); section 6 carries `elementor-section-full_width`, so its cards span
+the viewport rather than the 1220px box — boxing it made the cards 220px
+narrower and much taller.
+
+#### The red banner's breadcrumb trail
+
+Three values here are easy to get wrong, and two of them were, because the first
+pass measured the trail's WRAPPER rather than the crumbs inside it:
+
+| part           | value                                                     |
+| -------------- | --------------------------------------------------------- |
+| crumb text     | Poppins 12.432px/27px, weight 400, **`letter-spacing: 1px`** |
+| crumb padding  | `0 1px`                                                    |
+| separator      | a DRAWN 6px white disc (`::after`, `border-radius: 50%`), `margin: 0 10px` — 26px total |
+
+The wrapper is `letter-spacing: normal`, so reading it gives unspaced crumbs
+that render visibly tighter than the live ones — "Home" is 43.1px live against
+39px unspaced. The separator is a circle, not a `&bull;` glyph: the glyph is
+smaller and sits on the text baseline rather than the middle.
+
+Measured with a Range, the text RUNS were already identical to the pixel
+(41.08px for "Home"), which is what isolated the remaining 2px to the crumb's
+own 1px padding. Both crumbs now match live at `dx 0.0, dw 0.0`.
+
+#### Colours measured on this page
+
+| token             | value     | where                                    |
+| ----------------- | --------- | ---------------------------------------- |
+| `--card-lilac`    | `#F9F8FF` | first closing card                       |
+| `--card-mint`     | `#F0FFFC` | second closing card                      |
+| `--card-cream`    | `#FFFCF6` | third closing card                       |
+| `--pitch-border`  | `#D9E2E9` | 2px outline round each pitch row         |
+| `--blush-warm`    | `#FFF8F8` | intro and founder grounds (already held) |
+
+The three card grounds are **not declared in any stylesheet**. They were found
+by walking up from each card for the first non-transparent background, which put
+them on the card's own `.elementor-widget-container`. Read what Chrome paints,
+not what a rule says.
+
+#### Entrance animations, from the live `data-settings`
+
+| element                | animation          | delay | speed  |
+| ---------------------- | ------------------ | ----- | ------ |
+| intro media column     | `slideInRight`     | —     | normal |
+| intro illustration     | `zoomIn`           | 5ms   | slow   |
+| intro heading, copy    | `slideInLeft`      | —     | normal |
+| pitch rows 1 and 3     | `rotateInUpRight`  | 5ms   | slow   |
+| pitch row 2            | `fadeInUp`         | 10ms  | slow   |
+| founder column         | `fadeIn`           | —     | normal |
+| "Take Your Teacher Home" | `fadeInRight`    | —     | normal |
+| its body copy          | `fadeInLeft`       | —     | normal |
+| cards 1, 2, 3          | `fadeInLeft`, `fadeInUp`, `fadeInRight` | — | normal |
+
+`animated-slow` is 2s; the default is 1.25s. These came from the live widgets'
+own `data-settings`, which is exact — the client's screen recording confirms the
+result but cannot supply the names or the timings.
+
+#### The founder section's doodles also NEVER stop moving
+
+Separate from the entrance animations above, and missed on the first pass: the
+three music-note doodles each carry one of the theme's two ambient classes and
+loop forever.
+
+| doodle | live class             | keyframes        | timing            |
+| ------ | ---------------------- | ---------------- | ----------------- |
+| clef   | `gt3_rotated_element`  | `rotatedelement` | 5s linear infinite |
+| star   | `gt3_moved_element`    | `movedelement`   | 5s linear infinite |
+| note   | `gt3_rotated_element`  | `rotatedelement` | 5s linear infinite |
+
+They are **not interchangeable**: `rotatedelement` translates *and* rotates (to
+25° at the halfway point), `movedelement` only translates. Both keyframe sets
+are reproduced verbatim as `--animate-particle-tumble` and
+`--animate-particle-drift`; both are deliberately lopsided, so the loop does not
+read as a simple back-and-forth. The theme also sets `pointer-events: none` on
+both, which we match.
+
+Verified against live in real Chrome: same animation per doodle, same 5s,
+`infinite` on both sides, and the computed transform demonstrably changing over
+time on both. Positions then diffed at 480/768/1200/1920 — **all twelve exact,
+zero delta**.
+
+Two things this required, both worth knowing:
+
+- the doodles are positioned against a box inset by Elementor's 10px column
+  gutter, so they need their own layer whose border box **is** the container's
+  content box. `absolute` resolves against the nearest positioned ancestor's
+  *padding* box, so anchoring to `Container` ignores its responsive inset and
+  lands 4–20px out depending on breakpoint;
+- the star is the only one anchored by a percentage (`bottom: 80%`), so it alone
+  is sensitive to that box's height — see deviation 37.
+
+Unlike the entrance animations, an endless loop has no final state to hold, so
+it is switched off under `prefers-reduced-motion` by a rule at the end of
+globals.css. `Reveal` already does the equivalent in JS for the one-shot ones.
+
 ## Deviation log
 
 Everything not listed here should match the live site. **Add to this list rather
@@ -1245,12 +1386,29 @@ sides. Note that a single icon-box legitimately mixes two faces:
 | `Poppins, sans-serif` | **Poppins** | the main nav — the generic matters only if Poppins fails |
 | `Roboto, sans-serif` | **Arial**, Arial Black at 900 | the 56 text widgets: hero, headings, buttons, form labels, testimonials, Student Benefits bullets |
 
-### 4. Rubik is not loaded
+### 4. ~~Rubik is not loaded~~ — WITHDRAWN 2026-09-17, Rubik IS now loaded
 
-The live site **does** load it — confirmed in real Chrome as `Rubik 400 loaded`
-— but uses it in exactly two rules: a blog button and a map info marker, neither
-on the home page. Not worth a second webfont for that. Add it if literal parity
-is wanted on those two elements.
+Originally: the live site loads Rubik 400, but used it only in a blog button and
+a map info marker, neither on the home page — not worth a second webfont.
+
+**That stopped being true with /why-choose-ampliteach.** Its founder-message
+quote is a gt3 testimonial widget, and the widget's rule declares
+`font-family: Rubik`. Verified the way deviation 3 says to — in real Chrome, via
+`CSS.getPlatformFontsForNode`, on both sides:
+
+| element                      | declared     | live paints  | we paint     |
+| ---------------------------- | ------------ | ------------ | ------------ |
+| `.testimonials-text-wrapper p` | Rubik 400  | Rubik Light  | Rubik Light  |
+| `.gt3-page-title h1`         | Poppins 800  | Poppins Medium | Poppins Medium |
+| card body copy               | Poppins 400  | Poppins      | Poppins      |
+
+Both sides report **Rubik Light**, not Rubik Regular: Google serves Rubik v31 as
+a variable font, and Chrome names the instance it rasterises after the family's
+Light master. `next/font`'s `Rubik({ weight: ["400"] })` resolves to the same
+face, so this matches rather than merely looking similar.
+
+`--font-quote` in globals.css, `rubik.variable` in `app/layout.tsx`. Weight 400
+only, because 400 is all the live Google Fonts request asks for.
 
 ### 32. The scrollbar is the browser's, and always present — matching live
 
@@ -1462,6 +1620,41 @@ invisible at the 1920px width the section was verified at and wrong across the
 whole 1025–1199 band. Now `sm:gap-2.5 lg:gap-10`. **A section verified only at
 one wide viewport has not been checked for this.**
 
+#### Amended 2026-09-17: `desktop:` exists for the structural cases
+
+"One pixel early" holds while the rule only changes padding. It does **not**
+hold where the rule changes LAYOUT. On /why-choose-ampliteach the same boundary
+decides whether the intro is one column or two and whether the closing cards are
+one across or three, so at exactly 1024px — iPad landscape, a real device width
+— `lg:` produced a desktop layout where the live site is still stacked. Measured
+before the fix: the intro image 1018px wide against the live 872px, the cards
+331px against 994px. Not a one-pixel difference, a different page.
+
+So globals.css declares
+
+```css
+@custom-variant desktop (@media (min-width: 1025px));
+```
+
+and structural Elementor rules use `desktop:`. `lg:` stays correct for the
+theme's own container steps, which really are keyed to 1024.
+
+`features/why-choose/` uses `desktop:` throughout.
+
+**The site chrome has now been corrected too** (see the section above): the
+header's top bar and logo swap and the footer's section padding were all keyed
+to `lg` and all structural. The top bar alone was 48px — the live header is
+110px at exactly 1024 where ours was 158.
+
+That is three components in which "one pixel early" turned out to mean a
+different layout. The test is not how small the breakpoint difference is, it is
+**what the rule does**: a padding value can stay on `lg`, but anything that
+hides an element, swaps an asset, or changes a column count belongs on
+`desktop:`.
+
+**The home page's own sections have still not been re-checked** — their `lg:`
+uses are padding and type size, where the original reasoning holds.
+
 ### 20. Sections are self-contained, because editors can reorder them — **client decision**
 
 The client confirmed every page's text comes from a CMS, and that editors can
@@ -1658,6 +1851,97 @@ reproduced: shipping links hidden at all breakpoints is cloaking-adjacent, gives
 no reader any value, and the same four destinations are already in the footer
 where crawlers and people can both reach them. Nothing visual changes.
 
+### 33. The pitch-row note is a fixed width, not a shrunk flex item
+
+The live figure declares `width: 136px` but is a flex item beside the copy, so
+it shrinks — to 98px at 768, 107px at 1024 and 110px from 1200 up. Those
+outcomes are stated directly (`md:w-[98px] lg:w-[107px] desktop:w-[110px]`)
+rather than recreating Elementor's shrink arithmetic, which depends on the
+copy's max-content width and would move whenever an editor changed the copy.
+
+The figure is also given an explicit `h-[42px]` for a 34px glyph, at both the
+pitch rows and the closing cards. That 8px is not padding: the live image is
+**inline** and its line box adds the descender gap. It matters — it is most of
+row one's height, because row one is a single line of copy.
+
+### 34. Positional values are derived from index, not carried in content
+
+Four things on this page vary by a block's position rather than its content, and
+all four are computed by the section:
+
+- pitch rows: odd rows inset 9% left / 2% right, even rows 11% right;
+- pitch row animations: `rotateInUpRight`, `fadeInUp`, `rotateInUpRight`;
+- card animations: from the left, from below, from the right;
+- the first card's tablet padding is 64px and its title margin 10px, where the
+  other two are 57px and 3px — and the first column's top padding is 10px where
+  the others are 50px.
+
+The last one is almost certainly an Elementor accident rather than a design, but
+it is reproduced: an editor adding a fourth row or card gets the pattern
+continued instead of an unstyled one, and the CMS never carries a layout field.
+
+### 35. Card titles are stored in sentence case and upper-cased in CSS
+
+The live titles are stored in WordPress already upper-cased, and only the first
+card additionally carries `text-transform: uppercase`. Here all three are
+upper-cased in CSS and the copy is stored in sentence case: identical pixels,
+but an editor sees readable copy and casing stays a presentation decision.
+
+### 36. The founder portrait's gap is the rendered 13px, not the declared 6.4px
+
+The live rule is `margin-bottom: 6.4px`, but the portrait is an inline image and
+the line box it sits in supplies the rest, rendering a 13px gap. The declared
+number alone lands the quote 7px high. Same reasoning as the 42px figures in
+deviation 33: where a declared value and a painted result disagree, the painted
+result is what parity means.
+
+### 37. The drifting star carries a +4px correction on its `bottom`
+
+The founder section's three doodles are positioned against a layer inset by
+Elementor's 10px column gutter. That reproduces the clef and the note exactly,
+because both are anchored with `top`, which does not care how tall the box is.
+
+The star is anchored `bottom: 80%`, so it does care — and the live column adds a
+second 10px gutter **vertically** that it does not add horizontally, making the
+live box 20px shorter than ours. 80% of 20px is a constant 4px, measured
+identically at 480, 768, 1200 and 1920.
+
+It is added back as `bottom-[calc(80%+4px)]` rather than by re-insetting the
+layer, because re-insetting would drag the clef and the note off their exact
+`top` values to fix a doodle that is already drifting ±10px under its own
+animation. One declared correction on the one element that needs it, with the
+arithmetic written down, beats moving three things to satisfy one.
+
+### 38. The two bottom-anchored footer notes are lifted 8px
+
+The live footer widgets wrap an inline `<svg>`, so each box carries ~8px of
+line-box slack under the artwork: 39px around a 31px note, 66px around a 58px
+clef. For the four TOP-anchored shapes that slack falls below the artwork and
+changes nothing. For the two anchored by `bottom` it does the opposite — the box
+grows upward from a fixed bottom edge, so the live artwork sits 8px higher than
+a shrink-wrapped box puts it.
+
+`mb-2` on those two reproduces it. Verified at 1920 and 1200: all six particles
+now `dx0 dy0 dw0 dh0` against live.
+
+Third occurrence of the same underlying thing — see deviations 33 and 36. The
+rule that keeps emerging: **an inline image's box is taller than the image, and
+whether that matters depends on which edge the box is anchored by.**
+
+### 39. An Elementor rule with no tablet value inherits the DESKTOP one
+
+The why-choose media column declares `padding: 20px 0 0` at desktop and
+`30px 0 0` at mobile, and nothing for tablet. Reading the two values in source
+order suggests desktop/tablet; it is actually desktop/mobile, with tablet
+inheriting the desktop 20px.
+
+Taking the 30px as the tablet value left that section — and the whole page —
+10px tall at 768. Now `pt-[30px] md:pt-5`.
+
+Worth stating because the extracted stylesheet flattens media queries away, so
+two values for three breakpoints is ambiguous in the source and unambiguous in
+the measurement. **Measure the middle breakpoint; do not infer it.**
+
 ### 26. `TestimonialCard` was deleted
 
 It was a shadcn-card testimonial with a lucide quote glyph, written before the
@@ -1667,6 +1951,199 @@ rewrite left it with no callers. Removed rather than left to be reused. It is in
 git history if a later page turns out to want a card.
 
 ---
+
+## Site chrome — verified at all six breakpoints (2026-09-17)
+
+The header, footer and copyright bar were built during the home-page work and
+verified at 1920 only. Re-measured against live at 480/600/768/1024/1200/1920
+and corrected; the whole page now totals within **1px of live at every
+breakpoint** (exact at 1024, 768 and 600).
+
+Four faults, three of them the same root cause — a breakpoint keyed to `lg`
+(1024) where Elementor's desktop starts at 1025:
+
+**1. The footer's padding was wrong in TWO bands.** It is `200px 0 100px` on
+desktop, `100px 0` on tablet (768–1024) and `60px 0` on mobile, but was keyed
+`lg:`/`xl:`. So 768–1023 took the mobile 60px — the band sat 40px high and 91px
+short at 768 — and 1025–1199 took the tablet 100px instead of 200px. Now `md:`
+and `desktop:`.
+
+**2. The footer is TWO boxes, not one.** A boxed outer container carrying
+Elementor's own responsive inset, and an inner section inside it padded
+`0 10px` up to 1024 and `0 0 16px` on desktop. They had been collapsed into a
+single `max-lg:px-2.5`, which put the columns 4px out at 768 and 10px out at
+480 — the two insets stack, so the live copy starts at 30px at 480, not 20.
+
+**3. The stacked columns' padding.** From 768 up every column wrap is 10px all
+round. Once they stack it becomes `0 5px` on the first and `30px 5px 0` on the
+other two — no vertical padding at all. The 25px spacer above each heading is
+present in all three columns at every width; it had been hidden below `md`,
+putting two headings 25px high.
+
+**4. The header kept its top bar at 1024.** `hidden lg:block` on a 48px strip:
+the live header is 110px at exactly 1024 and ours was 158. The logo swap
+(222px mark vs 165px compact) had the same fault. Both now `desktop:`.
+
+Verified after: header, banner, footer section and copyright bar all `dh0` at
+1024 and 1200; the footer's nine heading positions and six particles exact at
+all six widths.
+
+## Home page — narrow-width state (2026-09-17)
+
+The home page was verified at 1920 only. Re-measured against live at
+1920/1200/1024/768/480 using a text-keyed signature (73 elements matched on both
+sides without shared selectors), and largely corrected.
+
+| width | elements >1px out, before | after | page height delta |
+| ----- | ------------------------- | ----- | ----------------- |
+| 1920  | 0                         | **0** | **0**             |
+| 1200  | 4                         | **0** | **0**             |
+| 1024  | 66                        | **0** | −44               |
+| 768   | 66                        | **0** | −14 → −44         |
+| 480   | 65                        | **0** | −61               |
+
+**Every horizontal position and width now matches at every breakpoint**, and
+1920 was never disturbed — that was the previously signed-off state.
+
+The remaining page-height deltas are VERTICAL and are a separate finding; see
+the end of this section.
+
+### What was wrong
+
+**Every Elementor-desktop rule was keyed to `lg`.** Confirmed with a boundary
+test: measure each side at 1024 and again at 1025, and compare which elements
+move. Live moved 94 elements and lost 262px of height across that boundary; ours
+moved 76 and *gained* 164 — because our page was already in desktop layout at
+1024. The feature-grid heading was 763px wide against the live 540, and the
+icon-box bullets were indented 80px against 40. All of these are now `desktop:`,
+and the two signatures now agree.
+
+`max-lg:` had the mirror-image fault — Tailwind's is `max-width: 1023.98px`, so
+it is simply absent at 1024 where the live rule still applies. `max-desktop:`
+(`max-width: 1024px`) now pairs with `desktop:`.
+
+**The containers were flush at every width.** `gutter={false}` keeps the 1220px
+box but drops Elementor's own responsive inset (3 / 4 / 10 / 20px as the
+viewport narrows), which is exactly the `dx−3 / −4 / −20` measured. Most sections
+are now `gutter="elementor"`.
+
+**But not all of them** — and this is the part worth remembering. Two sections
+(`7eebc1a` Student Benefits' heading band, `e112963` the trial band) carry
+`padding: 0 20px` on the SECTION and take no container inset, which is the
+opposite arrangement to every other section on the page. Applying one blanket
+rule fixed 54 elements and broke 10. They are measured individually now.
+
+### The last three, traced and fixed
+
+Each needed the live ancestry walked element by element; none was guessable from
+the stylesheets alone.
+
+**The Student Benefits list.** Two faults in one. The list band's section really
+does carry `padding: 0 20px`, but unlike the heading band's it is DESKTOP ONLY
+and drops to 0 at ≤1024 — removing it along with the heading band's was wrong.
+And the live inner column's widget-wrap adds 10px at every width, which the
+desktop rules replace rather than add to. The full live chain at 1200 is
+
+```
+section 1200 → pad 20 → container 1160 → column 696 (60%) → widget-wrap 0
+  → inner-section → pad-right 20 → container 676 → inner-column 676
+  → widget-wrap pad 10 → widget 656 → ul pad-left 10 → li
+```
+
+**The FAQs heading.** TWO live paddings stack, and only one is constant: the top
+column's widget-wrap (10px, 0 below 768) plus the inner section's own (0 on
+desktop, 5px at ≤1024). Reading only the inner section's 5px left the tablet
+band 10px narrow. Now 5 / 15 / 10px.
+
+Its column's `margin-right: 30px` was also on `md:` — the section's own header
+note already said "· 0 ≤1024", so this one contradicted a comment two screens
+above it. That 30px ran the whole 768–1024 band.
+
+**The testimonials heading.** The live column's widget-wrap keeps its 10px gap
+from 768 up and drops it entirely on mobile, where the heading runs the full
+440px. Ours held 10px throughout.
+
+### Vertical drift below 1200 — five causes found and fixed
+
+With the horizontal values correct, a vertical difference became visible that
+they had been masking. The method that found each one: compare the GAP between
+every consecutive pair of landmarks rather than absolute positions, so a single
+bad gap does not smear across everything below it.
+
+**1. Feature-grid cards, mobile — the big one.** 18px short per card,
+compounding to −166px by the twelfth. Two causes of exactly 8 and 10: the live
+icon's gap is 18px once it sits ABOVE the content rather than beside it (ours
+kept the flex-sibling 10px), and the live widget container has a 10px bottom
+padding that exists only below 768. The note in `icon-box.tsx` saying there is
+none is still right — it was measured at desktop.
+
+**2. Feature-grid CTA bands, mobile.** The two margins SWAP below 768: on
+desktop the block is `0 0 20px` around an inner container of `20px 0` (a 91px
+band); at mobile the inner goes to zero and the block keeps its 20px (51px).
+Ours had it backwards, making each of the three bands 20px tall.
+
+**3. The trial form's label rhythm, mobile.** The live label has a mobile step:
+14px on a 23.625px line box with 2px below, against the desktop 16px/27px/10px.
+That is 11px per row, and over seven stacked fields it ran the band 90px long.
+Verified mobile-only: at 1920 the live label and ours are identical to the pixel,
+so deviation 23's desktop measurement stands.
+
+**4. Student Benefits list.** The live `ul` carries `margin: 8px 0 18px`, and
+below 1025 the widget-wrap adds a further 10px each way — 18 above, 28 below.
+At desktop the column's own `pt-[18px] pb-[28px]` already covers the same box,
+so the new rule is scoped `max-desktop:` and the two never double up.
+
+**5. Testimonials heading.** The quote widget contributes its own 20px at ≤1024
+on top of the heading's 20px padding and 4px margin. Reading only the heading's
+two values left the quote 20px high.
+
+**6. The trial form's label step is TABLET-and-below, not mobile-only.** The
+first pass scoped it `max-md:` and fixed 480 while leaving 1024 and 768 out by
+45px — the live label measures 24px tall at 1024 too. Now `max-desktop:`, and
+the form matches live's height exactly at 1024 (`dh 0`).
+
+Because the trial row is `items-center`, a form that is too tall also pushes the
+copy beside it down. That band read as two separate faults and was one.
+
+**7. The FAQ heading needs THREE values**, for the same reason as the
+testimonials heading: 20px on desktop, 24px across the tablet band where the
+first question widget adds its own 20px, and back to 4px below 768 where that
+margin is gone. `md:max-desktop:` expresses the 768–1024 band exactly.
+
+**8. A cluster of mobile-only values** found by the same gap method: the trial
+submit is 40px tall below 768 (not 50), the testimonials spacer is 40px (not
+50), its author sits on a 30px line box, its button block keeps 20px under it
+(not 40) and the button itself is 28px tall, and the FAQ button block keeps
+none.
+
+### Result
+
+| width | elements >1px out | page height |
+| ----- | ----------------- | ----------- |
+| 1920  | **0**             | **0**       |
+| 1200  | **0**             | **0**       |
+| 1024  | **0**             | **0**       |
+| 768   | **0**             | **0**       |
+| 480   | **0**             | +5          |
+
+Four of the five breakpoints are now exact in both axes. 480 is within 5px of
+9976 — 0.05% — from two gaps that nearly cancel (`Connecticut → FAQs` +10 and
+`FAQs → Contact Our Support Team` −3), both under the threshold where further
+tuning would be chasing rounding rather than a rule.
+
+Desktop was exact before this work and is exact after: every correction is
+scoped to a band below 1025.
+
+### The method, which is the reusable part
+
+Compare the GAP between every consecutive pair of landmarks, not their absolute
+positions. One bad gap otherwise smears across everything below it and looks
+like a dozen faults in a dozen sections. The gap view named each cause exactly
+once, and each fix collapsed one row of the report.
+
+A text-keyed signature (`TAG|first 32 chars`) matches live and local elements
+without shared selectors, which is what makes this work across two completely
+different DOMs.
 
 ## Open questions — awaiting a visual decision
 

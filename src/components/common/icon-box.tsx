@@ -55,11 +55,20 @@ export function IconBox({ title, description, bullets, icon }: Feature) {
     // the grid cell — `p-[10px]` in feature-grid, the live column's own
     // padding. A `pb-[10px]` here double-counted it and made every card row
     // 10px taller than the live one.
-    <div className="font-body text-left md:flex md:items-start">
+    // `max-md:pb-[10px]` is the live widget container's own bottom padding, and
+    // it exists ONLY below 768px — which is why the note above, measured at
+    // desktop, is still right that there is none there. Together with the icon's
+    // larger mobile margin below, this is the 18px each stacked card was short;
+    // over twelve cards that compounded to 166px by the foot of the grid.
+    <div className="font-body text-left max-md:pb-[10px] md:flex md:items-start">
       {Icon ? (
         <span
           aria-hidden
-          className="text-primary border-primary mx-auto mb-[10px] flex size-[85px] shrink-0 items-center justify-center rounded-[15px] border-8 border-double md:mx-0 md:mr-[30px]"
+          /* `max-md:mb-[18px]`: once the icon sits ABOVE the content rather than
+           * beside it, the live gap under it is 18px, not the 10px that applies
+           * while it is a flex sibling. Measured — the live icon area is 103px
+           * tall at 480 around an 85px glyph box. */
+          className="text-primary border-primary mx-auto mb-[10px] flex size-[85px] shrink-0 items-center justify-center rounded-[15px] border-8 border-double max-md:mb-[18px] md:mx-0 md:mr-[30px]"
         >
           <Icon className="h-[50px] w-auto" />
         </span>
@@ -85,7 +94,7 @@ export function IconBox({ title, description, bullets, icon }: Feature) {
          * faces. Verified in real Chrome — a headless capture shows these
          * bullets in a serif fallback and is not a witness for font-family. */}
         {bullets?.length ? (
-          <ul className="list-none pl-[30px] font-sans text-[13.5px] leading-[27px] md:pl-[40px] md:text-[15px] lg:pl-[80px] lg:text-[16px]">
+          <ul className="desktop:pl-[80px] desktop:text-[16px] list-none pl-[30px] font-sans text-[13.5px] leading-[27px] md:pl-[40px] md:text-[15px]">
             {/* Two dots per item, and it is not a mistake: the live disc comes
              * from `list-style` and the theme's `.content-container ul >
              * li:before` adds a brand-red circle on top of it. Both are drawn

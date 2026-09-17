@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { HomePageContent } from "@/types";
+import type { HomePageContent, WhyChoosePageContent } from "@/types";
 import { ICON_NAMES } from "@/lib/icons";
 
 /**
@@ -38,6 +38,8 @@ const textRunsSchema = z.array(
   z.object({
     text: z.string(),
     bold: z.boolean().optional(),
+    italic: z.boolean().optional(),
+    href: z.string().min(1).optional(),
     breakAfter: z.boolean().optional(),
   }),
 );
@@ -161,6 +163,70 @@ const closingStatementBlockSchema = z.object({
   statement: z.array(textRunsSchema),
 });
 
+/* --- Why-choose blocks ---------------------------------------------------- */
+
+const breadcrumbSchema = z.object({
+  label: z.string().min(1),
+  /** Absent on the last crumb, which is the current page. */
+  href: z.string().min(1).optional(),
+});
+
+const pageBannerBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal("page-banner"),
+  heading: z.string().min(1),
+  breadcrumbs: z.array(breadcrumbSchema),
+});
+
+const mediaIntroBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal("media-intro"),
+  heading: z.string(),
+  body: textRunsSchema,
+  image: imageAssetSchema.nullable(),
+  mediaSide: z.enum(["left", "right"]).optional(),
+});
+
+const pitchRowsBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal("pitch-rows"),
+  rows: z.array(z.object({ body: textRunsSchema })),
+  bullet: imageAssetSchema.nullable(),
+});
+
+const founderMessageBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal("founder-message"),
+  heading: z.string(),
+  quote: textRunsSchema,
+  name: z.string().min(1),
+  role: z.string(),
+  portrait: imageAssetSchema.nullable(),
+  decorations: z.array(imageAssetSchema).optional(),
+});
+
+const centeredIntroBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal("centered-intro"),
+  heading: z.string(),
+  subheading: z.string().nullish(),
+  body: textRunsSchema,
+});
+
+const tintedCardsBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal("tinted-cards"),
+  cards: z.array(
+    z.object({
+      title: z.string().min(1),
+      body: textRunsSchema,
+      /** A named ground, never a hex — see the conventions in .claude/CLAUDE.md. */
+      tone: z.enum(["lilac", "mint", "cream"]),
+      icon: imageAssetSchema.nullable(),
+    }),
+  ),
+});
+
 const seoSchema = z.object({
   title: z.string().min(1),
   absoluteTitle: z.string().nullish(),
@@ -200,6 +266,41 @@ export function parseHomePageContent(payload: unknown): HomePageContent | null {
   if (!result.success) {
     console.warn(
       "[cms] Home page payload rejected:\n",
+      JSON.stringify(z.treeifyError(result.error), null, 2),
+    );
+    return null;
+  }
+
+  return result.data;
+}
+
+const whyChooseBlockSchema = z.discriminatedUnion("type", [
+  pageBannerBlockSchema,
+  mediaIntroBlockSchema,
+  pitchRowsBlockSchema,
+  founderMessageBlockSchema,
+  centeredIntroBlockSchema,
+  tintedCardsBlockSchema,
+]);
+
+const whyChoosePageContentSchema = z.object({
+  path: z.string().startsWith("/"),
+  seo: seoSchema,
+  blocks: z.array(whyChooseBlockSchema),
+});
+
+/**
+ * Validates a CMS payload as why-choose page content.
+ *
+ * Same contract as `parseHomePageContent`: returns null rather than throwing, so
+ * a bad publish falls back to the committed copy instead of blanking the page.
+ */
+export function parseWhyChoosePageContent(payload: unknown): WhyChoosePageContent | null {
+  const result = whyChoosePageContentSchema.safeParse(payload);
+
+  if (!result.success) {
+    console.warn(
+      "[cms] Why-choose page payload rejected:\n",
       JSON.stringify(z.treeifyError(result.error), null, 2),
     );
     return null;

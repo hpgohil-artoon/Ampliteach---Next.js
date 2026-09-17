@@ -27,11 +27,14 @@ export function Overview({ block }: { block: OverviewBlock }) {
 
   return (
     <section className="py-[50px]">
-      <Container gutter={false} className="relative z-[5] grid items-center gap-0 md:grid-cols-2">
+      <Container
+        gutter="elementor"
+        className="relative z-[5] grid items-center gap-0 md:grid-cols-2"
+      >
         {block.image ? (
           <div
             className={cn(
-              "px-5 pb-5 md:pr-[20%] md:pb-0 md:pl-[8%] lg:p-0",
+              "desktop:p-0 px-5 pb-5 md:pr-[20%] md:pb-0 md:pl-[8%]",
               mediaFirst ? "md:order-1" : "md:order-2",
             )}
           >
@@ -61,7 +64,7 @@ export function Overview({ block }: { block: OverviewBlock }) {
          * starts 10px left of live and wraps 20px wider. */}
         <div
           className={cn(
-            "font-body text-foreground p-0 md:pl-[8%] lg:p-[10px]",
+            "font-body text-foreground desktop:p-[10px] p-0 md:pl-[8%]",
             mediaFirst ? "md:order-2" : "md:order-1",
           )}
         >
@@ -72,7 +75,7 @@ export function Overview({ block }: { block: OverviewBlock }) {
       </Container>
 
       {/* The live spacer widget that closes the section. */}
-      <div aria-hidden className="h-[10px] md:h-[100px] lg:h-[60px]" />
+      <div aria-hidden className="desktop:h-[60px] h-[10px] md:h-[100px]" />
     </section>
   );
 }

@@ -20,7 +20,10 @@ import { SocialLinks } from "./social-links";
  */
 export function TopBar() {
   return (
-    <div className="border-hairline hidden border-b lg:block">
+    /* `desktop:` not `lg:`. This strip is 48px tall, so a breakpoint one pixel
+     * early is not a one-pixel difference — at exactly 1024 the live header is
+     * 110px and ours was 158. See the 2026-09-17 amendment to deviation 16. */
+    <div className="desktop:block border-hairline hidden border-b">
       {/* No `min-h`. The live strip's height is set by its LEFT column, whose
        * widget-wrap is `padding: 10px` around a 27px line box — 47px, plus the
        * section's 1px border for the 48px the header's first section measures.

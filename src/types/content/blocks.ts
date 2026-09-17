@@ -1,4 +1,4 @@
-import type { Faq, Feature, ImageAsset, Testimonial, TextRun } from "../common";
+import type { Breadcrumb, Faq, Feature, ImageAsset, Testimonial, TextRun } from "../common";
 import type { BlockBase, PageContent } from "./page";
 
 /**
@@ -184,6 +184,117 @@ export type ClosingStatementBlock = BlockBase & {
   statement: TextRun[][];
 };
 
+/**
+ * The red title band every inner page opens with, above the page's own content.
+ *
+ * Theme chrome on the live site rather than an Elementor section, which is why
+ * it carries its own breadcrumb trail. Modelled as a block anyway: it is the
+ * first thing an editor would want to retitle, and every non-home page needs
+ * one, so it belongs in the same ordered list as everything else.
+ */
+export type PageBannerBlock = BlockBase & {
+  type: "page-banner";
+  heading: string;
+  /** The trail, in order. The last crumb is the current page and has no href. */
+  breadcrumbs: Breadcrumb[];
+};
+
+/**
+ * An illustration beside a heading and one justified paragraph.
+ *
+ * The paragraph is runs because the live copy links one word and bolds a
+ * separate phrase — see `TextRun`.
+ */
+export type MediaIntroBlock = BlockBase & {
+  type: "media-intro";
+  heading: string;
+  body: TextRun[];
+  /** Null renders nothing rather than a broken image. */
+  image: ImageAsset | null;
+  /** Which side the image sits on from `md` up. */
+  mediaSide?: "left" | "right";
+};
+
+/** One row of the pitch list: a music-note bullet beside a paragraph. */
+export type PitchRow = {
+  /**
+   * The row's copy, leading with its own bold title where it has one. It is one
+   * paragraph on the live site, not a heading plus body, so it stays one field
+   * of runs rather than being split into two — splitting would invent a
+   * structure the copy does not have and change the wrapping.
+   */
+  body: TextRun[];
+};
+
+/**
+ * The three outlined rows, each with a note bullet, that alternate indent.
+ *
+ * The live rows are staggered: the second is inset from the left and the first
+ * and third from the right. That is a property of the row's position in the
+ * list, not of its content, so the section derives it and the CMS does not
+ * carry it.
+ */
+export type PitchRowsBlock = BlockBase & {
+  type: "pitch-rows";
+  rows: PitchRow[];
+  /** The note glyph each row is bulleted with. Null renders no bullet. */
+  bullet: ImageAsset | null;
+};
+
+/**
+ * The founder's message: a portrait, a quote and an attribution, on a blush
+ * ground bounded top and bottom by the live theme's "mountains" wave dividers.
+ *
+ * The quote is the ONE place the site paints Rubik rather than Poppins.
+ */
+export type FounderMessageBlock = BlockBase & {
+  type: "founder-message";
+  heading: string;
+  quote: TextRun[];
+  name: string;
+  role: string;
+  portrait: ImageAsset | null;
+  /**
+   * The music-note doodles scattered behind the message. Purely decorative, so
+   * each is `aria-hidden`, but they are content because an editor picks them.
+   */
+  decorations?: ImageAsset[];
+};
+
+/**
+ * A centred heading, subheading and paragraph with nothing beside them.
+ *
+ * Two adjacent live sections (`68df698` and `b0296ad`) rather than one: the
+ * heading animates in from the right while the body comes in from the left. They
+ * always appear together and read as a single unit, so they are one block — the
+ * same call made for `closing-statement`.
+ */
+export type CenteredIntroBlock = BlockBase & {
+  type: "centered-intro";
+  heading: string;
+  subheading?: string | null;
+  body: TextRun[];
+};
+
+/** One tinted card: a note glyph, an underlined title, and centred copy. */
+export type TintedCard = {
+  title: string;
+  body: TextRun[];
+  /**
+   * Which of the three measured grounds this card sits on. A named tone, not a
+   * colour — a CMS field can never carry a hex (see the conventions in
+   * `.claude/CLAUDE.md`).
+   */
+  tone: "lilac" | "mint" | "cream";
+  icon: ImageAsset | null;
+};
+
+/** The closing three-up of tinted cards. */
+export type TintedCardsBlock = BlockBase & {
+  type: "tinted-cards";
+  cards: TintedCard[];
+};
+
 /** The blocks the home page can render. */
 export type HomeBlock =
   | HeroBlock
@@ -197,3 +308,14 @@ export type HomeBlock =
   | ClosingStatementBlock;
 
 export type HomePageContent = PageContent<HomeBlock>;
+
+/** The blocks the why-choose page can render. */
+export type WhyChooseBlock =
+  | PageBannerBlock
+  | MediaIntroBlock
+  | PitchRowsBlock
+  | FounderMessageBlock
+  | CenteredIntroBlock
+  | TintedCardsBlock;
+
+export type WhyChoosePageContent = PageContent<WhyChooseBlock>;

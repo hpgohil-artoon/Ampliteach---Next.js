@@ -62,8 +62,21 @@ export function FormField({
         // on Arial while the serif fallback is left to the footer and bullets.
         // 16px/400 with a 27px line box, not shadcn's 14px/500 and not
         // Tailwind's paired 24px.
+        // The label has a TABLET-AND-BELOW step the desktop measurement above
+        // does not show, and it changes the row pitch: at ≤1024 the live label
+        // is 14px on a 23.625px line box (the same 1.6875 ratio) with only 2px
+        // below it, not 10. That makes the live pitch 10 + 24 + 2 + 41 + 15 =
+        // 92px against the desktop 103 — 11px per row. Over the trial form's
+        // seven stacked fields that ran the band 90px long at 480, and 45px
+        // long at 1024 where the fields are two-up.
+        //
+        // `max-desktop:`, not `max-md:`: the live label measures 24px tall at
+        // 1024 as well as at 480. Verified not to touch desktop — at 1920 the
+        // live label and ours are identical to the pixel (16px/27px, margin
+        // 10/10, same label and input y), so deviation 23 stands.
         className={cn(
           "font-body my-[10px] text-base leading-[27px] font-normal",
+          "max-desktop:mb-[2px] max-desktop:text-[14px] max-desktop:leading-[23.625px]",
           inverse && "text-primary-foreground",
           labelClassName,
         )}

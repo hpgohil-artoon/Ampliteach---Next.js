@@ -95,6 +95,26 @@ time (hostname only, no scheme), or `next/image` rejects the URL.
 | `faqs`           | `anchorId?`, `eyebrow?`, `heading`, `items[] {question, answer}`, `image?`, `mediaSide?`, `closingHeading?`, `cta?` |
 | `cta-banner`     | `heading`, `body`, `cta {label, href}`                                                                      |
 | `closing-statement` | `intro`, `statement[][] (paragraphs of runs)`                                                            |
+| `page-banner`    | `heading`, `breadcrumbs[] {label, href?}`                                                                   |
+| `media-intro`    | `heading`, `body[] (runs)`, `image`, `mediaSide? ("left"\|"right")`                                          |
+| `pitch-rows`     | `rows[] {body[] (runs)}`, `bullet (image\|null)`                                                             |
+| `founder-message` | `heading`, `quote[] (runs)`, `name`, `role`, `portrait`, `decorations[]?`                                   |
+| `centered-intro` | `heading`, `subheading?`, `body[] (runs)`                                                                   |
+| `tinted-cards`   | `cards[] {title, body[] (runs), tone ("lilac"\|"mint"\|"cream"), icon}`                                      |
+
+Notes on the six blocks added for **Why Choose Us**:
+
+- `page-banner` is the red title band every inner page opens with. The LAST
+  breadcrumb is the current page and carries no `href`.
+- `pitch-rows` renders its rows staggered and animated **by position** — the CMS
+  does not send a layout or an animation field. Same for `tinted-cards`, except
+  `tone`, which the editor does pick.
+- `tone` is a NAME, never a hex. The three grounds are measured from the live
+  site and live in `globals.css`; a CMS that sent a colour could not be themed.
+- `founder-message.decorations[]` are the music-note doodles. Purely decorative,
+  so they render `aria-hidden` with an empty `alt`, and the section positions
+  them — the CMS chooses only which images, in order (clef, star, note).
+- `centered-intro` covers two live sections that always appear together.
 
 `features[]` is `{ title, description, icon? }`, where `icon` is one of the
 names in `src/types/common.ts` → `IconName`: `award`, `book-open`,
@@ -119,6 +139,11 @@ not a free-text field.
      { "text": " built to simplify and scale …" }
    ]
    ```
+
+   A run may also set `"italic": true`, and `"href"` to make the run a link —
+   which the site paints in the brand red, because colour follows from the role
+   and is never an editor's choice. Why Choose Us uses both: its intro links the
+   word "AmpliTeach", and its third closing card italicises three quoted lines.
 
    A paragraph with no emphasis is a single run. This is why no field ever needs
    to carry HTML — the hero bolds one phrase, the overview bolds three, and both

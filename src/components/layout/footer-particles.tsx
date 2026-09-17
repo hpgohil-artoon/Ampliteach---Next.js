@@ -55,7 +55,13 @@ export function FooterParticles() {
         </svg>
       </span>
 
-      <span className="absolute right-1/2 bottom-[10%] w-[21px]">
+      {/* `mb-2` on a BOTTOM-anchored shape lifts it 8px. That 8px is the line-box
+       * slack under the live widget's inline `<svg>`: its box measures 66px tall
+       * around 58px of artwork, and because the box is anchored by its bottom
+       * edge the artwork ends up sitting 8px higher than ours did. The two
+       * top-anchored notes have the same slack and need no correction — it falls
+       * below their artwork, where it changes nothing. */}
+      <span className="absolute right-1/2 bottom-[10%] mb-2 w-[21px]">
         <svg viewBox="0 0 35 58" fill="none" className="h-[58px] w-[35px] max-w-none">
           <g fill="#F7CC7F">
             <path d="M13.5053 34.2842C14.068 34.5283 14.6638 34.6731 15.272 34.76C15.0651 33.407 15.2885 31.7644 16.5588 29.9936C16.0457 29.3357 15.5368 28.6737 15.0238 28.0117C13.9521 29.4267 12.6985 31.7644 13.5053 34.2842Z" />
@@ -87,7 +93,8 @@ export function FooterParticles() {
         </svg>
       </span>
 
-      <span className="absolute right-[70px] bottom-[180px] w-[13px]">
+      {/* Bottom-anchored too, so the same 8px lift — live box 39px, artwork 31. */}
+      <span className="absolute right-[70px] bottom-[180px] mb-2 w-[13px]">
         <svg viewBox="0 0 34 31" fill="none" className="h-[31px] w-[34px] max-w-none">
           <path
             d="M33.8379 22.7902C33.813 21.9378 33.1924 12.645 32.4394 1.22957C20.4406 2.49978 20.8544 2.61977 9.80719 0.861328C10.1754 6.72419 10.5768 12.616 10.916 17.3576C5.10697 15.1399 -2.10473 21.9461 0.750161 26.787C3.83675 32.0127 13.5227 26.5305 13.3944 20.1339C13.3944 20.1339 12.7448 15.0323 12.1945 6.89382L30.8713 7.06346C31.0409 9.57907 31.2519 14.5234 31.6036 19.356C25.8235 17.1549 17.7595 23.1129 20.6268 27.9745C22.2073 30.6514 26.3159 31.1604 29.7872 29.1123C32.2987 27.6311 33.8917 25.1485 33.842 22.7943L33.8379 22.7902Z"
@@ -97,8 +104,10 @@ export function FooterParticles() {
       </span>
 
       {/* The only particle with a responsive rule: its −55px right offset
-       * becomes 0 at ≤1024, keeping it inside the viewport on tablet. */}
-      <span className="absolute top-[110px] right-0 w-6 opacity-50 lg:-right-[55px]">
+       * becomes 0 at ≤1024, keeping it inside the viewport on tablet. `desktop:`
+       * not `lg:` — Elementor's desktop starts at 1025, and with `lg:` this one
+       * sat 55px out at exactly 1024. See deviation 16. */}
+      <span className="desktop:-right-[55px] absolute top-[110px] right-0 w-6 opacity-50">
         <svg viewBox="0 0 19 34" fill="none" className="w-full">
           <path
             d="M13.8168 1.64483C11.9218 2.24477 7.38289 1.95515 4.66868 1.78551C1.80138 1.60346 1.49935 1.58691 1.16008 2.09582C0.38636 3.09296 0.456728 3.07228 12.8279 19.0721C6.84919 20.4167 4.44115 30.0572 9.56339 32.5479C14.9835 35.1794 21.3801 26.2175 17.7184 20.9298L17.7143 20.9339C17.3626 20.4333 11.9921 13.474 7.7098 7.85938C12.0128 8.59999 16.9199 5.48445 16.4482 1.74827L16.291 0.486328C15.0084 1.20212 15.6704 1.06558 13.8168 1.64483Z"
