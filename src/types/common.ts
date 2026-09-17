@@ -89,6 +89,19 @@ export type TextRun = {
   text: string;
   bold?: boolean;
   /**
+   * The why-choose cards quote three teachers in italics — `<span>`s the live
+   * theme italicises through `.third_col_box span`. Structural here, so the
+   * emphasis survives the CMS without markup and without a theme-specific class.
+   */
+  italic?: boolean;
+  /**
+   * Turns the run into a link. The live why-choose paragraph links the word
+   * "AmpliTeach" to the home page, and the theme paints an inline link in the
+   * brand red — so the colour follows from being a link and is NOT a separate
+   * content field.
+   */
+  href?: string;
+  /**
    * Forces a line break after this run. The live feature copy uses a single
    * `<br>`; this keeps that expressible without letting HTML into a field.
    */

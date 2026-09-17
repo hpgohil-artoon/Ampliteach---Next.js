@@ -62,95 +62,118 @@ export function Faqs({ block }: { block: FaqsBlock }) {
        * make up the live section, so it carries that section's 10px of
        * widget-wrap bottom padding on top of its own 10px — see the note on
        * `testimonials`. Together the pair measures the live 999.44px. */}
-      <Container gutter={false} className="p-2.5 pb-5 max-lg:px-[5px]">
-        <div className="flex flex-col md:flex-row">
-          {/* Two levels, as live has them: the COLUMN is 50% wide, and the
-           * inner wrapper carries the 30px margin and the 10px column-gap
-           * padding. Collapsing them into one element gets the geometry wrong
-           * twice over — `pr-[30px]` would override `p-2.5`'s right padding
-           * instead of adding to it, and a margin on a `w-1/2` flex item
-           * makes the pair overflow and shrink. Either way the column ends up
-           * ~10px too wide and its centred button drifts off. */}
-          <div className={cn("w-full max-md:order-2 md:w-1/2", mediaFirst && "md:order-2")}>
-            {/* `px-2.5`, NOT `p-2.5`. The 10px is Elementor's column gap and
-             * it is horizontal only — the live column's own widget-wrap
-             * supplies the 10px above the heading, and the `Container` already
-             * carries that. A vertical 10px here as well pushed this whole
-             * column's content 10px below the live one. */}
-            <div
-              className={cn(
-                "px-2.5 max-md:px-[5px] max-md:pt-[45px]",
-                mediaFirst ? "md:ml-[30px]" : "md:mr-[30px]",
-              )}
-            >
-              <h2 className="font-body text-primary pb-5 text-center text-[18px] leading-12 font-black max-lg:pb-1 max-md:leading-[1.5em] md:text-[40px]">
-                {block.heading}
-              </h2>
+      {/* Container = Elementor's responsive inset; inner box = the column's own
+       * gutter, which here narrows to 5px below 1025. The two stack. */}
+      <Container gutter="elementor">
+        {/* Three horizontal values, because two live paddings STACK here and
+         * only one of them is constant: the top column's widget-wrap (10px, but
+         * 0 below 768) plus this inner section's own (0 on desktop, 5px at
+         * ≤1024). So 5px on mobile, 15px on tablet, 10px on desktop — reading
+         * only the inner section's 5px left the tablet band 10px narrow. */}
+        <div className="desktop:px-2.5 px-[5px] pt-2.5 pb-5 md:px-[15px]">
+          <div className="flex flex-col md:flex-row">
+            {/* Two levels, as live has them: the COLUMN is 50% wide, and the
+             * inner wrapper carries the 30px margin and the 10px column-gap
+             * padding. Collapsing them into one element gets the geometry wrong
+             * twice over — `pr-[30px]` would override `p-2.5`'s right padding
+             * instead of adding to it, and a margin on a `w-1/2` flex item
+             * makes the pair overflow and shrink. Either way the column ends up
+             * ~10px too wide and its centred button drifts off. */}
+            <div className={cn("w-full max-md:order-2 md:w-1/2", mediaFirst && "md:order-2")}>
+              {/* `px-2.5`, NOT `p-2.5`. The 10px is Elementor's column gap and
+               * it is horizontal only — the live column's own widget-wrap
+               * supplies the 10px above the heading, and the `Container` already
+               * carries that. A vertical 10px here as well pushed this whole
+               * column's content 10px below the live one. */}
+              <div
+                className={cn(
+                  "px-2.5 max-md:px-[5px] max-md:pt-[45px]",
+                  /* `desktop:`, not `md:` — the live column's 30px margin is a
+                   * desktop rule and is 0 at ≤1024, exactly as the header note
+                   * above says. On `md:` it ran the whole 768–1024 band and made
+                   * this heading 30px narrow. */
+                  mediaFirst ? "desktop:ml-[30px]" : "desktop:mr-[30px]",
+                )}
+              >
+                {/* THREE values. 20px on desktop; 24px across the tablet band,
+                 * where the first QUESTION widget contributes a further 20px of
+                 * its own as it does in the testimonials block; and back to the
+                 * heading's own 4px below 768, where that widget margin is gone
+                 * again. `md:max-desktop:` is the 768–1024 band exactly. */}
+                <h2 className="font-body text-primary max-desktop:pb-1 md:max-desktop:pb-6 pb-5 text-center text-[18px] leading-12 font-black max-md:leading-[1.5em] md:text-[40px]">
+                  {block.heading}
+                </h2>
 
-              {/* The live 20px spacer widget under the heading. */}
-              <div aria-hidden className="h-5" />
+                {/* The live 20px spacer widget under the heading. */}
+                <div aria-hidden className="h-5" />
 
-              {/* `dl`, not three more `h2`s: the live section emits an `h2` per
-               * question, which would put five same-level headings on the page
-               * and say nothing true about its outline. A description list is
-               * what this content is, and it renders identically. */}
-              <dl>
-                {block.items.map((faq) => (
-                  <div key={faq.question}>
-                    <dt className="font-body text-primary text-[14px] leading-[1.5em] font-extrabold max-md:mt-[15px] md:text-[18px] md:leading-10">
-                      {faq.question}
-                    </dt>
-                    <dd className="font-body text-foreground text-[14px] md:text-[18px]">
-                      {faq.answer}
-                    </dd>
+                {/* `dl`, not three more `h2`s: the live section emits an `h2` per
+                 * question, which would put five same-level headings on the page
+                 * and say nothing true about its outline. A description list is
+                 * what this content is, and it renders identically. */}
+                <dl>
+                  {block.items.map((faq) => (
+                    <div key={faq.question}>
+                      <dt className="font-body text-primary text-[14px] leading-[1.5em] font-extrabold max-md:mt-[15px] md:text-[18px] md:leading-10">
+                        {faq.question}
+                      </dt>
+                      <dd className="font-body text-foreground text-[14px] md:text-[18px]">
+                        {faq.answer}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+
+                {/* The live 30px spacer widget. */}
+                <div aria-hidden className="h-[30px]" />
+
+                {block.closingHeading ? (
+                  /* The live closing heading keeps 4px under it across the
+                   * tablet band only — not on desktop, and not below 768. */
+                  <p className="font-body text-primary md:max-desktop:mb-1 text-center text-[20px] leading-12 font-extrabold md:text-[23px]">
+                    {block.closingHeading}
+                  </p>
+                ) : null}
+
+                {block.cta ? (
+                  /* `pb-5` is the live button widget's own 20px bottom margin —
+                   * the last widget in this column, so it is the 20px that makes
+                   * the column's content the measured 549.63px. Padding rather
+                   * than a margin so it cannot collapse out through the column. */
+                  /* `max-md:pb-0` — below 768 the live column's 20px below the
+                   * button is gone, and the container's own 20px is all there
+                   * is between it and the closing section. */
+                  <div className={cn("pb-5 max-md:pb-0", GT3_CENTERED_BUTTON_ROW)}>
+                    <Button asChild variant="wipe" size="cta">
+                      <a href={block.cta.href}>{block.cta.label}</a>
+                    </Button>
                   </div>
-                ))}
-              </dl>
-
-              {/* The live 30px spacer widget. */}
-              <div aria-hidden className="h-[30px]" />
-
-              {block.closingHeading ? (
-                <p className="font-body text-primary text-center text-[20px] leading-12 font-extrabold md:text-[23px]">
-                  {block.closingHeading}
-                </p>
-              ) : null}
-
-              {block.cta ? (
-                /* `pb-5` is the live button widget's own 20px bottom margin —
-                 * the last widget in this column, so it is the 20px that makes
-                 * the column's content the measured 549.63px. Padding rather
-                 * than a margin so it cannot collapse out through the column. */
-                <div className={cn("pb-5", GT3_CENTERED_BUTTON_ROW)}>
-                  <Button asChild variant="wipe" size="cta">
-                    <a href={block.cta.href}>{block.cta.label}</a>
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-          </div>
-
-          {block.image ? (
-            <div className={cn("w-full max-md:order-1 md:w-1/2", mediaFirst && "md:order-1")}>
-              {/* `px-2.5`, NOT `p-2.5` — the same correction the text column
-               * above carries. Elementor's 10px column gap is horizontal only;
-               * a vertical 10px here put the photo 9.76px below the live one. */}
-              <div className="px-2.5 max-md:px-[5px]">
-                {/* The live widget is pulled up 20px and right 55px, letting the
-                 * photo break out of its column — reproduced as measured, and
-                 * dropped below 1025px where the live rule zeroes it. */}
-                <div className="text-center lg:-mt-5 lg:-mr-[55px]">
-                  <Img
-                    src={block.image.src}
-                    alt={block.image.alt}
-                    width={block.image.width}
-                    height={block.image.height}
-                    className="inline-block h-auto max-w-full"
-                  />
-                </div>
+                ) : null}
               </div>
             </div>
-          ) : null}
+
+            {block.image ? (
+              <div className={cn("w-full max-md:order-1 md:w-1/2", mediaFirst && "md:order-1")}>
+                {/* `px-2.5`, NOT `p-2.5` — the same correction the text column
+                 * above carries. Elementor's 10px column gap is horizontal only;
+                 * a vertical 10px here put the photo 9.76px below the live one. */}
+                <div className="px-2.5 max-md:px-[5px]">
+                  {/* The live widget is pulled up 20px and right 55px, letting the
+                   * photo break out of its column — reproduced as measured, and
+                   * dropped below 1025px where the live rule zeroes it. */}
+                  <div className="desktop:-mt-5 desktop:-mr-[55px] text-center">
+                    <Img
+                      src={block.image.src}
+                      alt={block.image.alt}
+                      width={block.image.width}
+                      height={block.image.height}
+                      className="inline-block h-auto max-w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </Container>
 

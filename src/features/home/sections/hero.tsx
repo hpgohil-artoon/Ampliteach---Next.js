@@ -31,23 +31,24 @@ import { Container, RichText, TypedText, VideoEmbed } from "@/components/common"
 export function Hero({ block }: { block: HeroBlock }) {
   return (
     <section className="py-[50px]">
-      {/* `gutter={false}`: the live box is flush at 1220px and the inset comes
-       * from the columns' own percentage padding. The `px-5` below 768px has
-       * no live equivalent — the live text runs to the screen edge there.
-       * Deviation 18 in docs/PARITY.md. */}
+      {/* `gutter="elementor"`: the live 1220px box is flush at desktop, but it
+       * is NOT flush below that — Elementor insets it 3/4/10/20px as the
+       * viewport narrows, and that inset is what the live copy is aligned to.
+       * This previously used `gutter={false}` plus a hand-rolled `px-5 md:px-0`,
+       * which happened to be right at 480 and wrong at every width between. */}
       <Container
-        gutter={false}
-        className="relative z-[5] grid items-center gap-0 px-5 md:grid-cols-2 md:px-0"
+        gutter="elementor"
+        className="relative z-[5] grid items-center gap-0 md:grid-cols-2"
       >
         {/* `lg:`, not `xl:`, is the desktop step everywhere in this section.
          * Elementor's desktop rules are `min-width: 1025px`, so they map to
          * Tailwind's `lg` (1024px) — one pixel early, which is deviation 16.
          * `xl` is 1200px and would leave the tablet values in place across the
          * whole 1025–1199 band. */}
-        <div className="font-body md:pl-[8%] lg:pl-0">
+        <div className="font-body desktop:pl-0 md:pl-[8%]">
           <TypedText
             text={block.eyebrow}
-            className="text-primary mb-[10px] block pr-[10%] text-[26px] leading-[1.6] font-extrabold tracking-[-0.2px] md:text-[32px] md:leading-[1.5] lg:text-[44px] lg:leading-[56px]"
+            className="text-primary desktop:text-[44px] desktop:leading-[56px] mb-[10px] block pr-[10%] text-[26px] leading-[1.6] font-extrabold tracking-[-0.2px] md:text-[32px] md:leading-[1.5]"
           />
 
           {/* `leading-[1.6875]` is not decoration: Tailwind's `text-sm`/`text-lg`
@@ -70,7 +71,7 @@ export function Hero({ block }: { block: HeroBlock }) {
           </div>
         </div>
 
-        <div className="md:pr-[20%] md:pl-[8%] lg:pr-0 lg:pl-[20%]">
+        <div className="desktop:pr-0 desktop:pl-[20%] md:pr-[20%] md:pl-[8%]">
           <VideoEmbed
             youtubeId={block.video.youtubeId}
             poster={block.video.poster}
@@ -80,7 +81,7 @@ export function Hero({ block }: { block: HeroBlock }) {
       </Container>
 
       {/* The live bottom spacer: 60px desktop, 100px ≤1024, 10px ≤767. */}
-      <div aria-hidden className="h-[10px] md:h-[100px] lg:h-[60px]" />
+      <div aria-hidden className="desktop:h-[60px] h-[10px] md:h-[100px]" />
     </section>
   );
 }

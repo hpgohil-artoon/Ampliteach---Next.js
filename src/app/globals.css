@@ -5,6 +5,35 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
+ * Elementor's DESKTOP step, which is `min-width: 1025px` — one pixel above
+ * Tailwind's `lg`.
+ *
+ * `lg:` was used for it at first (deviation 16 in docs/PARITY.md), on the
+ * grounds that a one-pixel-early breakpoint is invisible. That holds while the
+ * rule only changes padding. It does NOT hold where the rule changes LAYOUT:
+ * on /why-choose-ampliteach the same boundary decides whether the intro is two
+ * columns and whether the closing cards are three across, so at exactly 1024px
+ * — iPad landscape — `lg:` gave a desktop layout where the live site is still
+ * stacked. Not a one-pixel difference: a different page.
+ *
+ * So structural Elementor rules use `desktop:` and land on the real boundary.
+ * `lg:` stays correct for the theme's own container steps, which really are
+ * keyed to 1024.
+ */
+@custom-variant desktop (@media (min-width: 1025px));
+
+/*
+ * The other half of the same boundary: Elementor's TABLET-and-below, which is
+ * `max-width: 1024px`. Tailwind's `max-lg` is `max-width: 1023.98px`, so it
+ * stops one pixel early in the same way — a rule written `max-lg:` is simply
+ * absent at exactly 1024, where the live site still applies it.
+ *
+ * Pairs with `desktop:` above, so a responsive rule can be expressed from
+ * whichever side reads better without either one drifting off the boundary.
+ */
+@custom-variant max-desktop (@media (max-width: 1024px));
+
+/*
  * Tailwind v4 is CSS-first: there is no tailwind.config.ts. Theme tokens are
  * declared here and become utilities automatically (--color-brand → bg-brand).
  *
@@ -48,6 +77,13 @@
   --font-sans: var(--font-sans);
   --font-nav: var(--font-sans), sans-serif;
   --font-body: Roboto, sans-serif;
+
+  /* `quote` is Rubik — the live testimonial/quote widget is the only place the
+   * site paints its third loaded face. Unlike `--font-body` above, this one
+   * resolves to a real self-hosted face: the live Google Fonts request does
+   * fetch Rubik 400. Same `var()` rule as `--font-nav` — a literal "Rubik"
+   * would miss next/font's generated family name. */
+  --font-quote: var(--font-quote), sans-serif;
 
   /* --- Breakpoints --------------------------------------------------------
    * Every one of xs–xl is a real boundary in ampliteach.com's own CSS, so a
@@ -150,6 +186,10 @@
   --color-blush-deep: var(--blush-deep);
   --color-blush-warm: var(--blush-warm);
   --color-footer: var(--footer);
+  --color-card-lilac: var(--card-lilac);
+  --color-card-mint: var(--card-mint);
+  --color-card-cream: var(--card-cream);
+  --color-pitch-border: var(--pitch-border);
 
   /* --- Entrance animations -------------------------------------------------
    * The live site's, verbatim from its animate.css build. Elementor renders a
@@ -163,6 +203,11 @@
   --animate-slide-in-left: slide-in-left 1.25s both;
   --animate-slide-in-right: slide-in-right 1.25s both;
   --animate-zoom-in: zoom-in 1.25s both;
+  --animate-fade-in: fade-in 1.25s both;
+  --animate-fade-in-up: fade-in-up 1.25s both;
+  --animate-fade-in-left: fade-in-left 1.25s both;
+  --animate-fade-in-right: fade-in-right 1.25s both;
+  --animate-rotate-in-up-right: rotate-in-up-right 1.25s both;
 
   @keyframes slide-in-left {
     from {
@@ -189,6 +234,119 @@
     }
     50% {
       opacity: 1;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* animate.css translates the "up"/"left"/"right" fades by 100% of the
+   * element's own size, not a fixed distance — keep 3d transforms so they stay
+   * on the compositor. */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 100%, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes fade-in-left {
+    from {
+      opacity: 0;
+      transform: translate3d(-100%, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes fade-in-right {
+    from {
+      opacity: 0;
+      transform: translate3d(100%, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* animate.css `rotateInUpRight`: pivots about the BOTTOM-LEFT corner, which is
+   * why `transform-origin` is part of the keyframes rather than a utility. */
+  @keyframes rotate-in-up-right {
+    from {
+      opacity: 0;
+      transform-origin: left bottom;
+      transform: rotate3d(0, 0, 1, 90deg);
+    }
+    to {
+      opacity: 1;
+      transform-origin: left bottom;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* --- Ambient animations ---------------------------------------------------
+   * The entrance animations above run ONCE, when a section scrolls into view.
+   * These two never stop: they are the live theme's `gt3_moved_element` and
+   * `gt3_rotated_element`, which keep the decorative music notes drifting for
+   * as long as the page is open.
+   *
+   * Both are `5s linear infinite` on the live site, and the keyframes are its
+   * `movedelement` and `rotatedelement` verbatim — deliberately lopsided, so
+   * the loop does not read as a simple back-and-forth.
+   *
+   * Turned off entirely under `prefers-reduced-motion` (see the base layer at
+   * the end of this file). A permanent loop is exactly what that setting is
+   * for, and unlike an entrance animation there is no "final state" to hold.
+   */
+  --animate-particle-drift: particle-drift 5s linear infinite;
+  --animate-particle-tumble: particle-tumble 5s linear infinite;
+
+  @keyframes particle-drift {
+    0% {
+      transform: translate(0px);
+    }
+    25% {
+      transform: translate(10px, 10px);
+    }
+    50% {
+      transform: translate(5px, 5px);
+    }
+    75% {
+      transform: translate(10px, -5px);
+    }
+    100% {
+      transform: translate(0px);
+    }
+  }
+
+  @keyframes particle-tumble {
+    0% {
+      transform: translate(0px) rotate(0deg);
+    }
+    25% {
+      transform: translate(-10px, 10px) rotate(10deg);
+    }
+    50% {
+      transform: translate(5px, -5px) rotate(25deg);
+    }
+    75% {
+      transform: translate(15px, -5px) rotate(15deg);
+    }
+    100% {
+      transform: translate(0px) rotate(0deg);
     }
   }
   --color-header-ink: var(--header-ink);
@@ -282,6 +440,24 @@
    * difference is what makes the chips visible. */
   --footer: #222222;
 
+  /* The three "Take Your Teacher Home" card grounds on /why-choose-ampliteach.
+   *
+   * Measured off what Chrome PAINTS, not off a rule: none of the section's own
+   * stylesheets declare them, and they turn out to sit on each card's
+   * `.elementor-widget-container`. Read by walking up from the card for the
+   * first non-transparent background.
+   *
+   * Nearly white and nearly equal, but each is a different hue and the three
+   * only read as deliberate side by side — so they are three tokens, not one. */
+  --card-lilac: #f9f8ff;
+  --card-mint: #f0fffc;
+  --card-cream: #fffcf6;
+
+  /* The 2px outline around each pitch row in the same page's second section —
+   * `border: 2px solid #D9E2E9` with a 40px radius, on the row's
+   * `.elementor-widget-wrap`. A cool grey-blue, unrelated to --border. */
+  --pitch-border: #d9e2e9;
+
   /* And a third — `#FFF8F8` behind the Testimonials + FAQs section. One step
    * off `--blush-deep`, which is almost certainly an Elementor accident, but
    * measured is measured: the three are kept apart rather than unified, so
@@ -374,6 +550,13 @@
   --blush-deep: oklch(0.205 0 0);
   --blush-warm: oklch(0.205 0 0);
   --footer: oklch(0.205 0 0);
+  /* Same reasoning: the three card tints and the pitch outline are light-ground
+   * values with no live dark counterpart, so they collapse to the dark surface
+   * rather than becoming invented dark hexes. */
+  --card-lilac: oklch(0.205 0 0);
+  --card-mint: oklch(0.205 0 0);
+  --card-cream: oklch(0.205 0 0);
+  --pitch-border: oklch(1 0 0 / 10%);
 
   --primary: var(--brand);
   --primary-foreground: var(--brand-foreground);
@@ -461,6 +644,16 @@
   }
   h6 {
     @apply text-h6;
+  }
+}
+
+/* The ambient particle loops never end, so a reader who has asked for less
+ * motion must be able to stop them. `Reveal` already does the equivalent for
+ * the one-shot entrance animations, in JS; these are CSS-only and need this. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-particle-drift,
+  .animate-particle-tumble {
+    animation: none;
   }
 }
 

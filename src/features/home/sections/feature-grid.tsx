@@ -60,14 +60,14 @@ export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
 
   return (
     <section id={block.anchorId ?? undefined} className="bg-blush pt-[30px] pb-5 md:pb-[30px]">
-      {/* Flush, like every Elementor content section: the 1220px box has no
-       * gutter of its own and the inset comes from each cell's 10px padding. */}
-      <Container gutter={false}>
+      {/* The 1220px box, with Elementor's own responsive inset — flush only on
+       * desktop. The further inset comes from each cell's 10px padding. */}
+      <Container gutter="elementor">
         <div className="before:border-primary relative flex flex-col before:absolute before:top-[22px] before:bottom-[34px] before:left-[-2%] before:w-[39%] before:rounded-l-[60px] before:border-y-2 before:border-l-2 before:content-[''] max-[1280px]:before:left-[2px] max-[1200px]:before:w-[33%] max-[1200px]:before:rounded-l-[40px] max-[991px]:before:w-[27%] max-[991px]:before:rounded-l-[20px] max-[767px]:before:h-[99.2%] max-[767px]:before:w-[20%] max-[767px]:before:rounded-l-[10px] max-[599px]:before:left-0 max-[599px]:before:h-[99.3%] max-[599px]:before:w-[13%] max-[430px]:before:top-[23px] max-[430px]:before:h-[99.4%] max-[430px]:before:w-[15%]">
           <div className="relative z-[5] mb-5 text-center">
             {/* `inline-block` on the section's own ground is what notches the
              * bracket's top border where the title crosses it. */}
-            <Heading className="font-body bg-blush text-primary inline-block px-[10px] text-[24px] leading-[1.4] font-black max-[599px]:max-w-[260px] sm:text-[28px] md:leading-[48px] lg:text-[40px]">
+            <Heading className="font-body bg-blush text-primary desktop:text-[40px] inline-block px-[10px] text-[24px] leading-[1.4] font-black max-[599px]:max-w-[260px] sm:text-[28px] md:leading-[48px]">
               {block.heading}
             </Heading>
           </div>
@@ -93,19 +93,20 @@ export function FeatureGrid({ block }: { block: FeatureGridBlock }) {
                  * margins live on different ones: 20px above and below the
                  * button on the inner container, then 20px below the block —
                  * dropped on the last one, which ends the section. */
-                <div
-                  className={cn(
-                    "text-center max-[767px]:m-0",
-                    chunkIndex < chunks.length - 1 && "mb-5",
-                  )}
-                >
+                /* The two margins SWAP below 768px. On desktop the block is
+                 * `margin: 0 0 20px` around an inner container of `20px 0`, for
+                 * the 91px band. At mobile the inner margin goes to zero and the
+                 * block keeps its 20px, for 51px — so zeroing the block here (as
+                 * `max-[767px]:m-0` did) while leaving the inner at 20px got it
+                 * backwards and made each of the three bands 20px too tall. */
+                <div className={cn("text-center", chunkIndex < chunks.length - 1 && "mb-5")}>
                   {/* `my-5` is the live inner container's 20px margins, which
                    * with the 31px button give the measured 71px band.
                    * `GT3_CENTERED_BUTTON_ROW` carries the 11.5px left shift
                    * every centred gt3 button on the live site has — one home
                    * for that quirk, shared with the testimonials and FAQ
                    * buttons. See deviation 27 in docs/PARITY.md. */}
-                  <div className={cn("my-5", GT3_CENTERED_BUTTON_ROW)}>
+                  <div className={cn("my-5 max-md:my-0", GT3_CENTERED_BUTTON_ROW)}>
                     <Button asChild variant="wipe" size="cta">
                       <Link href={block.cta.href}>{block.cta.label}</Link>
                     </Button>

@@ -33,32 +33,39 @@ export function ClosingStatement({ block }: { block: ClosingStatementBlock }) {
   return (
     <>
       <section className="bg-primary py-2.5">
-        <Container gutter={false} className="p-2.5">
-          <p className="font-body text-primary-foreground text-center text-[18px] leading-[1.6875]">
-            {block.intro}
-          </p>
+        {/* The container carries Elementor's responsive inset; the inner box is
+         * the column's own 10px gutter. Two levels, as on the live site — they
+         * stack, so collapsing them loses 3–20px depending on width. */}
+        <Container gutter="elementor">
+          <div className="p-2.5">
+            <p className="font-body text-primary-foreground text-center text-[18px] leading-[1.6875]">
+              {block.intro}
+            </p>
+          </div>
         </Container>
       </section>
 
       {/* `mt-5` is the live section's own `margin-top: 20px`. */}
       <section className="bg-background mt-5">
-        <Container gutter={false} className="p-2.5">
-          {block.statement.map((paragraph, index) => (
-            <p
-              key={index}
-              // 18px between paragraphs, from the theme's `p` margin. Carried
-              // as a top margin on the later ones rather than a bottom margin
-              // on all, because Elementor zeroes the last paragraph's margin
-              // in a text widget — so a bottom margin would add 18px of dead
-              // space under the section that the live page does not have.
-              className={cn(
-                "font-body text-primary text-center text-[19px] leading-[1.3] font-semibold md:text-[30px]",
-                index > 0 && "mt-[18px]",
-              )}
-            >
-              <RichText runs={paragraph} />
-            </p>
-          ))}
+        <Container gutter="elementor">
+          <div className="p-2.5">
+            {block.statement.map((paragraph, index) => (
+              <p
+                key={index}
+                // 18px between paragraphs, from the theme's `p` margin. Carried
+                // as a top margin on the later ones rather than a bottom margin
+                // on all, because Elementor zeroes the last paragraph's margin
+                // in a text widget — so a bottom margin would add 18px of dead
+                // space under the section that the live page does not have.
+                className={cn(
+                  "font-body text-primary text-center text-[19px] leading-[1.3] font-semibold md:text-[30px]",
+                  index > 0 && "mt-[18px]",
+                )}
+              >
+                <RichText runs={paragraph} />
+              </p>
+            ))}
+          </div>
         </Container>
       </section>
     </>

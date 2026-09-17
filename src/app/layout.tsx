@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Poppins, Rubik } from "next/font/google";
 import { env } from "@/config/env";
 import { SITE } from "@/content/site";
 import { organizationJsonLd } from "@/lib/seo";
@@ -35,6 +35,25 @@ const poppins = Poppins({
   display: "swap",
 });
 
+/**
+ * Rubik, weight 400 — the THIRD face the live site fetches, and the one it
+ * actually paints in the testimonial/quote widget.
+ *
+ * The live Google Fonts request is
+ * `css?family=Poppins:400,500|Rubik:400&display=swap`, and that stylesheet does
+ * serve real Rubik 400 woff2 files. The why-choose founder-message quote
+ * declares `font-family: Rubik` at 18px/27px, so unlike the Roboto case below
+ * this one resolves to a real loaded face rather than falling through.
+ *
+ * Only 400 is fetched by the live site, so only 400 is declared here.
+ */
+const rubik = Rubik({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-quote",
+  display: "swap",
+});
+
 /*
  * Roboto is deliberately NOT loaded, and this one IS confirmed in real Chrome:
  * the live home page's text widgets declare `font-family: "Roboto", Sans-serif`
@@ -56,7 +75,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn("font-sans", poppins.variable)}>
+    <html lang="en" className={cn("font-sans", poppins.variable, rubik.variable)}>
       {/* No `antialiased`. ampliteach.com never sets `-webkit-font-smoothing`,
        * and forcing greyscale smoothing renders every glyph on the site a
        * touch lighter than the live one on macOS — a whole-site weight shift

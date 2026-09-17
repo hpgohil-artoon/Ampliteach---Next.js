@@ -22,7 +22,7 @@ export function HeaderLogo() {
         width={222}
         height={70}
         priority
-        className="hidden h-auto w-[222px] lg:block"
+        className="desktop:block hidden h-auto w-[222px]"
       />
       <Img
         src="/images/ampliteach-logo-compact.webp"
@@ -30,7 +30,10 @@ export function HeaderLogo() {
         width={165}
         height={52}
         priority
-        className="h-auto w-[165px] lg:hidden"
+        /* The compact mark swaps for the full one at Elementor's real desktop
+         * boundary (1025), not Tailwind's `lg` — the two logos are different
+         * widths, so the swap is structural. */
+        className="desktop:hidden h-auto w-[165px]"
       />
     </Link>
   );

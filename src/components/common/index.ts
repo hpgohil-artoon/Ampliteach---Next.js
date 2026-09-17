@@ -15,3 +15,5 @@ export * from "./benefit-list";
 export * from "./cta-banner";
 export * from "./particle-decor";
 export * from "./map-embed";
+export * from "./page-banner";
+export * from "./wave-divider";

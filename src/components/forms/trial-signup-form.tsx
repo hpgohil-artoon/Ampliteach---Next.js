@@ -224,7 +224,9 @@ export function TrialSignupForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="bg-background text-primary hover:bg-foreground hover:text-primary-foreground border-primary mx-auto mt-[18px] mb-[15px] flex h-[50px] items-center justify-center gap-2 rounded-[5px] border-2 px-[30px] font-sans text-[12px] leading-[23px] font-medium tracking-[0.2px] uppercase transition-colors disabled:opacity-70"
+        /* `max-md:h-10` — the live control is 50px tall from 768 up and 40px
+         * below it, the one responsive value in the list above. */
+        className="bg-background text-primary hover:bg-foreground hover:text-primary-foreground border-primary mx-auto mt-[18px] mb-[15px] flex h-[50px] items-center justify-center gap-2 rounded-[5px] border-2 px-[30px] font-sans text-[12px] leading-[23px] font-medium tracking-[0.2px] uppercase transition-colors disabled:opacity-70 max-md:h-10"
       >
         {isSubmitting ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : null}
         Start your free trial today
